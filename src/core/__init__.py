@@ -1,1 +1,1 @@
-# Core utilities
+# Core module - configuration, database, auth

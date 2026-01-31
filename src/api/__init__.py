@@ -1,1 +1,1 @@
-# FastAPI application
+# API module - FastAPI application
