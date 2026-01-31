@@ -10,7 +10,7 @@ Suite de 3 agentes autónomos para founders: InboxPilot, InvoicePilot, MeetingPi
 
 **Target:** 6-8 semanas
 **Total Features:** 8
-**Progress:** 0%
+**Progress:** 12.5%
 
 ---
 
@@ -21,7 +21,7 @@ Suite de 3 agentes autónomos para founders: InboxPilot, InvoicePilot, MeetingPi
 | ID | Feature | Status | Phase | Progress | Priority | Updated |
 |----|---------|--------|-------|----------|----------|---------|
 | [FEAT-001](./FEAT-001-auth-onboarding/) | Auth & Onboarding | ⚪ Pending | - | - | P0 | 2026-01-31 |
-| [FEAT-002](./FEAT-002-billing-plans/) | Billing & Plans | 🔵 In Review | PR #1 | 20/30 | P0 | 2026-01-31 |
+| [FEAT-002](./FEAT-002-billing-plans/) | Billing & Plans | 🟢 Complete | Merged | 20/30 | P0 | 2026-01-31 |
 | [FEAT-006](./FEAT-006-slack-integration/) | Slack Integration | ⚪ Pending | - | - | P0 | 2026-01-31 |
 | [FEAT-007](./FEAT-007-audit-dashboard/) | Audit Dashboard | ⚪ Pending | - | - | P0 | 2026-01-31 |
 | [FEAT-008](./FEAT-008-usage-tracking/) | Usage Tracking | ⚪ Pending | - | - | P1 | 2026-01-31 |
@@ -136,8 +136,8 @@ Suite de 3 agentes autónomos para founders: InboxPilot, InvoicePilot, MeetingPi
 ## Quick Stats
 
 ```
-MVP Progress:    [░░░░░░░░░░░░░░░░░░░░] 0%
-P0 Features:     0/7 complete
+MVP Progress:    [██░░░░░░░░░░░░░░░░░░] 12.5%
+P0 Features:     1/7 complete
 P1 Features:     0/1 complete
 ```
 
