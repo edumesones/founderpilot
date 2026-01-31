@@ -1,1 +1,1 @@
-# FounderPilot - Backend
+# FounderPilot - AI agents for founders

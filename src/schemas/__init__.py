@@ -11,8 +11,19 @@ from src.schemas.billing import (
     InvoiceResponse,
     UsageResponse,
 )
+from src.schemas.slack import (
+    SlackInstallationCreate,
+    SlackInstallationResponse,
+    SlackStatusResponse,
+    NotificationPayload,
+    EmailNotificationPayload,
+    InvoiceNotificationPayload,
+    MeetingNotificationPayload,
+    ActionResult,
+)
 
 __all__ = [
+    # Billing (FEAT-002)
     "PlanResponse",
     "SubscriptionResponse",
     "SubscriptionData",
@@ -23,4 +34,13 @@ __all__ = [
     "PortalResponse",
     "InvoiceResponse",
     "UsageResponse",
+    # Slack (FEAT-006)
+    "SlackInstallationCreate",
+    "SlackInstallationResponse",
+    "SlackStatusResponse",
+    "NotificationPayload",
+    "EmailNotificationPayload",
+    "InvoiceNotificationPayload",
+    "MeetingNotificationPayload",
+    "ActionResult",
 ]
