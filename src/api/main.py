@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.config import settings
+from src.api.routes import inbox_pilot, webhooks
 from src.api.routes.slack import router as slack_router
 
 # Configure logging
@@ -69,8 +70,22 @@ app.add_middleware(
 # API v1 prefix
 API_V1 = settings.API_V1_PREFIX
 
-# Include routers
+# Include Slack router (FEAT-006)
 app.include_router(slack_router, prefix=API_V1)
+
+# Include InboxPilot router (FEAT-003)
+app.include_router(
+    inbox_pilot.router,
+    prefix=f"{API_V1}/inbox-pilot",
+    tags=["InboxPilot"],
+)
+
+# Include Webhooks router (FEAT-003)
+app.include_router(
+    webhooks.router,
+    prefix="/webhooks",
+    tags=["Webhooks"],
+)
 
 
 # Health check
@@ -89,6 +104,7 @@ async def root():
     """Root endpoint."""
     return {
         "app": settings.APP_NAME,
+        "version": "0.1.0",
         "docs": "/docs",
         "health": "/health",
     }

@@ -21,6 +21,20 @@ from src.schemas.slack import (
     MeetingNotificationPayload,
     ActionResult,
 )
+from src.schemas.inbox_pilot.email import (
+    EmailResponse,
+    EmailListResponse,
+    EmailActionRequest,
+    EmailActionResponse,
+)
+from src.schemas.inbox_pilot.config import (
+    InboxPilotConfigResponse,
+    InboxPilotConfigUpdate,
+)
+from src.schemas.inbox_pilot.classification import (
+    ClassificationResult,
+    DraftResult,
+)
 
 __all__ = [
     # Billing (FEAT-002)
@@ -43,4 +57,13 @@ __all__ = [
     "InvoiceNotificationPayload",
     "MeetingNotificationPayload",
     "ActionResult",
+    # InboxPilot (FEAT-003)
+    "EmailResponse",
+    "EmailListResponse",
+    "EmailActionRequest",
+    "EmailActionResponse",
+    "InboxPilotConfigResponse",
+    "InboxPilotConfigUpdate",
+    "ClassificationResult",
+    "DraftResult",
 ]
