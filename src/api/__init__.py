@@ -1,1 +1,1 @@
-"""FastAPI application and routes."""
+# API module - FastAPI application

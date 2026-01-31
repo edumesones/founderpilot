@@ -1,7 +1,6 @@
-"""Core utilities and configuration."""
-
+# Core module - configuration, database, auth, logging, tracing
 from src.core.config import settings
-from src.core.database import get_db
+from src.core.database import get_db, get_async_db
 from src.core.logging import configure_logging, get_logger, AgentLogger
 from src.core.tracing import (
     get_langfuse,
@@ -14,6 +13,7 @@ from src.core.tracing import (
 __all__ = [
     "settings",
     "get_db",
+    "get_async_db",
     "configure_logging",
     "get_logger",
     "AgentLogger",

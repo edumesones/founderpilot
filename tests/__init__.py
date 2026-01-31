@@ -1,1 +1,1 @@
-"""Test suite for FounderPilot."""
+# Tests module

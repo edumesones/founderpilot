@@ -1,7 +1,6 @@
-"""Application configuration using pydantic-settings."""
-
+"""Application configuration with environment variables."""
 from functools import lru_cache
-from typing import Literal
+from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -15,58 +14,88 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    # App
-    app_name: str = "FounderPilot"
-    app_env: Literal["development", "staging", "production"] = "development"
-    debug: bool = False
-    api_v1_prefix: str = "/api/v1"
+    # Application
+    APP_NAME: str = "FounderPilot"
+    APP_ENV: str = "development"
+    DEBUG: bool = False
+    API_V1_PREFIX: str = "/api/v1"
 
     # Database
-    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/founderpilot"
+    DATABASE_URL: str = "postgresql+asyncpg://localhost/founderpilot"
 
     # Redis
-    redis_url: str = "redis://localhost:6379/0"
+    REDIS_URL: str = "redis://localhost:6379/0"
 
-    # Auth
-    secret_key: str = "change-me-in-production"
-    jwt_algorithm: str = "HS256"
-    access_token_expire_minutes: int = 60 * 24  # 24 hours
+    # JWT Auth (from FEAT-001)
+    JWT_SECRET_KEY: str = "change-me-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
-    # Google OAuth
-    google_client_id: str = ""
-    google_client_secret: str = ""
-    google_redirect_uri: str = "http://localhost:8000/api/v1/auth/google/callback"
+    # Google OAuth (FEAT-001, FEAT-003)
+    GOOGLE_CLIENT_ID: Optional[str] = None
+    GOOGLE_CLIENT_SECRET: Optional[str] = None
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/google/callback"
 
-    # Gmail Push Notifications
-    gmail_pubsub_topic: str = ""
-    gmail_pubsub_subscription: str = ""
+    # Gmail Push Notifications (FEAT-003)
+    GMAIL_PUBSUB_TOPIC: Optional[str] = None
+    GMAIL_PUBSUB_SUBSCRIPTION: Optional[str] = None
 
-    # Slack
-    slack_bot_token: str = ""
-    slack_signing_secret: str = ""
-    slack_app_token: str = ""
+    # Stripe Configuration (FEAT-002)
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_PUBLISHABLE_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+
+    # Stripe Price IDs (created in Stripe Dashboard)
+    STRIPE_PRICE_INBOX: str = ""
+    STRIPE_PRICE_INVOICE: str = ""
+    STRIPE_PRICE_MEETING: str = ""
+    STRIPE_PRICE_BUNDLE: str = ""
+
+    # Trial configuration
+    TRIAL_DAYS: int = 14
+
+    # Slack Integration (FEAT-003, FEAT-006)
+    SLACK_CLIENT_ID: Optional[str] = None
+    SLACK_CLIENT_SECRET: Optional[str] = None
+    SLACK_SIGNING_SECRET: Optional[str] = None
+    SLACK_BOT_TOKEN: Optional[str] = None
+    SLACK_APP_TOKEN: Optional[str] = None
+
+    # Encryption key for sensitive data
+    ENCRYPTION_KEY: Optional[str] = None
+
+    # OAuth Redirect
+    SLACK_REDIRECT_URI: Optional[str] = None
+
+    # Frontend URLs
+    FRONTEND_URL: str = "http://localhost:3000"
 
     # LLM Providers
-    openai_api_key: str = ""
-    anthropic_api_key: str = ""
+    ANTHROPIC_API_KEY: Optional[str] = None
+    OPENAI_API_KEY: Optional[str] = None
 
-    # Langfuse
-    langfuse_public_key: str = ""
-    langfuse_secret_key: str = ""
-    langfuse_host: str = "https://cloud.langfuse.com"
+    # Langfuse (Observability)
+    LANGFUSE_PUBLIC_KEY: Optional[str] = None
+    LANGFUSE_SECRET_KEY: Optional[str] = None
+    LANGFUSE_HOST: str = "https://cloud.langfuse.com"
 
-    # Stripe
-    stripe_api_key: str = ""
-    stripe_webhook_secret: str = ""
+    # InboxPilot specific (FEAT-003)
+    INBOX_PILOT_ESCALATION_THRESHOLD: float = 0.8
+    INBOX_PILOT_DRAFT_THRESHOLD: float = 0.7
+    INBOX_PILOT_RATE_LIMIT_TRIAL: int = 50
+    INBOX_PILOT_RATE_LIMIT_PAID: int = 500
 
-    # InboxPilot specific
-    inbox_pilot_escalation_threshold: float = 0.8
-    inbox_pilot_draft_threshold: float = 0.7
-    inbox_pilot_rate_limit_trial: int = 50  # emails per hour
-    inbox_pilot_rate_limit_paid: int = 500  # emails per hour
+    @property
+    def slack_configured(self) -> bool:
+        """Check if Slack is properly configured."""
+        return all([
+            self.SLACK_CLIENT_ID,
+            self.SLACK_CLIENT_SECRET,
+            self.SLACK_SIGNING_SECRET,
+        ])
 
 
-@lru_cache
+@lru_cache()
 def get_settings() -> Settings:
     """Get cached settings instance."""
     return Settings()

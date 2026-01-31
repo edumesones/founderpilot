@@ -1,1 +1,1 @@
-"""FounderPilot - Autonomous agents for founders."""
+# FounderPilot - AI agents for founders
