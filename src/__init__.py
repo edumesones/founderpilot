@@ -1,1 +1,1 @@
-# FounderPilot - AI agents for founders
+# Source package

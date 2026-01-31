@@ -1,26 +1,92 @@
 """Pytest configuration and fixtures."""
+
 import os
-import pytest
-from unittest.mock import MagicMock, patch
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from datetime import datetime, timedelta
+from typing import Generator
+from unittest.mock import MagicMock, patch
 from uuid import uuid4, UUID
 
-from src.core.database import Base
-from src.models.billing import Plan, Subscription
+import pytest
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+
+# =============================================================================
+# RSA Key Generation (FEAT-001)
+# =============================================================================
+
+def generate_rsa_keys() -> tuple[str, str]:
+    """Generate RSA key pair for testing."""
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+
+    private_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption(),
+    ).decode("utf-8")
+
+    public_pem = private_key.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    ).decode("utf-8")
+
+    return private_pem, public_pem
+
+
+# Generate test RSA keys
+TEST_PRIVATE_KEY, TEST_PUBLIC_KEY = generate_rsa_keys()
 
 
 # =============================================================================
 # Environment Setup
 # =============================================================================
 
-# Set test environment for Slack
-os.environ["DATABASE_URL"] = "postgresql://localhost/founderpilot_test"
-os.environ["ENCRYPTION_KEY"] = "dGVzdC1lbmNyeXB0aW9uLWtleS0zMi1ieXRlcw=="  # Test key
+os.environ["DATABASE_URL"] = "postgresql+asyncpg://test:test@localhost:5432/test"
+os.environ["REDIS_URL"] = "redis://localhost:6379/0"
+os.environ["ENCRYPTION_KEY"] = Fernet.generate_key().decode()
+os.environ["GOOGLE_CLIENT_ID"] = "test-google-client-id"
+os.environ["GOOGLE_CLIENT_SECRET"] = "test-google-client-secret"
+os.environ["SLACK_CLIENT_ID"] = "test-slack-client-id"
+os.environ["SLACK_CLIENT_SECRET"] = "test-slack-client-secret"
+os.environ["SLACK_SIGNING_SECRET"] = "test-slack-signing-secret"
+os.environ["JWT_PRIVATE_KEY"] = TEST_PRIVATE_KEY
+os.environ["JWT_PUBLIC_KEY"] = TEST_PUBLIC_KEY
 
-# Use SQLite for testing
+# SQLite for testing
 TEST_DATABASE_URL = "sqlite:///:memory:"
+
+
+# =============================================================================
+# Auth Fixtures (FEAT-001)
+# =============================================================================
+
+@pytest.fixture
+def encryption_key() -> str:
+    """Generate a fresh encryption key for tests."""
+    return Fernet.generate_key().decode()
+
+
+@pytest.fixture
+def rsa_keys() -> tuple[str, str]:
+    """Generate fresh RSA key pair for tests."""
+    return generate_rsa_keys()
+
+
+@pytest.fixture
+def mock_redis() -> Generator[MagicMock, None, None]:
+    """Create a mock Redis client."""
+    mock = MagicMock()
+    mock.get.return_value = None
+    mock.set.return_value = True
+    mock.delete.return_value = True
+    mock.setex.return_value = True
+    yield mock
 
 
 # =============================================================================
@@ -30,6 +96,8 @@ TEST_DATABASE_URL = "sqlite:///:memory:"
 @pytest.fixture(scope="function")
 def db_session():
     """Create a test database session."""
+    from src.core.database import Base
+
     engine = create_engine(TEST_DATABASE_URL, echo=False)
     Base.metadata.create_all(engine)
     TestingSessionLocal = sessionmaker(bind=engine)
@@ -50,75 +118,19 @@ def mock_db():
 
 
 # =============================================================================
-# Billing Fixtures (FEAT-002)
+# Common Fixtures
 # =============================================================================
 
 @pytest.fixture
-def sample_plan(db_session):
-    """Create a sample plan for testing."""
-    plan = Plan(
-        id="price_bundle_test",
-        stripe_product_id="prod_test",
-        name="Bundle",
-        description="All agents included",
-        price_cents=4900,
-        interval="month",
-        agents_included=["inbox", "invoice", "meeting"],
-        limits={
-            "emails_per_month": 500,
-            "invoices_per_month": 50,
-            "meetings_per_month": 30,
-        },
-        is_active=True,
-    )
-    db_session.add(plan)
-    db_session.commit()
-    return plan
+def sample_user_id():
+    """Sample user ID for testing."""
+    return UUID("12345678-1234-5678-1234-567812345678")
 
 
 @pytest.fixture
-def sample_subscription(db_session):
-    """Create a sample trial subscription for testing."""
-    tenant_id = uuid4()
-    subscription = Subscription(
-        tenant_id=tenant_id,
-        stripe_customer_id="cus_test123",
-        status="trial",
-        trial_ends_at=datetime.utcnow() + timedelta(days=14),
-        current_period_start=datetime.utcnow(),
-        current_period_end=datetime.utcnow() + timedelta(days=14),
-    )
-    db_session.add(subscription)
-    db_session.commit()
-    return subscription
-
-
-@pytest.fixture
-def mock_stripe():
-    """Mock Stripe API calls."""
-    with patch("stripe.Customer.create") as mock_customer, \
-         patch("stripe.checkout.Session.create") as mock_checkout, \
-         patch("stripe.billing_portal.Session.create") as mock_portal, \
-         patch("stripe.Subscription.retrieve") as mock_sub_retrieve, \
-         patch("stripe.Webhook.construct_event") as mock_webhook:
-
-        mock_customer.return_value = MagicMock(id="cus_test123")
-        mock_checkout.return_value = MagicMock(url="https://checkout.stripe.com/test")
-        mock_portal.return_value = MagicMock(url="https://billing.stripe.com/test")
-        mock_sub_retrieve.return_value = MagicMock(
-            id="sub_test123",
-            items=MagicMock(data=[MagicMock(price=MagicMock(id="price_test"))]),
-            current_period_start=datetime.utcnow().timestamp(),
-            current_period_end=(datetime.utcnow() + timedelta(days=30)).timestamp(),
-        )
-
-        yield {
-            "customer": mock_customer,
-            "checkout": mock_checkout,
-            "portal": mock_portal,
-            "subscription": mock_sub_retrieve,
-            "webhook": mock_webhook,
-        }
+def user_id():
+    """Generate a user ID for testing."""
+    return uuid4()
 
 
 # =============================================================================
@@ -132,174 +144,3 @@ def mock_slack_client():
         client = MagicMock()
         mock.return_value = client
         yield client
-
-
-@pytest.fixture
-def sample_user_id():
-    """Sample user ID for testing."""
-    return UUID("12345678-1234-5678-1234-567812345678")
-
-
-@pytest.fixture
-def sample_workflow_id():
-    """Sample workflow ID for testing."""
-    return UUID("87654321-4321-8765-4321-876543218765")
-
-
-@pytest.fixture
-def sample_email_payload(sample_workflow_id):
-    """Sample email notification payload."""
-    from src.schemas.slack import EmailNotificationPayload
-
-    return EmailNotificationPayload(
-        workflow_id=sample_workflow_id,
-        sender="john@client.com",
-        subject="Contract renewal question",
-        classification="URGENT",
-        confidence=75,
-        proposed_response="Hi John, Thanks for reaching out about the renewal...",
-        email_snippet="I wanted to discuss the terms of our contract renewal...",
-    )
-
-
-@pytest.fixture
-def sample_invoice_payload(sample_workflow_id):
-    """Sample invoice notification payload (for Slack, not billing)."""
-    from src.schemas.slack import InvoiceNotificationPayload
-
-    return InvoiceNotificationPayload(
-        workflow_id=sample_workflow_id,
-        client_name="Acme Corp",
-        invoice_number="INV-2026-001",
-        amount="$1,500.00",
-        due_date="January 15, 2026",
-        days_overdue=5,
-        proposed_action="Send a friendly reminder email about the overdue payment.",
-    )
-
-
-@pytest.fixture
-def sample_meeting_payload(sample_workflow_id):
-    """Sample meeting notification payload."""
-    from src.schemas.slack import MeetingNotificationPayload
-
-    return MeetingNotificationPayload(
-        workflow_id=sample_workflow_id,
-        meeting_title="Q1 Planning Session",
-        start_time=datetime(2026, 2, 1, 10, 0),
-        attendees=["Alice", "Bob", "Charlie"],
-        context_summary="This is a quarterly planning meeting with the leadership team.",
-        proposed_prep="Review Q4 metrics, prepare 3 key initiatives for Q1.",
-    )
-
-
-# =============================================================================
-# InboxPilot Fixtures (FEAT-003)
-# =============================================================================
-
-@pytest.fixture
-def sample_email():
-    """Sample email for testing."""
-    from src.agents.inbox_pilot.state import EmailData
-    return {
-        "message_id": "msg_12345",
-        "thread_id": "thread_12345",
-        "sender": "john@example.com",
-        "sender_name": "John Smith",
-        "subject": "Quick question about our meeting",
-        "body": "Hi,\n\nCould we reschedule our meeting to tomorrow?\n\nThanks,\nJohn",
-        "snippet": "Could we reschedule our meeting to tomorrow?",
-        "received_at": "2026-01-31T10:00:00Z",
-        "thread_messages": [],
-        "attachments": [],
-        "labels": ["INBOX", "UNREAD"],
-    }
-
-
-@pytest.fixture
-def urgent_email():
-    """Urgent email for testing."""
-    return {
-        "message_id": "msg_urgent",
-        "thread_id": "thread_urgent",
-        "sender": "ceo@bigclient.com",
-        "sender_name": "Big Client CEO",
-        "subject": "URGENT: Contract needs signature by EOD",
-        "body": "We need the signed contract by end of day or we'll have to go with another vendor.",
-        "snippet": "We need the signed contract by end of day",
-        "received_at": "2026-01-31T10:00:00Z",
-        "thread_messages": [],
-        "attachments": [{"filename": "contract.pdf", "mimeType": "application/pdf", "size": 1024}],
-        "labels": ["INBOX", "IMPORTANT"],
-    }
-
-
-@pytest.fixture
-def spam_email():
-    """Spam email for testing."""
-    return {
-        "message_id": "msg_spam",
-        "thread_id": "thread_spam",
-        "sender": "noreply@marketing.spam.com",
-        "sender_name": None,
-        "subject": "You've won a FREE iPhone!!! Click here!!!",
-        "body": "Congratulations! You've been selected for our exclusive offer...",
-        "snippet": "Congratulations! You've been selected",
-        "received_at": "2026-01-31T10:00:00Z",
-        "thread_messages": [],
-        "attachments": [],
-        "labels": ["INBOX"],
-    }
-
-
-@pytest.fixture
-def routine_classification():
-    """Sample routine classification."""
-    return {
-        "category": "routine",
-        "confidence": 0.92,
-        "reasoning": "Standard meeting reschedule request",
-        "suggested_action": "draft",
-    }
-
-
-@pytest.fixture
-def urgent_classification():
-    """Sample urgent classification."""
-    return {
-        "category": "urgent",
-        "confidence": 0.95,
-        "reasoning": "Time-sensitive contract deadline from important client",
-        "suggested_action": "escalate",
-    }
-
-
-@pytest.fixture
-def sample_draft():
-    """Sample draft response."""
-    return {
-        "content": "Hi John,\n\nYes, tomorrow works for me. What time would be best for you?\n\nBest regards",
-        "confidence": 0.88,
-        "tone": "friendly",
-    }
-
-
-@pytest.fixture
-def user_id():
-    """Generate a user ID for testing."""
-    return uuid4()
-
-
-@pytest.fixture
-def mock_user_config():
-    """Mock InboxPilotConfig for testing."""
-    return {
-        "escalation_threshold": 0.8,
-        "draft_threshold": 0.7,
-        "auto_archive_spam": True,
-        "draft_for_routine": True,
-        "escalate_urgent": True,
-        "auto_send_high_confidence": False,
-        "vip_domains": ["bigclient.com"],
-        "vip_emails": ["ceo@important.com"],
-    }

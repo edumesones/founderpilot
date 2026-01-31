@@ -1,5 +1,11 @@
-# API routes
-from src.api.routes.slack import router as slack_router
-from src.api.routes import inbox_pilot, webhooks
+# API routes package
 
-__all__ = ["slack_router", "inbox_pilot", "webhooks"]
+# Auth routes (FEAT-001)
+from src.api.routes import auth, integrations, onboarding
+
+__all__ = [
+    # Auth (FEAT-001)
+    "auth",
+    "integrations",
+    "onboarding",
+]

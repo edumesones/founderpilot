@@ -1,4 +1,4 @@
-"""Alembic environment configuration."""
+"""Alembic environment configuration for async SQLAlchemy."""
 
 import asyncio
 from logging.config import fileConfig
@@ -9,11 +9,17 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
+# Import models' Base and all models
 from src.core.config import settings
-from src.core.database import Base
+from src.models.base import Base
 
 # Import all models to ensure they're registered with Base.metadata
-from src.models import User, EmailRecord, InboxPilotConfig  # noqa: F401
+from src.models import (  # noqa: F401
+    User,
+    Integration,
+    RefreshToken,
+    AuditLog,
+)
 
 # Alembic Config object
 config = context.config
