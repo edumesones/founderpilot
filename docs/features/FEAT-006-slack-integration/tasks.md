@@ -1,10 +1,10 @@
-# FEAT-XXX: Tasks
+# FEAT-006: Tasks
 
 ## Pre-Implementation Checklist
-- [ ] spec.md complete and approved
-- [ ] design.md complete and approved
-- [ ] Branch created: `feature/XXX-name`
-- [ ] status.md updated to "In Progress"
+- [x] spec.md complete and approved
+- [x] design.md complete and approved
+- [x] Branch created: `feat/FEAT-006`
+- [x] status.md updated to "In Progress"
 
 ---
 
@@ -12,51 +12,105 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Create data models | ⬜ |
-| 2 | Create service layer | ⬜ |
-| 3 | Create API endpoints | ⬜ |
-| 4 | Add validation | ⬜ |
-| 5 | Add error handling | ⬜ |
+| 1 | Create database model | ✅ |
+| 2 | Create database migration | ✅ |
+| 3 | Add config settings | ✅ |
+| 4 | Create Slack Bolt app | ✅ |
+| 5 | Implement OAuth flow | ✅ |
+| 6 | Create SlackService | ✅ |
+| 7 | Build Block Kit templates | ✅ |
+| 8 | Implement action handlers | ✅ |
+| 9 | Create API routes | ✅ |
+| 10 | Add Celery tasks | ✅ |
 
 ### Detailed Backend Tasks
 
-- [ ] **B1**: Create models in `src/models/`
-  - [ ] B1.1: Define schema
-  - [ ] B1.2: Add relationships
-  - [ ] B1.3: Add indexes
+- [x] **B1**: Create SlackInstallation model in `src/models/slack_installation.py`
+  - [x] B1.1: Define SQLAlchemy model with all columns
+  - [x] B1.2: Add indexes on user_id and team_id
+  - [x] B1.3: Add relationship to User model
+  - [x] B1.4: Export from `src/models/__init__.py`
 
-- [ ] **B2**: Create service in `src/services/`
-  - [ ] B2.1: CRUD operations
-  - [ ] B2.2: Business logic
-  - [ ] B2.3: Validation
+- [x] **B2**: Create Alembic migration
+  - [x] B2.1: Generate migration file
+  - [x] B2.2: Create slack_installations table
+  - [x] B2.3: Add indexes
+  - [x] B2.4: Test upgrade/downgrade
 
-- [ ] **B3**: Create API in `src/api/`
-  - [ ] B3.1: Router setup
-  - [ ] B3.2: Endpoints
-  - [ ] B3.3: Request/Response models
+- [x] **B3**: Add Slack config settings in `src/core/config.py`
+  - [x] B3.1: Add SLACK_CLIENT_ID
+  - [x] B3.2: Add SLACK_CLIENT_SECRET
+  - [x] B3.3: Add SLACK_SIGNING_SECRET
+  - [x] B3.4: Add SLACK_BOT_TOKEN (optional, for dev)
+  - [x] B3.5: Add SLACK_APP_TOKEN (for Socket Mode)
+  - [x] B3.6: Add ENCRYPTION_KEY for token encryption
+  - [x] B3.7: Update .env.example
+
+- [x] **B4**: Create Slack Bolt app in `src/integrations/slack/`
+  - [x] B4.1: Create `__init__.py`
+  - [x] B4.2: Create `app.py` with Bolt initialization
+  - [x] B4.3: Create `oauth.py` with PostgresInstallationStore
+
+- [x] **B5**: Implement OAuth installation flow
+  - [x] B5.1: Create /install endpoint (redirects to Slack)
+  - [x] B5.2: Create /callback endpoint (handles code exchange)
+  - [x] B5.3: Store tokens with encryption
+  - [x] B5.4: Open DM channel with user
+  - [x] B5.5: Send welcome message
+
+- [x] **B6**: Create SlackService in `src/services/slack_service.py`
+  - [x] B6.1: Implement get_installation()
+  - [x] B6.2: Implement send_notification()
+  - [x] B6.3: Implement update_message()
+  - [x] B6.4: Implement disconnect()
+  - [x] B6.5: Add encryption/decryption helpers
+
+- [x] **B7**: Build Block Kit templates in `src/integrations/slack/blocks.py`
+  - [x] B7.1: Create build_email_notification()
+  - [x] B7.2: Create build_invoice_notification()
+  - [x] B7.3: Create build_meeting_notification()
+  - [x] B7.4: Create build_success_blocks()
+  - [x] B7.5: Create build_edit_modal()
+  - [x] B7.6: Create build_welcome_message()
+
+- [x] **B8**: Implement action handlers in `src/integrations/slack/handlers.py`
+  - [x] B8.1: Implement handle_approve()
+  - [x] B8.2: Implement handle_reject()
+  - [x] B8.3: Implement handle_edit() (open modal)
+  - [x] B8.4: Implement handle_edit_submit()
+  - [x] B8.5: Implement handle_snooze()
+
+- [x] **B9**: Create API routes in `src/api/routes/slack.py`
+  - [x] B9.1: GET /integrations/slack/install
+  - [x] B9.2: GET /integrations/slack/callback
+  - [x] B9.3: POST /webhooks/slack/events
+  - [x] B9.4: POST /webhooks/slack/interactive
+  - [x] B9.5: GET /integrations/slack/status
+  - [x] B9.6: DELETE /integrations/slack
+  - [x] B9.7: Register router in main.py
+
+- [x] **B10**: Create Celery tasks in `src/workers/tasks/slack_tasks.py`
+  - [x] B10.1: send_slack_message task
+  - [x] B10.2: update_slack_message task
+  - [x] B10.3: Add retry logic with exponential backoff
 
 ---
 
-## Frontend Tasks
+## Schema Tasks
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Create UI components | ⬜ |
-| 2 | Connect to API | ⬜ |
-| 3 | Add error handling | ⬜ |
-| 4 | Add loading states | ⬜ |
+| 1 | Create Pydantic schemas | ✅ |
 
-### Detailed Frontend Tasks
+### Detailed Schema Tasks
 
-- [ ] **F1**: Create components in `src/components/`
-  - [ ] F1.1: Main component
-  - [ ] F1.2: Form component
-  - [ ] F1.3: List component
-
-- [ ] **F2**: API integration
-  - [ ] F2.1: API client
-  - [ ] F2.2: State management
-  - [ ] F2.3: Error handling
+- [x] **S1**: Create schemas in `src/schemas/slack.py`
+  - [x] S1.1: SlackInstallationCreate
+  - [x] S1.2: SlackInstallationResponse
+  - [x] S1.3: SlackStatusResponse
+  - [x] S1.4: NotificationPayload
+  - [x] S1.5: EmailNotificationPayload
+  - [x] S1.6: ActionResult
 
 ---
 
@@ -64,33 +118,47 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Unit tests - models | ⬜ |
-| 2 | Unit tests - services | ⬜ |
-| 3 | Integration tests - API | ⬜ |
-| 4 | E2E tests | ⬜ |
+| 1 | Unit tests - models | ✅ |
+| 2 | Unit tests - service | ✅ |
+| 3 | Unit tests - blocks | ✅ |
+| 4 | Integration tests - API | ✅ |
 
 ### Detailed Test Tasks
 
-- [ ] **T1**: Unit tests for models
-- [ ] **T2**: Unit tests for services
-- [ ] **T3**: Integration tests for API endpoints
-- [ ] **T4**: E2E test for main flow
+- [x] **T1**: Unit tests for SlackInstallation model
+  - [x] T1.1: Test model creation
+  - [x] T1.2: Test encryption/decryption
+
+- [x] **T2**: Unit tests for SlackService
+  - [x] T2.1: Test get_installation
+  - [x] T2.2: Test send_notification (mocked)
+  - [x] T2.3: Test disconnect
+
+- [x] **T3**: Unit tests for Block Kit templates
+  - [x] T3.1: Test build_email_notification
+  - [x] T3.2: Test build_success_blocks
+  - [x] T3.3: Test build_edit_modal
+
+- [x] **T4**: Integration tests for API endpoints
+  - [x] T4.1: Test /status endpoint
+  - [x] T4.2: Test /disconnect endpoint
+  - [x] T4.3: Test OAuth callback (mocked)
 
 ---
 
 ## Documentation Tasks
 
-- [ ] **D1**: Update README with feature docs
-- [ ] **D2**: Add docstrings to all public functions
-- [ ] **D3**: Update API documentation
+- [x] **D1**: Update .env.example with Slack variables
+- [x] **D2**: Add docstrings to all public functions
+- [x] **D3**: Update API documentation (OpenAPI - auto-generated by FastAPI)
 
 ---
 
 ## DevOps Tasks
 
-- [ ] **O1**: Add environment variables to `.env.example`
-- [ ] **O2**: Update CI/CD if needed
-- [ ] **O3**: Add database migrations if needed
+- [x] **O1**: Add slack-bolt to requirements.txt
+- [x] **O2**: Add cryptography to requirements.txt
+- [ ] **O3**: Configure Slack App in API dashboard (manual - user task)
 
 ---
 
@@ -109,27 +177,68 @@
 
 | Section | Done | Total | % |
 |---------|------|-------|---|
-| Backend | 0 | 5 | 0% |
-| Frontend | 0 | 4 | 0% |
-| Tests | 0 | 4 | 0% |
-| Docs | 0 | 3 | 0% |
-| DevOps | 0 | 3 | 0% |
-| **TOTAL** | **0** | **19** | **0%** |
+| Backend | 10 | 10 | 100% |
+| Schemas | 1 | 1 | 100% |
+| Tests | 4 | 4 | 100% |
+| Docs | 3 | 3 | 100% |
+| DevOps | 2 | 3 | 67% |
+| **TOTAL** | **20** | **21** | **95%** |
+
+Note: O3 (Configure Slack App) is a manual user task, not code.
+
+---
+
+## Implementation Order
+
+### Phase 1: Foundation (B1-B3) ✅
+1. B1: Create SlackInstallation model ✅
+2. B2: Create database migration ✅
+3. B3: Add config settings ✅
+4. O1-O2: Add dependencies ✅
+
+### Phase 2: Core Integration (B4-B5, S1) ✅
+1. S1: Create Pydantic schemas ✅
+2. B4: Create Slack Bolt app ✅
+3. B5: Implement OAuth flow ✅
+
+### Phase 3: Notifications (B6-B7, B10) ✅
+1. B6: Create SlackService ✅
+2. B7: Build Block Kit templates ✅
+3. B10: Create Celery tasks ✅
+
+### Phase 4: Interactivity (B8-B9) ✅
+1. B8: Implement action handlers ✅
+2. B9: Create API routes ✅
+
+### Phase 5: Testing (T1-T4) ✅
+1. T1-T3: Unit tests ✅
+2. T4: Integration tests ✅
+
+### Phase 6: Polish (D1-D3, O3) ✅
+1. D1-D3: Documentation ✅
+2. O3: Slack App configuration guide (manual)
 
 ---
 
 ## Notes
 
 ### Blockers
-_None currently_
+_None - all tasks completed_
 
 ### Decisions Made During Implementation
-_Document any decisions made while implementing_
+- Used Fernet (symmetric AES) for token encryption
+- Socket Mode for development, HTTP webhooks for production
+- Slack Bolt app initialized in FastAPI lifespan handler
+- Action handlers use async/await pattern
+- Celery tasks use exponential backoff retry
 
 ### Technical Debt
-_Track any shortcuts taken that need future work_
+- TODO: Implement actual workflow service integration in handlers.py
+- TODO: Add rate limiting middleware for API endpoints
+- TODO: Add more comprehensive E2E tests with real Slack workspace
 
 ---
 
-*Last updated: {date}*
-*Updated by: [you / fork-backend / fork-frontend]*
+*Last updated: 2026-01-31*
+*Updated by: Claude (Ralph Loop)*
+*Status: Implementation Complete - Ready for PR*
