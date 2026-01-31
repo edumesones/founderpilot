@@ -329,9 +329,9 @@
 | 6.1 | E2E tests setup | ⬜ | tests/e2e/ |
 | 6.2 | E2E login flow | ⬜ | tests/e2e/test_login.py |
 | 6.3 | E2E onboarding flow | ⬜ | tests/e2e/test_onboarding.py |
-| 6.4 | Add loading states | ⬜ | frontend/components/ |
-| 6.5 | Add error boundaries | ⬜ | frontend/app/error.tsx |
-| 6.6 | Add docker-compose | ⬜ | docker-compose.yml |
+| 6.4 | Add loading states | ✅ | (included in components) |
+| 6.5 | Add error boundaries | ✅ | frontend/src/app/error.tsx |
+| 6.6 | Add docker-compose | ✅ | docker-compose.yml, Dockerfile.api |
 
 ### Detailed Phase 6 Tasks
 
@@ -351,21 +351,21 @@
   - [ ] Test skip options
   - [ ] Test complete onboarding
 
-- [ ] **6.4**: Loading states
-  - [ ] Login button loading
-  - [ ] Connect button loading
-  - [ ] Page transitions
+- [x] **6.4**: Loading states
+  - [x] Login button loading
+  - [x] Connect button loading
+  - [x] Page transitions
 
-- [ ] **6.5**: Error boundaries
-  - [ ] Global error boundary
-  - [ ] OAuth error page
-  - [ ] Network error handling
+- [x] **6.5**: Error boundaries
+  - [x] Global error boundary
+  - [x] OAuth error page
+  - [x] Network error handling
 
-- [ ] **6.6**: Docker compose
-  - [ ] PostgreSQL service
-  - [ ] Redis service
-  - [ ] API service
-  - [ ] Frontend service (optional)
+- [x] **6.6**: Docker compose
+  - [x] PostgreSQL service
+  - [x] Redis service
+  - [x] API service
+  - [ ] Frontend service (optional - skipped)
 
 ---
 
@@ -373,9 +373,9 @@
 
 | # | Task | Status | Files |
 |---|------|--------|-------|
-| O1 | Create .env.example | ⬜ | .env.example |
-| O2 | Create Dockerfile.api | ⬜ | Dockerfile.api |
-| O3 | Create docker-compose.yml | ⬜ | docker-compose.yml |
+| O1 | Create .env.example | ✅ | .env.example |
+| O2 | Create Dockerfile.api | ✅ | Dockerfile.api |
+| O3 | Create docker-compose.yml | ✅ | docker-compose.yml |
 
 ---
 
@@ -409,10 +409,10 @@
 | Phase 3: Integrations | 6 | 7 | 86% |
 | Phase 4: Frontend Auth | 6 | 6 | 100% |
 | Phase 5: Onboarding | 9 | 9 | 100% |
-| Phase 6: Testing | 0 | 6 | 0% |
-| DevOps | 1 | 3 | 33% |
+| Phase 6: Testing | 3 | 6 | 50% |
+| DevOps | 3 | 3 | 100% |
 | Documentation | 0 | 3 | 0% |
-| **TOTAL** | **38** | **52** | **73%** |
+| **TOTAL** | **43** | **52** | **83%** |
 
 ---
 
