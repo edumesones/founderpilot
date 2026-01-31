@@ -154,51 +154,51 @@
 
 | # | Task | Status | Files |
 |---|------|--------|-------|
-| 3.1 | Implement GmailOAuthService | ⬜ | src/services/gmail_oauth.py |
-| 3.2 | Implement SlackOAuthService | ⬜ | src/services/slack_oauth.py |
-| 3.3 | Implement IntegrationService | ⬜ | src/services/integration.py |
-| 3.4 | Create integration schemas | ⬜ | src/schemas/integration.py |
-| 3.5 | Create integration routes | ⬜ | src/api/routes/integrations.py |
-| 3.6 | Create onboarding routes | ⬜ | src/api/routes/onboarding.py |
+| 3.1 | Implement GmailOAuthService | ✅ | src/services/gmail_oauth.py |
+| 3.2 | Implement SlackOAuthService | ✅ | src/services/slack_oauth.py |
+| 3.3 | Implement IntegrationService | ✅ | src/services/integration.py |
+| 3.4 | Create integration schemas | ✅ | src/schemas/integration.py |
+| 3.5 | Create integration routes | ✅ | src/api/routes/integrations.py |
+| 3.6 | Create onboarding routes | ✅ | src/api/routes/onboarding.py |
 | 3.7 | Integration tests | ⬜ | tests/integration/test_integration_routes.py |
 
 ### Detailed Phase 3 Tasks
 
-- [ ] **3.1**: GmailOAuthService
-  - [ ] get_auth_url() - OAuth URL with Gmail scopes
-  - [ ] handle_callback() - Exchange code, store tokens encrypted
-  - [ ] refresh_token() - Refresh Gmail token
-  - [ ] verify_connection() - Test API call
+- [x] **3.1**: GmailOAuthService
+  - [x] get_auth_url() - OAuth URL with Gmail scopes
+  - [x] handle_callback() - Exchange code, store tokens encrypted
+  - [x] refresh_token() - Refresh Gmail token
+  - [x] verify_connection() - Test API call
 
-- [ ] **3.2**: SlackOAuthService
-  - [ ] get_auth_url() - Slack OAuth URL
-  - [ ] handle_callback() - Install bot, get tokens
-  - [ ] verify_connection() - Test Slack API
-  - [ ] get_workspace_info() - Get workspace details
+- [x] **3.2**: SlackOAuthService
+  - [x] get_auth_url() - Slack OAuth URL
+  - [x] handle_callback() - Install bot, get tokens
+  - [x] verify_connection() - Test Slack API
+  - [x] get_workspace_info() - Get workspace details
 
-- [ ] **3.3**: IntegrationService
-  - [ ] get_status() - Get all integration statuses
-  - [ ] disconnect() - Remove integration
-  - [ ] get_integration() - Get single integration
-  - [ ] is_connected() - Check if provider connected
+- [x] **3.3**: IntegrationService
+  - [x] get_status() - Get all integration statuses
+  - [x] disconnect() - Remove integration
+  - [x] get_integration() - Get single integration
+  - [x] is_connected() - Check if provider connected
 
-- [ ] **3.4**: Integration schemas
-  - [ ] IntegrationStatus
-  - [ ] IntegrationsStatusResponse
-  - [ ] DisconnectResponse
+- [x] **3.4**: Integration schemas
+  - [x] IntegrationStatus
+  - [x] IntegrationsStatusResponse
+  - [x] DisconnectResponse
 
-- [ ] **3.5**: Integration routes
-  - [ ] GET /api/v1/integrations/gmail/connect
-  - [ ] GET /api/v1/integrations/gmail/callback
-  - [ ] DELETE /api/v1/integrations/gmail
-  - [ ] GET /api/v1/integrations/slack/connect
-  - [ ] GET /api/v1/integrations/slack/callback
-  - [ ] DELETE /api/v1/integrations/slack
-  - [ ] GET /api/v1/integrations/status
+- [x] **3.5**: Integration routes
+  - [x] GET /api/v1/integrations/gmail/connect
+  - [x] GET /api/v1/integrations/gmail/callback
+  - [x] DELETE /api/v1/integrations/gmail
+  - [x] GET /api/v1/integrations/slack/connect
+  - [x] GET /api/v1/integrations/slack/callback
+  - [x] DELETE /api/v1/integrations/slack
+  - [x] GET /api/v1/integrations/status
 
-- [ ] **3.6**: Onboarding routes
-  - [ ] GET /api/v1/onboarding/status
-  - [ ] POST /api/v1/onboarding/complete
+- [x] **3.6**: Onboarding routes
+  - [x] GET /api/v1/onboarding/status
+  - [x] POST /api/v1/onboarding/complete
 
 - [ ] **3.7**: Integration tests
   - [ ] Test Gmail connect flow (mocked)
@@ -212,47 +212,47 @@
 
 | # | Task | Status | Files |
 |---|------|--------|-------|
-| 4.1 | Setup Next.js project | ⬜ | frontend/ |
-| 4.2 | Create API client | ⬜ | frontend/lib/api.ts |
-| 4.3 | Create useAuth hook | ⬜ | frontend/lib/hooks/useAuth.ts |
-| 4.4 | Create AuthGuard component | ⬜ | frontend/components/auth/AuthGuard.tsx |
-| 4.5 | Create login page | ⬜ | frontend/app/auth/login/page.tsx |
-| 4.6 | Create GoogleLoginButton | ⬜ | frontend/components/auth/GoogleLoginButton.tsx |
+| 4.1 | Setup Next.js project | ✅ | frontend/ |
+| 4.2 | Create API client | ✅ | frontend/src/lib/api/*.ts |
+| 4.3 | Create useAuth hook | ✅ | frontend/src/lib/hooks/useAuth.ts |
+| 4.4 | Create AuthGuard component | ✅ | frontend/src/components/auth/AuthGuard.tsx |
+| 4.5 | Create login page | ✅ | frontend/src/app/auth/login/page.tsx |
+| 4.6 | Create GoogleLoginButton | ✅ | frontend/src/components/auth/GoogleLoginButton.tsx |
 
 ### Detailed Phase 4 Tasks
 
-- [ ] **4.1**: Setup Next.js
-  - [ ] npx create-next-app@latest frontend
-  - [ ] Configure TypeScript
-  - [ ] Add Tailwind CSS
-  - [ ] Add shadcn/ui
+- [x] **4.1**: Setup Next.js
+  - [x] npx create-next-app@latest frontend
+  - [x] Configure TypeScript
+  - [x] Add Tailwind CSS
+  - [ ] Add shadcn/ui (skipped - using Tailwind directly)
 
-- [ ] **4.2**: API client
-  - [ ] Create axios instance
-  - [ ] Add interceptor for 401 -> refresh
-  - [ ] Export API methods
+- [x] **4.2**: API client
+  - [x] Create axios instance
+  - [x] Add interceptor for 401 -> refresh
+  - [x] Export API methods
 
-- [ ] **4.3**: useAuth hook
-  - [ ] State: user, loading, error
-  - [ ] Methods: login, logout, refreshUser
-  - [ ] Auto-fetch user on mount
+- [x] **4.3**: useAuth hook
+  - [x] State: user, loading, error
+  - [x] Methods: login, logout, refreshUser
+  - [x] Auto-fetch user on mount
 
-- [ ] **4.4**: AuthGuard
-  - [ ] Check auth state
-  - [ ] Redirect to /auth/login if not authenticated
-  - [ ] Show loading while checking
+- [x] **4.4**: AuthGuard
+  - [x] Check auth state
+  - [x] Redirect to /auth/login if not authenticated
+  - [x] Show loading while checking
 
-- [ ] **4.5**: Login page
-  - [ ] Minimal design
-  - [ ] FounderPilot logo
-  - [ ] "Continue with Google" button
-  - [ ] Error handling
+- [x] **4.5**: Login page
+  - [x] Minimal design
+  - [x] FounderPilot logo
+  - [x] "Continue with Google" button
+  - [x] Error handling
 
-- [ ] **4.6**: GoogleLoginButton
-  - [ ] Google branding colors
-  - [ ] Google icon
-  - [ ] Loading state
-  - [ ] Redirect to /api/v1/auth/google
+- [x] **4.6**: GoogleLoginButton
+  - [x] Google branding colors
+  - [x] Google icon
+  - [x] Loading state
+  - [x] Redirect to /api/v1/auth/google
 
 ---
 
@@ -260,65 +260,65 @@
 
 | # | Task | Status | Files |
 |---|------|--------|-------|
-| 5.1 | Create OnboardingStepper | ⬜ | frontend/components/onboarding/OnboardingStepper.tsx |
-| 5.2 | Create onboarding page | ⬜ | frontend/app/onboarding/page.tsx |
-| 5.3 | Create GmailConnectCard | ⬜ | frontend/components/onboarding/GmailConnectCard.tsx |
-| 5.4 | Create Gmail step page | ⬜ | frontend/app/onboarding/gmail/page.tsx |
-| 5.5 | Create SlackConnectCard | ⬜ | frontend/components/onboarding/SlackConnectCard.tsx |
-| 5.6 | Create Slack step page | ⬜ | frontend/app/onboarding/slack/page.tsx |
-| 5.7 | Create connections dashboard | ⬜ | frontend/app/dashboard/connections/page.tsx |
-| 5.8 | Create ConnectionCard | ⬜ | frontend/components/connections/ConnectionCard.tsx |
-| 5.9 | Create useIntegrations hook | ⬜ | frontend/lib/hooks/useIntegrations.ts |
+| 5.1 | Create OnboardingStepper | ✅ | frontend/src/components/onboarding/OnboardingStepper.tsx |
+| 5.2 | Create onboarding page | ✅ | frontend/src/app/onboarding/page.tsx |
+| 5.3 | Create GmailConnectCard | ✅ | frontend/src/components/onboarding/GmailConnectCard.tsx |
+| 5.4 | Create Gmail step page | ⏭️ | (integrated into main onboarding page) |
+| 5.5 | Create SlackConnectCard | ✅ | frontend/src/components/onboarding/SlackConnectCard.tsx |
+| 5.6 | Create Slack step page | ⏭️ | (integrated into main onboarding page) |
+| 5.7 | Create connections dashboard | ✅ | frontend/src/app/dashboard/connections/page.tsx |
+| 5.8 | Create ConnectionCard | ✅ | frontend/src/components/connections/ConnectionCard.tsx |
+| 5.9 | Create useIntegrations hook | ✅ | frontend/src/lib/hooks/useIntegrations.ts |
 
 ### Detailed Phase 5 Tasks
 
-- [ ] **5.1**: OnboardingStepper
-  - [ ] 3 steps: Google (done), Gmail, Slack
-  - [ ] Visual progress indicator
-  - [ ] Step status (complete, current, pending)
+- [x] **5.1**: OnboardingStepper
+  - [x] 3 steps: Google (done), Gmail, Slack
+  - [x] Visual progress indicator
+  - [x] Step status (complete, current, pending)
 
-- [ ] **5.2**: Onboarding main page
-  - [ ] Fetch onboarding status
-  - [ ] Route to current step
+- [x] **5.2**: Onboarding main page
+  - [x] Fetch onboarding status
+  - [x] Route to current step
 
-- [ ] **5.3**: GmailConnectCard
-  - [ ] Gmail icon
-  - [ ] "Connect Gmail" button
-  - [ ] Scopes explanation
-  - [ ] Connected/disconnected state
+- [x] **5.3**: GmailConnectCard
+  - [x] Gmail icon
+  - [x] "Connect Gmail" button
+  - [x] Scopes explanation
+  - [x] Connected/disconnected state
 
-- [ ] **5.4**: Gmail step page
-  - [ ] Use GmailConnectCard
-  - [ ] Show what permissions are needed
-  - [ ] "Skip for now" option
+- [x] **5.4**: Gmail step page (integrated into main onboarding)
+  - [x] Use GmailConnectCard
+  - [x] Show what permissions are needed
+  - [x] "Skip for now" option
 
-- [ ] **5.5**: SlackConnectCard
-  - [ ] Slack icon
-  - [ ] "Add to Slack" button
-  - [ ] Workspace selection if multiple
+- [x] **5.5**: SlackConnectCard
+  - [x] Slack icon
+  - [x] "Add to Slack" button
+  - [x] Workspace selection if multiple
 
-- [ ] **5.6**: Slack step page
-  - [ ] Use SlackConnectCard
-  - [ ] Explain bot functionality
-  - [ ] "Skip for now" option
-  - [ ] "Complete Setup" button
+- [x] **5.6**: Slack step page (integrated into main onboarding)
+  - [x] Use SlackConnectCard
+  - [x] Explain bot functionality
+  - [x] "Skip for now" option
+  - [x] "Complete Setup" button
 
-- [ ] **5.7**: Connections dashboard
-  - [ ] List all integrations
-  - [ ] Status indicators
-  - [ ] Disconnect buttons
-  - [ ] Re-connect options
+- [x] **5.7**: Connections dashboard
+  - [x] List all integrations
+  - [x] Status indicators
+  - [x] Disconnect buttons
+  - [x] Re-connect options
 
-- [ ] **5.8**: ConnectionCard
-  - [ ] Provider icon
-  - [ ] Connection status
-  - [ ] Connected date
-  - [ ] Disconnect/reconnect action
+- [x] **5.8**: ConnectionCard
+  - [x] Provider icon
+  - [x] Connection status
+  - [x] Connected date
+  - [x] Disconnect/reconnect action
 
-- [ ] **5.9**: useIntegrations hook
-  - [ ] Fetch integration status
-  - [ ] Connect/disconnect methods
-  - [ ] Loading states
+- [x] **5.9**: useIntegrations hook
+  - [x] Fetch integration status
+  - [x] Connect/disconnect methods
+  - [x] Loading states
 
 ---
 
@@ -404,15 +404,15 @@
 
 | Phase | Done | Total | % |
 |-------|------|-------|---|
-| Phase 1: Foundation | 0 | 9 | 0% |
-| Phase 2: Google OAuth | 0 | 9 | 0% |
-| Phase 3: Integrations | 0 | 7 | 0% |
-| Phase 4: Frontend Auth | 0 | 6 | 0% |
-| Phase 5: Onboarding | 0 | 9 | 0% |
+| Phase 1: Foundation | 8 | 9 | 89% |
+| Phase 2: Google OAuth | 8 | 9 | 89% |
+| Phase 3: Integrations | 6 | 7 | 86% |
+| Phase 4: Frontend Auth | 6 | 6 | 100% |
+| Phase 5: Onboarding | 9 | 9 | 100% |
 | Phase 6: Testing | 0 | 6 | 0% |
-| DevOps | 0 | 3 | 0% |
+| DevOps | 1 | 3 | 33% |
 | Documentation | 0 | 3 | 0% |
-| **TOTAL** | **0** | **52** | **0%** |
+| **TOTAL** | **38** | **52** | **73%** |
 
 ---
 
