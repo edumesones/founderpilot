@@ -1,35 +1,59 @@
-# FastAPI & Server
+# FounderPilot Backend Dependencies
+
+# Web Framework
 fastapi>=0.109.0,<1.0.0
 uvicorn[standard]>=0.27.0,<1.0.0
 python-multipart>=0.0.6
 
+# Validation
+pydantic>=2.5.0,<3.0.0
+pydantic-settings>=2.1.0,<3.0.0
+
 # Database
 sqlalchemy[asyncio]>=2.0.0,<3.0.0
 asyncpg>=0.29.0,<1.0.0
+psycopg2-binary>=2.9.9
 alembic>=1.13.0,<2.0.0
 
-# Redis
+# Redis & Celery
 redis>=5.0.0,<6.0.0
+celery>=5.3.0
 
-# Auth & Security
+# Authentication (FEAT-001)
 python-jose[cryptography]>=3.3.0,<4.0.0
-cryptography>=42.0.0,<43.0.0
 passlib[bcrypt]>=1.7.4,<2.0.0
+
+# Security & Encryption
+cryptography>=42.0.0,<43.0.0
+
+# Stripe Integration (FEAT-002)
+stripe>=7.0.0
+
+# Slack Integration (FEAT-001, FEAT-006)
+slack-bolt>=1.18.0
+slack-sdk>=3.23.0
 
 # HTTP Client
 httpx>=0.26.0,<1.0.0
 
-# Settings
-pydantic>=2.5.0,<3.0.0
-pydantic-settings>=2.1.0,<3.0.0
+# LLM Providers
+anthropic>=0.18.0
+openai>=1.10.0
+langchain>=0.1.0
+langgraph>=0.0.20
+
+# Observability
+langfuse>=2.0.0
+
+# Utilities
+python-dotenv>=1.0.0
 
 # Testing
 pytest>=8.0.0,<9.0.0
 pytest-asyncio>=0.23.0,<1.0.0
 pytest-cov>=4.1.0,<5.0.0
-httpx>=0.26.0  # also for testing
 
-# Dev tools
+# Development
 black>=24.0.0,<25.0.0
 ruff>=0.1.0,<1.0.0
 mypy>=1.8.0,<2.0.0

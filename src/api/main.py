@@ -1,7 +1,6 @@
-"""
-FastAPI application entry point.
-"""
+"""FastAPI application entry point."""
 
+import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -9,7 +8,6 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from src.api.routes import auth, integrations, onboarding
 from src.core.config import settings
 from src.core.database import close_db, init_db
 from src.core.exceptions import (
@@ -19,7 +17,13 @@ from src.core.exceptions import (
     RateLimitError,
     ValidationError,
 )
-from src.middleware.rate_limit import RateLimitMiddleware
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG if settings.debug else logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -30,9 +34,23 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     Initializes and cleans up resources on startup/shutdown.
     """
     # Startup
+    logger.info(f"Starting {settings.app_name}")
     await init_db()
+
+    # Initialize Slack Bolt app (registers handlers)
+    if settings.slack_configured:
+        try:
+            from src.integrations.slack.app import create_slack_app
+
+            create_slack_app()
+            logger.info("Slack app initialized")
+        except Exception as e:
+            logger.warning(f"Failed to initialize Slack app: {e}")
+
     yield
+
     # Shutdown
+    logger.info(f"Shutting down {settings.app_name}")
     await close_db()
 
 
@@ -43,9 +61,9 @@ def create_app() -> FastAPI:
     Returns:
         Configured FastAPI instance
     """
-    app = FastAPI(
-        title="FounderPilot API",
-        description="Backend API for FounderPilot - AI-powered productivity for founders",
+    application = FastAPI(
+        title=settings.app_name,
+        description="AI agents for founders - InboxPilot, InvoicePilot, MeetingPilot",
         version="0.1.0",
         docs_url="/api/docs" if settings.debug else None,
         redoc_url="/api/redoc" if settings.debug else None,
@@ -54,35 +72,95 @@ def create_app() -> FastAPI:
     )
 
     # Configure CORS
-    app.add_middleware(
+    application.add_middleware(
         CORSMiddleware,
         allow_origins=[
             settings.frontend_url,
-            "http://localhost:3000",  # Development
+            "http://localhost:3000",
         ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-    # Add rate limiting middleware
-    app.add_middleware(RateLimitMiddleware)
+    # Add rate limiting middleware (FEAT-001)
+    try:
+        from src.middleware.rate_limit import RateLimitMiddleware
+
+        application.add_middleware(RateLimitMiddleware)
+    except ImportError:
+        logger.warning("Rate limit middleware not available")
 
     # Register exception handlers
-    register_exception_handlers(app)
+    register_exception_handlers(application)
 
-    # Include routers
-    app.include_router(auth.router)
-    app.include_router(integrations.router)
-    app.include_router(onboarding.router)
+    # API v1 prefix
+    API_V1 = settings.api_v1_prefix
+
+    # Include Auth routers (FEAT-001)
+    try:
+        from src.api.routes import auth, integrations, onboarding
+
+        application.include_router(auth.router)
+        application.include_router(integrations.router)
+        application.include_router(onboarding.router)
+    except ImportError:
+        logger.warning("Auth routes not available")
+
+    # Include Slack router (FEAT-006)
+    try:
+        from src.api.routes.slack import router as slack_router
+
+        application.include_router(slack_router, prefix=API_V1)
+    except ImportError:
+        logger.warning("Slack routes not available")
+
+    # Include InboxPilot router (FEAT-003)
+    try:
+        from src.api.routes import inbox_pilot
+
+        application.include_router(
+            inbox_pilot.router,
+            prefix=f"{API_V1}/inbox-pilot",
+            tags=["InboxPilot"],
+        )
+    except ImportError:
+        logger.warning("InboxPilot routes not available")
+
+    # Include Webhooks router (FEAT-003)
+    try:
+        from src.api.routes import webhooks
+
+        application.include_router(
+            webhooks.router,
+            prefix="/webhooks",
+            tags=["Webhooks"],
+        )
+    except ImportError:
+        logger.warning("Webhook routes not available")
 
     # Health check endpoint
-    @app.get("/health")
+    @application.get("/health")
     async def health_check():
         """Health check endpoint for load balancers."""
-        return {"status": "healthy", "version": "0.1.0"}
+        return {
+            "status": "healthy",
+            "app": settings.app_name,
+            "version": "0.1.0",
+            "slack_configured": settings.slack_configured,
+        }
 
-    return app
+    @application.get("/")
+    async def root():
+        """Root endpoint."""
+        return {
+            "app": settings.app_name,
+            "version": "0.1.0",
+            "docs": "/api/docs" if settings.debug else None,
+            "health": "/health",
+        }
+
+    return application
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -167,10 +245,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         request: Request, exc: Exception
     ) -> JSONResponse:
         """Handle unexpected exceptions."""
-        # Log the error in production
-        if not settings.debug:
-            # TODO: Add proper logging
-            pass
+        logger.error(f"Unexpected error: {exc}", exc_info=True)
 
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

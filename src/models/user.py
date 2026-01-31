@@ -1,11 +1,9 @@
-"""
-User model for authentication.
-"""
+"""User model for authentication and tenant isolation."""
 
+from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
-from uuid import UUID
 
-from sqlalchemy import Boolean, String
+from sqlalchemy import Boolean, DateTime, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base, TimestampMixin, UUIDMixin
@@ -19,46 +17,69 @@ class User(Base, UUIDMixin, TimestampMixin):
     """
     User model representing a FounderPilot user.
 
-    Attributes:
-        id: Unique identifier (UUID)
-        email: User's email address (unique, from Google)
-        name: User's display name
-        picture_url: URL to user's profile picture
-        google_id: Google's unique user ID (unique)
-        onboarding_completed: Whether user completed onboarding
-        created_at: When the user was created
-        updated_at: When the user was last updated
+    Combines authentication (FEAT-001) with subscription and integration fields.
     """
 
     __tablename__ = "users"
 
+    # Profile (FEAT-001)
     email: Mapped[str] = mapped_column(
         String(255),
         unique=True,
         nullable=False,
         index=True,
     )
-    name: Mapped[str] = mapped_column(
+    name: Mapped[Optional[str]] = mapped_column(
         String(255),
-        nullable=False,
+        nullable=True,
     )
     picture_url: Mapped[Optional[str]] = mapped_column(
         String(512),
         nullable=True,
     )
-    google_id: Mapped[str] = mapped_column(
+    google_id: Mapped[Optional[str]] = mapped_column(
         String(255),
         unique=True,
-        nullable=False,
+        nullable=True,
         index=True,
     )
+
+    # Onboarding (FEAT-001)
     onboarding_completed: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
     )
 
-    # Relationships
+    # Google OAuth tokens - encrypted (FEAT-003)
+    google_access_token: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    google_refresh_token: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    google_token_expires_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime, nullable=True
+    )
+
+    # Gmail watch (FEAT-003)
+    gmail_history_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    gmail_watch_expires_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime, nullable=True
+    )
+
+    # Slack connection (FEAT-006)
+    slack_user_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    slack_team_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
+    # Subscription (FEAT-002)
+    stripe_customer_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    subscription_plan: Mapped[str] = mapped_column(String(50), default="trial")
+    subscription_status: Mapped[str] = mapped_column(String(50), default="trialing")
+    trial_ends_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
+    # Status
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
+    # Relationships (FEAT-001)
     integrations: Mapped[List["Integration"]] = relationship(
         "Integration",
         back_populates="user",

@@ -1,7 +1,4 @@
-"""
-Application configuration using pydantic-settings.
-All environment variables are loaded and validated here.
-"""
+"""Application configuration with environment variables."""
 
 import base64
 from functools import lru_cache
@@ -21,140 +18,156 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # Application
+    app_name: str = Field(default="FounderPilot", alias="APP_NAME")
+    app_env: str = Field(default="development", alias="APP_ENV")
+    debug: bool = Field(default=False, alias="DEBUG")
+    api_v1_prefix: str = Field(default="/api/v1", alias="API_V1_PREFIX")
+
     # Database
     database_url: str = Field(
         default="postgresql+asyncpg://founderpilot:password@localhost:5432/founderpilot",
-        description="PostgreSQL connection URL with asyncpg driver",
+        alias="DATABASE_URL",
     )
 
     # Redis
-    redis_url: str = Field(
-        default="redis://localhost:6379/0",
-        description="Redis connection URL",
-    )
+    redis_url: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")
 
-    # JWT Configuration
-    jwt_private_key: str = Field(
-        ...,
-        description="Base64-encoded RSA private key for signing JWTs",
+    # JWT Configuration (FEAT-001)
+    jwt_private_key: Optional[str] = Field(default=None, alias="JWT_PRIVATE_KEY")
+    jwt_public_key: Optional[str] = Field(default=None, alias="JWT_PUBLIC_KEY")
+    jwt_secret_key: str = Field(
+        default="change-me-in-production", alias="JWT_SECRET_KEY"
     )
-    jwt_public_key: str = Field(
-        ...,
-        description="Base64-encoded RSA public key for verifying JWTs",
-    )
-    jwt_algorithm: str = Field(
-        default="RS256",
-        description="JWT signing algorithm",
-    )
+    jwt_algorithm: str = Field(default="RS256", alias="JWT_ALGORITHM")
     access_token_expire_minutes: int = Field(
-        default=1440,  # 24 hours
-        description="Access token expiration in minutes",
+        default=1440, alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES"
     )
-    refresh_token_expire_days: int = Field(
-        default=7,
-        description="Refresh token expiration in days",
+    refresh_token_expire_days: int = Field(default=7)
+
+    # Encryption (FEAT-001)
+    encryption_key: Optional[str] = Field(default=None, alias="ENCRYPTION_KEY")
+
+    # Google OAuth (FEAT-001, FEAT-003)
+    google_client_id: Optional[str] = Field(default=None, alias="GOOGLE_CLIENT_ID")
+    google_client_secret: Optional[str] = Field(
+        default=None, alias="GOOGLE_CLIENT_SECRET"
+    )
+    google_redirect_uri: str = Field(
+        default="http://localhost:8000/api/v1/auth/google/callback",
+        alias="GOOGLE_REDIRECT_URI",
     )
 
-    # Encryption
-    encryption_key: str = Field(
-        ...,
-        description="Fernet key for encrypting OAuth tokens",
-    )
-
-    # Google OAuth
-    google_client_id: str = Field(
-        ...,
-        description="Google OAuth2 client ID",
-    )
-    google_client_secret: str = Field(
-        ...,
-        description="Google OAuth2 client secret",
-    )
-
-    # Gmail API (can use same credentials as Google OAuth)
-    gmail_client_id: Optional[str] = Field(
-        default=None,
-        description="Gmail OAuth2 client ID (defaults to google_client_id)",
-    )
+    # Gmail API (FEAT-001, FEAT-003)
+    gmail_client_id: Optional[str] = Field(default=None, alias="GMAIL_CLIENT_ID")
     gmail_client_secret: Optional[str] = Field(
-        default=None,
-        description="Gmail OAuth2 client secret (defaults to google_client_secret)",
+        default=None, alias="GMAIL_CLIENT_SECRET"
+    )
+    gmail_pubsub_topic: Optional[str] = Field(default=None, alias="GMAIL_PUBSUB_TOPIC")
+    gmail_pubsub_subscription: Optional[str] = Field(
+        default=None, alias="GMAIL_PUBSUB_SUBSCRIPTION"
     )
 
-    # Slack OAuth
-    slack_client_id: str = Field(
-        ...,
-        description="Slack OAuth2 client ID",
+    # Stripe Configuration (FEAT-002)
+    stripe_secret_key: str = Field(default="", alias="STRIPE_SECRET_KEY")
+    stripe_publishable_key: str = Field(default="", alias="STRIPE_PUBLISHABLE_KEY")
+    stripe_webhook_secret: str = Field(default="", alias="STRIPE_WEBHOOK_SECRET")
+    stripe_price_inbox: str = Field(default="", alias="STRIPE_PRICE_INBOX")
+    stripe_price_invoice: str = Field(default="", alias="STRIPE_PRICE_INVOICE")
+    stripe_price_meeting: str = Field(default="", alias="STRIPE_PRICE_MEETING")
+    stripe_price_bundle: str = Field(default="", alias="STRIPE_PRICE_BUNDLE")
+    trial_days: int = Field(default=14, alias="TRIAL_DAYS")
+
+    # Slack Integration (FEAT-001, FEAT-006)
+    slack_client_id: Optional[str] = Field(default=None, alias="SLACK_CLIENT_ID")
+    slack_client_secret: Optional[str] = Field(
+        default=None, alias="SLACK_CLIENT_SECRET"
     )
-    slack_client_secret: str = Field(
-        ...,
-        description="Slack OAuth2 client secret",
+    slack_signing_secret: Optional[str] = Field(
+        default=None, alias="SLACK_SIGNING_SECRET"
     )
-    slack_signing_secret: str = Field(
-        ...,
-        description="Slack signing secret for request verification",
+    slack_bot_token: Optional[str] = Field(default=None, alias="SLACK_BOT_TOKEN")
+    slack_app_token: Optional[str] = Field(default=None, alias="SLACK_APP_TOKEN")
+    slack_redirect_uri: Optional[str] = Field(default=None, alias="SLACK_REDIRECT_URI")
+
+    # Frontend URLs
+    frontend_url: str = Field(default="http://localhost:3000", alias="FRONTEND_URL")
+
+    # API Server
+    api_host: str = Field(default="0.0.0.0")
+    api_port: int = Field(default=8000)
+
+    # LLM Providers
+    anthropic_api_key: Optional[str] = Field(default=None, alias="ANTHROPIC_API_KEY")
+    openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")
+
+    # Langfuse (Observability)
+    langfuse_public_key: Optional[str] = Field(
+        default=None, alias="LANGFUSE_PUBLIC_KEY"
+    )
+    langfuse_secret_key: Optional[str] = Field(
+        default=None, alias="LANGFUSE_SECRET_KEY"
+    )
+    langfuse_host: str = Field(
+        default="https://cloud.langfuse.com", alias="LANGFUSE_HOST"
     )
 
-    # Application
-    frontend_url: str = Field(
-        default="http://localhost:3000",
-        description="Frontend URL for redirects",
+    # InboxPilot specific (FEAT-003)
+    inbox_pilot_escalation_threshold: float = Field(
+        default=0.8, alias="INBOX_PILOT_ESCALATION_THRESHOLD"
     )
-    api_host: str = Field(
-        default="0.0.0.0",
-        description="API server host",
+    inbox_pilot_draft_threshold: float = Field(
+        default=0.7, alias="INBOX_PILOT_DRAFT_THRESHOLD"
     )
-    api_port: int = Field(
-        default=8000,
-        description="API server port",
+    inbox_pilot_rate_limit_trial: int = Field(
+        default=50, alias="INBOX_PILOT_RATE_LIMIT_TRIAL"
     )
-    debug: bool = Field(
-        default=False,
-        description="Debug mode",
-    )
-    environment: str = Field(
-        default="development",
-        description="Environment name",
+    inbox_pilot_rate_limit_paid: int = Field(
+        default=500, alias="INBOX_PILOT_RATE_LIMIT_PAID"
     )
 
-    # Rate Limiting
-    rate_limit_auth_requests: int = Field(
-        default=10,
-        description="Max auth requests per window",
-    )
-    rate_limit_auth_window_seconds: int = Field(
-        default=60,
-        description="Rate limit window in seconds",
-    )
+    # Rate Limiting (FEAT-001)
+    rate_limit_auth_requests: int = Field(default=10)
+    rate_limit_auth_window_seconds: int = Field(default=60)
 
-    @field_validator("jwt_private_key", "jwt_public_key")
+    @field_validator("jwt_private_key", "jwt_public_key", mode="before")
     @classmethod
-    def decode_base64_key(cls, v: str) -> str:
-        """Decode base64-encoded keys."""
+    def decode_base64_key(cls, v: Optional[str]) -> Optional[str]:
+        """Decode base64-encoded keys if present."""
+        if v is None:
+            return None
         try:
-            # Try to decode - if it fails, assume it's already decoded
             decoded = base64.b64decode(v).decode("utf-8")
             return decoded
         except Exception:
-            # Already decoded or PEM format
             return v
 
     @property
-    def gmail_client_id_resolved(self) -> str:
+    def gmail_client_id_resolved(self) -> Optional[str]:
         """Get Gmail client ID, defaulting to Google client ID."""
         return self.gmail_client_id or self.google_client_id
 
     @property
-    def gmail_client_secret_resolved(self) -> str:
+    def gmail_client_secret_resolved(self) -> Optional[str]:
         """Get Gmail client secret, defaulting to Google client secret."""
         return self.gmail_client_secret or self.google_client_secret
 
+    @property
+    def slack_configured(self) -> bool:
+        """Check if Slack is properly configured."""
+        return all(
+            [
+                self.slack_client_id,
+                self.slack_client_secret,
+                self.slack_signing_secret,
+            ]
+        )
 
-@lru_cache
+
+@lru_cache()
 def get_settings() -> Settings:
     """Get cached settings instance."""
     return Settings()
 
 
-# Global settings instance
 settings = get_settings()
