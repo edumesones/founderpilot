@@ -83,64 +83,64 @@
 
 | # | Task | Status | Files |
 |---|------|--------|-------|
-| 2.1 | Implement GoogleOAuthService | ⬜ | src/services/google_oauth.py |
-| 2.2 | Implement AuthService | ⬜ | src/services/auth.py |
-| 2.3 | Implement AuditService | ⬜ | src/services/audit.py |
-| 2.4 | Create Pydantic schemas | ⬜ | src/schemas/*.py |
-| 2.5 | Create auth routes | ⬜ | src/api/routes/auth.py |
-| 2.6 | Create dependencies | ⬜ | src/api/dependencies.py |
-| 2.7 | Add rate limiting middleware | ⬜ | src/middleware/rate_limit.py |
-| 2.8 | Create FastAPI main app | ⬜ | src/api/main.py |
+| 2.1 | Implement GoogleOAuthService | ✅ | src/services/google_oauth.py |
+| 2.2 | Implement AuthService | ✅ | src/services/auth.py |
+| 2.3 | Implement AuditService | ✅ | src/services/audit.py |
+| 2.4 | Create Pydantic schemas | ✅ | src/schemas/*.py |
+| 2.5 | Create auth routes | ✅ | src/api/routes/auth.py |
+| 2.6 | Create dependencies | ✅ | src/api/dependencies.py |
+| 2.7 | Add rate limiting middleware | ✅ | src/middleware/rate_limit.py |
+| 2.8 | Create FastAPI main app | ✅ | src/api/main.py |
 | 2.9 | Integration tests | ⬜ | tests/integration/test_auth_routes.py |
 
 ### Detailed Phase 2 Tasks
 
-- [ ] **2.1**: GoogleOAuthService
-  - [ ] get_authorization_url() - Generate OAuth URL with PKCE
-  - [ ] exchange_code() - Exchange code for tokens
-  - [ ] get_user_info() - Get user profile from Google
-  - [ ] Store state/verifier in Redis
+- [x] **2.1**: GoogleOAuthService
+  - [x] get_authorization_url() - Generate OAuth URL with PKCE
+  - [x] exchange_code() - Exchange code for tokens
+  - [x] get_user_info() - Get user profile from Google
+  - [x] Store state/verifier in Redis
 
-- [ ] **2.2**: AuthService
-  - [ ] get_google_auth_url() - Generate URL with state
-  - [ ] handle_google_callback() - Full callback handling
-  - [ ] _get_or_create_user() - Upsert user
-  - [ ] _create_refresh_token() - Create and store refresh token
-  - [ ] refresh_tokens() - Rotate tokens
-  - [ ] logout() - Blacklist tokens
+- [x] **2.2**: AuthService
+  - [x] get_google_auth_url() - Generate URL with state
+  - [x] handle_google_callback() - Full callback handling
+  - [x] _get_or_create_user() - Upsert user
+  - [x] _create_refresh_token() - Create and store refresh token
+  - [x] refresh_tokens() - Rotate tokens
+  - [x] logout() - Blacklist tokens
 
-- [ ] **2.3**: AuditService
-  - [ ] log() - Create audit log entry
-  - [ ] get_user_logs() - Retrieve logs for user
+- [x] **2.3**: AuditService
+  - [x] log() - Create audit log entry
+  - [x] get_user_logs() - Retrieve logs for user
 
-- [ ] **2.4**: Pydantic schemas
-  - [ ] src/schemas/auth.py - TokenResponse, RefreshRequest
-  - [ ] src/schemas/user.py - UserResponse, UserCreate
-  - [ ] src/schemas/common.py - ErrorResponse
+- [x] **2.4**: Pydantic schemas
+  - [x] src/schemas/auth.py - TokenResponse, RefreshRequest
+  - [x] src/schemas/user.py - UserResponse, UserCreate
+  - [x] src/schemas/common.py - ErrorResponse
 
-- [ ] **2.5**: Auth routes
-  - [ ] GET /api/v1/auth/google
-  - [ ] GET /api/v1/auth/google/callback
-  - [ ] POST /api/v1/auth/refresh
-  - [ ] POST /api/v1/auth/logout
-  - [ ] GET /api/v1/auth/me
+- [x] **2.5**: Auth routes
+  - [x] GET /api/v1/auth/google
+  - [x] GET /api/v1/auth/google/callback
+  - [x] POST /api/v1/auth/refresh
+  - [x] POST /api/v1/auth/logout
+  - [x] GET /api/v1/auth/me
 
-- [ ] **2.6**: Dependencies
-  - [ ] get_db() - Database session
-  - [ ] get_current_user() - Verify JWT, return user
-  - [ ] get_auth_service() - AuthService instance
-  - [ ] get_redis() - Redis connection
+- [x] **2.6**: Dependencies
+  - [x] get_db() - Database session
+  - [x] get_current_user() - Verify JWT, return user
+  - [x] get_auth_service() - AuthService instance
+  - [x] get_redis() - Redis connection
 
-- [ ] **2.7**: Rate limiting
-  - [ ] Redis-based rate limiter
-  - [ ] 10 req/min for /auth/* endpoints
-  - [ ] Return 429 when exceeded
+- [x] **2.7**: Rate limiting
+  - [x] Redis-based rate limiter
+  - [x] 10 req/min for /auth/* endpoints
+  - [x] Return 429 when exceeded
 
-- [ ] **2.8**: FastAPI main app
-  - [ ] Create FastAPI instance
-  - [ ] Add CORS middleware
-  - [ ] Include auth router
-  - [ ] Exception handlers
+- [x] **2.8**: FastAPI main app
+  - [x] Create FastAPI instance
+  - [x] Add CORS middleware
+  - [x] Include auth router
+  - [x] Exception handlers
 
 - [ ] **2.9**: Integration tests
   - [ ] Test Google OAuth flow (mocked)

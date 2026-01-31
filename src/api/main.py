@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from src.api.routes import auth
+from src.api.routes import auth, integrations, onboarding
 from src.core.config import settings
 from src.core.database import close_db, init_db
 from src.core.exceptions import (
@@ -73,6 +73,8 @@ def create_app() -> FastAPI:
 
     # Include routers
     app.include_router(auth.router)
+    app.include_router(integrations.router)
+    app.include_router(onboarding.router)
 
     # Health check endpoint
     @app.get("/health")
