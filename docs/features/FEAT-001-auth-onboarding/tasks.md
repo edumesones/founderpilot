@@ -16,7 +16,7 @@
 | 1.2 | Setup config with pydantic-settings | ✅ | src/core/config.py |
 | 1.3 | Setup async database connection | ✅ | src/core/database.py |
 | 1.4 | Create SQLAlchemy models | ✅ | src/models/*.py |
-| 1.5 | Create Alembic migration | ⬜ | alembic/versions/001_*.py |
+| 1.5 | Create Alembic migration | ✅ | alembic/versions/001_*.py |
 | 1.6 | Implement TokenEncryptionService | ✅ | src/services/token_encryption.py |
 | 1.7 | Implement JWTService | ✅ | src/services/jwt.py |
 | 1.8 | Create custom exceptions | ✅ | src/core/exceptions.py |
@@ -51,10 +51,10 @@
   - [x] src/models/audit_log.py - AuditLog model
   - [x] src/models/__init__.py - Export all models
 
-- [ ] **1.5**: Alembic migration
-  - [ ] alembic init alembic
-  - [ ] Configure alembic/env.py for async
-  - [ ] Create 001_initial_auth_tables.py migration
+- [x] **1.5**: Alembic migration
+  - [x] alembic init alembic
+  - [x] Configure alembic/env.py for async
+  - [x] Create 001_initial_auth_tables.py migration
 
 - [x] **1.6**: TokenEncryptionService
   - [x] Implement encrypt/decrypt with Fernet
@@ -404,7 +404,7 @@
 
 | Phase | Done | Total | % |
 |-------|------|-------|---|
-| Phase 1: Foundation | 8 | 9 | 89% |
+| Phase 1: Foundation | 9 | 9 | 100% |
 | Phase 2: Google OAuth | 8 | 9 | 89% |
 | Phase 3: Integrations | 6 | 7 | 86% |
 | Phase 4: Frontend Auth | 6 | 6 | 100% |
@@ -412,7 +412,7 @@
 | Phase 6: Testing | 3 | 6 | 50% |
 | DevOps | 3 | 3 | 100% |
 | Documentation | 0 | 3 | 0% |
-| **TOTAL** | **43** | **52** | **83%** |
+| **TOTAL** | **44** | **52** | **85%** |
 
 ---
 
