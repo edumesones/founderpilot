@@ -91,7 +91,7 @@
 | 2.6 | Create dependencies | ✅ | src/api/dependencies.py |
 | 2.7 | Add rate limiting middleware | ✅ | src/middleware/rate_limit.py |
 | 2.8 | Create FastAPI main app | ✅ | src/api/main.py |
-| 2.9 | Integration tests | ⬜ | tests/integration/test_auth_routes.py |
+| 2.9 | Integration tests | ✅ | tests/integration/test_auth_routes.py |
 
 ### Detailed Phase 2 Tasks
 
@@ -142,11 +142,11 @@
   - [x] Include auth router
   - [x] Exception handlers
 
-- [ ] **2.9**: Integration tests
-  - [ ] Test Google OAuth flow (mocked)
-  - [ ] Test token refresh
-  - [ ] Test logout
-  - [ ] Test /me endpoint
+- [x] **2.9**: Integration tests
+  - [x] Test Google OAuth flow (mocked)
+  - [x] Test token refresh
+  - [x] Test logout
+  - [x] Test /me endpoint
 
 ---
 
@@ -160,7 +160,7 @@
 | 3.4 | Create integration schemas | ✅ | src/schemas/integration.py |
 | 3.5 | Create integration routes | ✅ | src/api/routes/integrations.py |
 | 3.6 | Create onboarding routes | ✅ | src/api/routes/onboarding.py |
-| 3.7 | Integration tests | ⬜ | tests/integration/test_integration_routes.py |
+| 3.7 | Integration tests | ✅ | tests/integration/test_integration_routes.py |
 
 ### Detailed Phase 3 Tasks
 
@@ -200,11 +200,11 @@
   - [x] GET /api/v1/onboarding/status
   - [x] POST /api/v1/onboarding/complete
 
-- [ ] **3.7**: Integration tests
-  - [ ] Test Gmail connect flow (mocked)
-  - [ ] Test Slack connect flow (mocked)
-  - [ ] Test disconnect flows
-  - [ ] Test status endpoint
+- [x] **3.7**: Integration tests
+  - [x] Test Gmail connect flow (mocked)
+  - [x] Test Slack connect flow (mocked)
+  - [x] Test disconnect flows
+  - [x] Test status endpoint
 
 ---
 
@@ -405,14 +405,14 @@
 | Phase | Done | Total | % |
 |-------|------|-------|---|
 | Phase 1: Foundation | 9 | 9 | 100% |
-| Phase 2: Google OAuth | 8 | 9 | 89% |
-| Phase 3: Integrations | 6 | 7 | 86% |
+| Phase 2: Google OAuth | 9 | 9 | 100% |
+| Phase 3: Integrations | 7 | 7 | 100% |
 | Phase 4: Frontend Auth | 6 | 6 | 100% |
 | Phase 5: Onboarding | 9 | 9 | 100% |
 | Phase 6: Testing | 3 | 6 | 50% |
 | DevOps | 3 | 3 | 100% |
 | Documentation | 3 | 3 | 100% |
-| **TOTAL** | **47** | **52** | **90%** |
+| **TOTAL** | **49** | **52** | **94%** |
 
 ---
 
