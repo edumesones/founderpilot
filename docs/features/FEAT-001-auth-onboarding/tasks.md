@@ -3,8 +3,8 @@
 ## Pre-Implementation Checklist
 - [x] spec.md complete and approved
 - [x] design.md complete and approved
-- [ ] Branch created: `feat/FEAT-001`
-- [ ] status.md updated to "In Progress"
+- [x] Branch created: `feat/FEAT-001`
+- [x] status.md updated to "In Progress"
 
 ---
 
@@ -12,70 +12,70 @@
 
 | # | Task | Status | Files |
 |---|------|--------|-------|
-| 1.1 | Create project structure | ⬜ | src/, tests/, alembic/ |
-| 1.2 | Setup config with pydantic-settings | ⬜ | src/core/config.py |
-| 1.3 | Setup async database connection | ⬜ | src/core/database.py |
-| 1.4 | Create SQLAlchemy models | ⬜ | src/models/*.py |
+| 1.1 | Create project structure | ✅ | src/, tests/, alembic/ |
+| 1.2 | Setup config with pydantic-settings | ✅ | src/core/config.py |
+| 1.3 | Setup async database connection | ✅ | src/core/database.py |
+| 1.4 | Create SQLAlchemy models | ✅ | src/models/*.py |
 | 1.5 | Create Alembic migration | ⬜ | alembic/versions/001_*.py |
-| 1.6 | Implement TokenEncryptionService | ⬜ | src/services/token_encryption.py |
-| 1.7 | Implement JWTService | ⬜ | src/services/jwt.py |
-| 1.8 | Create custom exceptions | ⬜ | src/core/exceptions.py |
-| 1.9 | Unit tests for services | ⬜ | tests/unit/test_*.py |
+| 1.6 | Implement TokenEncryptionService | ✅ | src/services/token_encryption.py |
+| 1.7 | Implement JWTService | ✅ | src/services/jwt.py |
+| 1.8 | Create custom exceptions | ✅ | src/core/exceptions.py |
+| 1.9 | Unit tests for services | ✅ | tests/unit/test_*.py |
 
 ### Detailed Phase 1 Tasks
 
-- [ ] **1.1**: Create project structure
-  - [ ] Create src/api/, src/core/, src/models/, src/schemas/, src/services/, src/middleware/
-  - [ ] Create __init__.py files
-  - [ ] Create requirements.txt with dependencies
-  - [ ] Create .env.example
+- [x] **1.1**: Create project structure
+  - [x] Create src/api/, src/core/, src/models/, src/schemas/, src/services/, src/middleware/
+  - [x] Create __init__.py files
+  - [x] Create requirements.txt with dependencies
+  - [x] Create .env.example
 
-- [ ] **1.2**: Setup config (src/core/config.py)
-  - [ ] Define Settings class with all env vars
-  - [ ] Database URL, Redis URL
-  - [ ] JWT keys (private/public)
-  - [ ] OAuth credentials (Google, Slack)
-  - [ ] Encryption key
+- [x] **1.2**: Setup config (src/core/config.py)
+  - [x] Define Settings class with all env vars
+  - [x] Database URL, Redis URL
+  - [x] JWT keys (private/public)
+  - [x] OAuth credentials (Google, Slack)
+  - [x] Encryption key
 
-- [ ] **1.3**: Database setup (src/core/database.py)
-  - [ ] Create async engine with asyncpg
-  - [ ] Create async session factory
-  - [ ] Create Base declarative class
-  - [ ] Create get_db dependency
+- [x] **1.3**: Database setup (src/core/database.py)
+  - [x] Create async engine with asyncpg
+  - [x] Create async session factory
+  - [x] Create Base declarative class
+  - [x] Create get_db dependency
 
-- [ ] **1.4**: SQLAlchemy models
-  - [ ] src/models/base.py - Base class with common fields
-  - [ ] src/models/user.py - User model
-  - [ ] src/models/integration.py - Integration model
-  - [ ] src/models/refresh_token.py - RefreshToken model
-  - [ ] src/models/audit_log.py - AuditLog model
-  - [ ] src/models/__init__.py - Export all models
+- [x] **1.4**: SQLAlchemy models
+  - [x] src/models/base.py - Base class with common fields
+  - [x] src/models/user.py - User model
+  - [x] src/models/integration.py - Integration model
+  - [x] src/models/refresh_token.py - RefreshToken model
+  - [x] src/models/audit_log.py - AuditLog model
+  - [x] src/models/__init__.py - Export all models
 
 - [ ] **1.5**: Alembic migration
   - [ ] alembic init alembic
   - [ ] Configure alembic/env.py for async
   - [ ] Create 001_initial_auth_tables.py migration
 
-- [ ] **1.6**: TokenEncryptionService
-  - [ ] Implement encrypt/decrypt with Fernet
-  - [ ] Unit test encryption roundtrip
+- [x] **1.6**: TokenEncryptionService
+  - [x] Implement encrypt/decrypt with Fernet
+  - [x] Unit test encryption roundtrip
 
-- [ ] **1.7**: JWTService
-  - [ ] Implement create_access_token
-  - [ ] Implement verify_token
-  - [ ] Handle token expiration
-  - [ ] Unit tests for JWT operations
+- [x] **1.7**: JWTService
+  - [x] Implement create_access_token
+  - [x] Implement verify_token
+  - [x] Handle token expiration
+  - [x] Unit tests for JWT operations
 
-- [ ] **1.8**: Custom exceptions
-  - [ ] TokenExpiredError
-  - [ ] InvalidTokenError
-  - [ ] OAuthError
-  - [ ] IntegrationError
+- [x] **1.8**: Custom exceptions
+  - [x] TokenExpiredError
+  - [x] InvalidTokenError
+  - [x] OAuthError
+  - [x] IntegrationError
 
-- [ ] **1.9**: Unit tests
-  - [ ] tests/conftest.py with fixtures
-  - [ ] tests/unit/test_token_encryption.py
-  - [ ] tests/unit/test_jwt_service.py
+- [x] **1.9**: Unit tests
+  - [x] tests/conftest.py with fixtures
+  - [x] tests/unit/test_token_encryption.py
+  - [x] tests/unit/test_jwt_service.py
 
 ---
 

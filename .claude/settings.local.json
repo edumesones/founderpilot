@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat\\(FEAT-001\\): Complete Interview/Plan phases, start Phase 1\n\nInterview Phase \\(Complete\\):\n- Generated spec.md with user stories, acceptance criteria\n- Defined technical decisions aligned with ADRs\n- Documented API endpoints and data models\n\nPlan Phase \\(Complete\\):\n- Created design.md with architecture diagrams\n- Defined service layer structure \\(Auth, JWT, TokenEncryption\\)\n- Planned 52 implementation tasks across 6 phases\n\nImplementation Phase 1 \\(In Progress\\):\n- Created project structure \\(src/, tests/, alembic/\\)\n- Added requirements.txt with all dependencies\n- Created core config with pydantic-settings\n- Created async database setup with SQLAlchemy\n- Implemented custom exception hierarchy\n- Created SQLAlchemy models \\(User, Integration, RefreshToken, AuditLog\\)\n- Implemented TokenEncryptionService with Fernet\n- Implemented JWTService with RS256 signing\n- Added unit tests for encryption and JWT services\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
