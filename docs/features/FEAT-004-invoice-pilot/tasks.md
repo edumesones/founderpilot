@@ -54,7 +54,7 @@
   - send_reminder: Send via Gmail API
   - log_action: Audit trail
 
-- [ ] **T2.5**: Implement escalation flow
+- [x] **T2.5**: Implement escalation flow
   - detect_problem_pattern: Check for 3+ reminders without payment
   - escalate_to_slack: Notify founder of morose client
 

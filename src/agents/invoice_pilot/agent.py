@@ -10,6 +10,10 @@ from langgraph.graph import END, StateGraph
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.agents.invoice_pilot.nodes.detect import detect_invoice
+from src.agents.invoice_pilot.nodes.escalation import (
+    detect_problem_pattern,
+    escalate_to_slack,
+)
 from src.agents.invoice_pilot.nodes.extract import extract_data
 from src.agents.invoice_pilot.nodes.reminder import (
     check_reminders_due,
@@ -301,33 +305,15 @@ class InvoicePilotAgent:
         # Compile (no interrupts needed for escalation)
         return graph.compile(checkpointer=self.checkpointer)
 
-    # Escalation node stubs (will implement in T2.5)
+    # Escalation node implementations
 
     async def _node_detect_problem(self, state: EscalationState) -> dict:
         """Detect problem patterns in invoice history."""
-        # TODO: Implement in T2.5
-        return {
-            "steps": state.get("steps", []) + [{
-                "node": "detect_problem_pattern",
-                "timestamp": datetime.utcnow().isoformat(),
-                "result": {"status": "stub"},
-                "error": None,
-            }],
-        }
+        return await detect_problem_pattern(state, self.db)
 
     async def _node_escalate(self, state: EscalationState) -> dict:
         """Escalate to Slack with problem details."""
-        # TODO: Implement in T2.5
-        return {
-            "escalated": True,
-            "slack_message_id": "stub_slack_id",
-            "steps": state.get("steps", []) + [{
-                "node": "escalate_to_slack",
-                "timestamp": datetime.utcnow().isoformat(),
-                "result": {"escalated": True},
-                "error": None,
-            }],
-        }
+        return await escalate_to_slack(state, self.slack, self.db)
 
     # ========================================================================
     # Public API
