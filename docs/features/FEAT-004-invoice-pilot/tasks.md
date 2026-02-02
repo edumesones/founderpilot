@@ -67,7 +67,7 @@
 
 ## Phase 3: Service Layer (Business Logic)
 
-- [ ] **T3.1**: Create InvoiceService in `src/services/invoice_service.py`
+- [x] **T3.1**: Create InvoiceService in `src/services/invoice_service.py`
   - CRUD operations: create, get, list, update, delete
   - Filters: by status, date range, client, amount
   - Mark as paid (total or partial)
