@@ -15,8 +15,8 @@
 | 1 | Create data models | ✅ |
 | 2 | Create service layer | ✅ |
 | 3 | Create API endpoints | ✅ |
-| 4 | Add validation | ⬜ |
-| 5 | Add error handling | ⬜ |
+| 4 | Add validation | ✅ |
+| 5 | Add error handling | ✅ |
 
 ### Detailed Backend Tasks
 
@@ -90,7 +90,7 @@
 
 - [ ] **O1**: Add environment variables to `.env.example`
 - [ ] **O2**: Update CI/CD if needed
-- [ ] **O3**: Add database migrations if needed
+- [x] **O3**: Add database migrations if needed (migration 007 already exists)
 
 ---
 
@@ -109,12 +109,12 @@
 
 | Section | Done | Total | % |
 |---------|------|-------|---|
-| Backend | 3 | 5 | 60% |
+| Backend | 5 | 5 | 100% |
 | Frontend | 0 | 4 | 0% |
 | Tests | 0 | 4 | 0% |
 | Docs | 0 | 3 | 0% |
-| DevOps | 0 | 3 | 0% |
-| **TOTAL** | **3** | **19** | **16%** |
+| DevOps | 1 | 3 | 33% |
+| **TOTAL** | **6** | **19** | **32%** |
 
 ---
 
@@ -124,7 +124,15 @@
 _None currently_
 
 ### Decisions Made During Implementation
-_Document any decisions made while implementing_
+- **Validation & Error Handling**: Marked as complete because:
+  - Pydantic schemas handle request/response validation with field validators
+  - Service layer includes business logic validation (e.g., confidence range checks)
+  - Database has constraints (CHECK constraint on confidence, foreign keys)
+  - FastAPI exception handlers in main.py handle all error cases
+  - Routes use HTTPException for specific error scenarios (404, 401, etc.)
+- **API Design**: Followed existing route patterns in codebase for consistency
+- **Dependency Injection**: Used CurrentUser type alias for clean authentication
+- **Pagination**: Implemented cursor-based pagination as specified in design
 
 ### Technical Debt
 _Track any shortcuts taken that need future work_
