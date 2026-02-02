@@ -49,9 +49,9 @@
 
 ## 5. Como trabajo (desarrollo)
 
-Sigo el ciclo en `docs/feature_cycle.md` (7 fases):
+Sigo el ciclo en `docs/feature_cycle.md` (8 fases):
 ```
-Interview → Plan → Branch → Implement → PR → Merge → Wrap-Up
+Interview → Think Critically → Plan → Branch → Implement → PR → Merge → Wrap-Up
 ```
 
 Ver `docs/feature_cycle.md` para detalle completo.
@@ -109,7 +109,7 @@ docs/features/FEAT-XXX/context/     # Contexto POR FEATURE
 ```markdown
 ### [YYYY-MM-DD HH:MM] - [Acción]
 
-**Fase:** [Interview/Plan/Branch/Implement/PR/Merge/Wrap-up]
+**Fase:** [Interview/Think Critically/Plan/Branch/Implement/PR/Merge/Wrap-up]
 **Progreso:** X/Y tasks (si aplica)
 
 **Qué se hizo:**
@@ -169,16 +169,17 @@ cat docs/features/FEAT-XXX/tasks.md
 | `/architecture` | Definir arquitectura y ADRs |
 | `/mvp` | Planificar MVP features |
 
-### Feature Cycle (Fases 1-7)
+### Feature Cycle (Fases 1-8)
 | Comando | Fase | Propósito |
 |---------|------|-----------|
 | `/new-feature FEAT-XXX` | Pre | Crear feature desde template |
 | `/interview FEAT-XXX` | 1 | Especificar feature |
-| `/plan FEAT-XXX` | 2 | Diseñar implementación |
-| `/git sync` | 3+ | Sincronizar con main |
-| `/git "mensaje"` | 4 | Commit con mensaje |
-| `/git pr` | 5 | Crear pull request |
-| `/wrap-up FEAT-XXX` | 7 | Cerrar feature |
+| `/think-critically FEAT-XXX` | 2 | Análisis crítico pre-implementación |
+| `/plan FEAT-XXX` | 3 | Diseñar implementación |
+| `/git sync` | 4+ | Sincronizar con main |
+| `/git "mensaje"` | 5 | Commit con mensaje |
+| `/git pr` | 6 | Crear pull request |
+| `/wrap-up FEAT-XXX` | 8 | Cerrar feature |
 
 ### Utilidades
 | Comando | Propósito |
@@ -192,7 +193,7 @@ cat docs/features/FEAT-XXX/tasks.md
 ## 11. Ralph Loop - Autonomous Development
 
 ### Qué es
-Sistema de desarrollo autónomo que ejecuta el ciclo completo de 7 fases con mínima intervención humana.
+Sistema de desarrollo autónomo que ejecuta el ciclo completo de 8 fases con mínima intervención humana.
 
 ### Cuándo usar
 - Tienes features definidas en `docs/features/_index.md` con status ⚪ Pending
@@ -216,6 +217,7 @@ Sistema de desarrollo autónomo que ejecuta el ciclo completo de 7 fases con mí
 3. Ralph crea worktrees, ejecuta loops
 4. Ralph pausa solo para:
    - Interview incompleto (spec.md con TBD)
+   - Think Critically: red flags o confianza baja
    - Merge approval (PR review)
    - 3 fallos consecutivos
 5. Human aprueba PRs en GitHub

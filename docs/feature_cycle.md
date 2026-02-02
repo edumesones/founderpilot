@@ -1,119 +1,95 @@
-# Feature Development Cycle v2.0
+# Feature Development Cycle (8 Phases)
 
 ## Objetivo
 
-Este documento define el flujo de trabajo exacto para implementar cualquier feature, **incluyendo gestión de contexto integrada** para mantener trazabilidad total y permitir recuperación de sesiones interrumpidas.
+Este documento define el flujo de trabajo exacto para implementar cualquier feature. Siguiendo este ciclo se garantiza consistencia, trazabilidad y calidad.
 
 ---
 
 ## Resumen Visual
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                     FEATURE DEVELOPMENT CYCLE v2.0                               │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│   1. INTERVIEW      2. PLAN         3. BRANCH       4. IMPLEMENT                │
-│   ┌─────────┐      ┌─────────┐     ┌─────────┐     ┌─────────┐                 │
-│   │Preguntas│ ───► │ Explorar│ ──► │  git    │ ──► │ Código  │                 │
-│   │Decisiones│     │ Diseñar │     │checkout │     │ Tests   │                 │
-│   │ spec.md │      │ Plan.md │     │   -b    │     │ Commits │                 │
-│   └────┬────┘      └────┬────┘     └────┬────┘     └────┬────┘                 │
-│        │                │               │               │                       │
-│        ▼                ▼               ▼               ▼                       │
-│   📋 CONTEXT       📋 CONTEXT      📋 CONTEXT     📋 CONTEXT                   │
-│   checkpoint       checkpoint      checkpoint     continuo                      │
-│                                                        │                        │
-│                                                        ▼                        │
-│   7. WRAP-UP        6. MERGE        5. PR         ◄────┘                        │
-│   ┌─────────┐      ┌─────────┐     ┌─────────┐                                  │
-│   │ Archive │ ◄─── │ Review  │ ◄── │  Push   │                                  │
-│   │ Learn   │      │ Approve │     │  gh pr  │                                  │
-│   │ Clean   │      │ Update  │     │ create  │                                  │
-│   └─────────┘      └─────────┘     └─────────┘                                  │
-│       │                                                                          │
-│       ▼                                                                          │
-│   📦 Feature archived con contexto completo                                     │
-│   📊 Aprendizajes documentados                                                  │
-│   🧹 Contexto temporal limpiado                                                 │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FEATURE DEVELOPMENT CYCLE (8 PHASES)                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   1. INTERVIEW       2. THINK CRITICALLY    3. PLAN         4. BRANCH       │
+│   ┌─────────┐       ┌─────────────┐       ┌─────────┐     ┌─────────┐     │
+│   │ Preguntas│ ───► │ 11-Step     │ ───► │ Explorar │───► │ git     │     │
+│   │ Decisiones│      │ Protocol    │       │ Diseñar │     │ checkout│     │
+│   │ spec.md  │       │ analysis.md │       │ design.md│     │ -b      │     │
+│   └─────────┘       └─────────────┘       └─────────┘     └─────────┘     │
+│       │                    │                    │                │          │
+│       ▼                    ▼                    ▼                ▼          │
+│   📄 spec.md          📄 analysis.md       📄 design.md     🌿 branch     │
+│   📄 status.md        📄 decisions.md      📄 tasks.md      📄 status.md  │
+│                                                                    │        │
+│                                                                    ▼        │
+│   5. IMPLEMENT                                                              │
+│   ┌──────────────────────────────────────────────────────────────┐          │
+│   │ Código → Tests → Commits → Documentación viva                │          │
+│   └──────────────────────────────────────────────────────────────┘          │
+│       │                                                                      │
+│       ▼                                                                      │
+│   7. MERGE              6. PR              ◄────────────────────            │
+│   ┌─────────┐          ┌─────────┐                                          │
+│   │ Review  │   ◄───   │ Push    │                                          │
+│   │ Approve │          │ gh pr   │                                          │
+│   │ Update  │          │ create  │                                          │
+│   └─────────┘          └─────────┘                                          │
+│       │                                                                      │
+│       ▼                                                                      │
+│   8. WRAP-UP                                                                 │
+│   ┌─────────┐                                                                │
+│   │ Context │                                                                │
+│   │ Learnings│                                                               │
+│   │ Cleanup │                                                                │
+│   └─────────┘                                                                │
+│       │                                                                      │
+│       ▼                                                                      │
+│   📄 status.md → 🟢 Complete                                                │
+│   📄 wrap_up.md → Learnings captured                                        │
+│   📄 _index.md UPDATED                                                      │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Estructura de Contexto por Feature
+## ⚠️ REGLA CRÍTICA: DOCUMENTACIÓN VIVA
 
 ```
-docs/features/FEAT-XXX/
-├── spec.md              # Especificación (Interview)
-├── design.md            # Diseño técnico (Plan)
-├── tasks.md             # Checklist de tareas (Implement)
-├── tests.md             # Plan y resultados de tests
-├── status.md            # Estado actual de la feature
-└── context/             # 🆕 CONTEXTO DE SESIÓN
-    ├── session_log.md   # Log cronológico de la sesión
-    ├── decisions.md     # Decisiones tomadas durante desarrollo
-    ├── blockers.md      # Blockers encontrados y resoluciones
-    └── wrap_up.md       # Resumen final (post-merge)
-```
-
----
-
-## ⚠️ REGLA CRÍTICA: DOCUMENTACIÓN VIVA + CONTEXTO CONTINUO
-
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                    📋 DOCUMENTATION & CONTEXT RULES                              │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│   La documentación NO se actualiza "al final". Se actualiza EN TIEMPO REAL.     │
-│   El contexto se captura EN CADA FASE, no solo al final.                        │
-│                                                                                  │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ tasks.md - ACTUALIZAR EN CADA TASK                                    │     │
-│   ├───────────────────────────────────────────────────────────────────────┤     │
-│   │ ANTES de empezar task:    - [ ] Task 1  →  - [🟡] Task 1             │     │
-│   │ DESPUÉS de completar:     - [🟡] Task 1  →  - [x] Task 1             │     │
-│   │ Si hay problema:          - [🟡] Task 1  →  - [🔴] Task 1 (blocked)  │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ status.md - ACTUALIZAR EN CADA CAMBIO DE FASE                         │     │
-│   ├───────────────────────────────────────────────────────────────────────┤     │
-│   │ Interview completado  → Phase: Interview ✅                           │     │
-│   │ Plan aprobado         → Phase: Plan ✅                                │     │
-│   │ Branch creado         → Phase: Branch ✅, Current: Implement          │     │
-│   │ Cada 3 tasks          → Progress: 3/10 tasks                          │     │
-│   │ Blocker encontrado    → Blockers: [descripción]                       │     │
-│   │ PR creado             → Phase: PR, Link: [url]                        │     │
-│   │ Merged                → Status: 🟢 Complete                           │     │
-│   │ Wrap-up done          → Status: 🟢 Complete + Wrapped ✅              │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ context/session_log.md - CHECKPOINT EN CADA FASE                      │     │
-│   ├───────────────────────────────────────────────────────────────────────┤     │
-│   │ Al completar Interview → Checkpoint con decisiones clave              │     │
-│   │ Al completar Plan      → Checkpoint con arquitectura elegida          │     │
-│   │ Al crear Branch        → Checkpoint con estado inicial                │     │
-│   │ Durante Implement      → Log cada 30 min o 3 tasks                    │     │
-│   │ Al crear PR            → Checkpoint con resumen de cambios            │     │
-│   │ Al Merge               → Checkpoint de confirmación                   │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ _index.md (dashboard) - ACTUALIZAR EN CAMBIO DE STATUS                │     │
-│   ├───────────────────────────────────────────────────────────────────────┤     │
-│   │ Feature empieza       → ⚪ Pending  →  🟡 In Progress                 │     │
-│   │ PR creado             → 🟡 In Progress  →  🔵 In Review               │     │
-│   │ Merged                → 🔵 In Review  →  🟢 Complete                  │     │
-│   │ Bloqueado             → 🟡 In Progress  →  🔴 Blocked                 │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   ⏰ COMMIT DOCS + CONTEXT CADA 30 MINUTOS O CADA 3 TASKS                       │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    📋 DOCUMENTATION UPDATE RULES                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   La documentación NO se actualiza "al final". Se actualiza EN TIEMPO REAL. │
+│                                                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ tasks.md - ACTUALIZAR EN CADA TASK                                  │   │
+│   ├─────────────────────────────────────────────────────────────────────┤   │
+│   │ ANTES de empezar task:    - [ ] Task 1  →  - [🟡] Task 1           │   │
+│   │ DESPUÉS de completar:     - [🟡] Task 1  →  - [x] Task 1           │   │
+│   │ Si hay problema:          - [🟡] Task 1  →  - [🔴] Task 1 (blocked)│   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ status.md - ACTUALIZAR EN CADA CAMBIO DE FASE                       │   │
+│   ├─────────────────────────────────────────────────────────────────────┤   │
+│   │ Interview completado        → Phase: Interview ✅                   │   │
+│   │ Analysis completado         → Phase: Critical Analysis ✅           │   │
+│   │ Plan aprobado               → Phase: Plan ✅                        │   │
+│   │ Branch creado               → Phase: Branch ✅, Current: Implement  │   │
+│   │ Cada 3 tasks                → Progress: 3/10 tasks                  │   │
+│   │ Blocker encontrado          → Blockers: [descripción]               │   │
+│   │ PR creado                   → Phase: PR, Link: [url]                │   │
+│   │ Merged                      → Status: 🟢 Complete                   │   │
+│   │ Wrap-Up complete            → Learnings captured                    │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│   ⏰ COMMIT DOCS CADA 30 MINUTOS O CADA 3 TASKS (lo que pase primero)       │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Marcadores de Tasks
@@ -133,13 +109,10 @@ docs/features/FEAT-XXX/
 ### Propósito
 Capturar TODAS las decisiones técnicas y de producto ANTES de escribir código.
 
-### Comando
-```
-/interview FEAT-XXX
-```
-o
+### Cómo Iniciar
 ```
 "Interview me about FEAT-XXX"
+/interview FEAT-XXX
 ```
 
 ### Proceso
@@ -150,6 +123,7 @@ o
    - Edge cases
    - Límites y restricciones
    - Integraciones
+   - **Market Validation** (Pain Level 7+? - SaaS Validator)
 
 2. **El usuario responde con opciones claras**:
    - ✅ BIEN: "Import desde .env (DATABASE_URL format)"
@@ -158,93 +132,112 @@ o
 
 3. **Claude actualiza spec.md** con cada decisión en formato tabla
 
-### 📋 Context Checkpoint - Interview
-
-```markdown
-# En context/session_log.md añadir:
-
-### [YYYY-MM-DD HH:MM] - Interview Complete ✅
-
-**Fase:** Interview → Complete
-**Duración:** ~X minutos
-
-**Decisiones clave tomadas:**
-- [Decisión 1]: [Valor elegido] - [Razón]
-- [Decisión 2]: [Valor elegido] - [Razón]
-
-**Preguntas pendientes:**
-- [Si quedó algo por resolver]
-
-**Próximo paso:** /plan FEAT-XXX
-```
-
 ### 📄 Documentos actualizados
 - `spec.md` → Decisiones documentadas
 - `status.md` → Phase: Interview ✅
-- `context/session_log.md` → Checkpoint de interview
-- `context/decisions.md` → Si hubo decisiones arquitectónicas importantes
 
 ---
 
-## Fase 2: PLAN (Diseño Técnico)
+## Fase 2: THINK CRITICALLY (Análisis Crítico) ← NUEVA
 
 ### Propósito
-Diseñar la implementación ANTES de escribir código.
+Análisis riguroso pre-implementación que simula una revisión de un staff engineer paranoico. Previene errores arquitectónicos costosos.
 
-### Comando
+### Cómo Iniciar
 ```
-/plan FEAT-XXX
+/think-critically FEAT-XXX
+```
+
+### Proceso
+
+1. Lee spec.md completado (output de Interview)
+2. Determina profundidad de análisis (ver reglas de abreviación)
+3. Ejecuta protocolo de 11 pasos (o abreviado)
+4. Genera analysis.md
+
+### Reglas de Abreviación Automática
+
+| Condición | Pasos | Razón |
+|-----------|-------|-------|
+| Feature nueva + sistema nuevo | Los 11 pasos | Máximo riesgo arquitectónico |
+| Feature nueva + patrones existentes | 1-2-3-5-9-11 | Riesgo medio |
+| Feature pequeña/clara | 1-2-5-11 | Riesgo bajo |
+| Bug fix / hotfix | Saltar completamente | Sin riesgo arquitectónico |
+
+### Los 11 Pasos
+
+```
+ 1. Clarificación del Problema    - ¿Qué estamos resolviendo exactamente?
+ 2. Asunciones Implícitas ⚠️      - ¿Qué asumimos que es verdad?
+ 3. Espacio de Diseño             - ¿Qué enfoques existen?
+ 4. Análisis de Trade-offs        - ¿Qué estamos intercambiando?
+ 5. Análisis de Fallos            - ¿Qué se romperá y cómo?
+ 6. Límites e Invariantes         - ¿Qué debe ser siempre verdad?
+ 7. Observabilidad                - ¿Cómo sabremos si funciona?
+ 8. Reversibilidad                - ¿Podemos deshacer esto?
+ 9. Revisión Adversarial 🔴       - Ataca tu propio diseño
+10. Delegación IA                 - ¿Qué puede automatizar Ralph?
+11. Resumen de Decisión           - Síntesis final + nivel de confianza
+```
+
+### ⚠️ Condiciones de Pausa (Ralph Loop)
+
+El análisis PAUSA automáticamente si:
+1. **Step 2:** Asunción con confianza Baja + impacto Alto → requiere validación
+2. **Step 9:** Red flag crítico identificado → requiere decisión humana
+3. **Step 11:** Nivel de confianza = "Bajo" → no puede proceder a Plan
+
+Si todos los checks pasan → continúa automáticamente a Plan.
+
+### Cómo analysis.md Alimenta al Plan
+
+| Output del Análisis | Cómo lo usa Plan |
+|--------------------|-----------------|
+| Enfoque recomendado (Step 11) | Selecciona patrón de arquitectura |
+| Mitigaciones de fallos (Step 5) | Agrega tasks de error handling |
+| Invariantes (Step 6) | Se convierte en reglas de validación |
+| Matriz de delegación IA (Step 10) | Decide scope de automatización |
+| Requisitos de observabilidad (Step 7) | Agrega tasks de monitoreo |
+
+### 📄 Documentos actualizados
+- `analysis.md` → Resultado del análisis
+- `context/decisions.md` → Decisiones clave
+- `status.md` → Phase: Critical Analysis ✅
+
+---
+
+## Fase 3: PLAN (Diseño Técnico)
+
+### Propósito
+Diseñar la implementación ANTES de escribir código. Ahora informado por el análisis crítico.
+
+### Cómo Iniciar
+```
+/plan implement FEAT-XXX
 ```
 
 ### Proceso
 
 1. Claude entra en **modo plan** (solo lectura, NO edita código)
-2. Exploración del codebase existente
-3. Genera plan con archivos, orden, snippets
-4. Usuario revisa y aprueba
-
-### 📋 Context Checkpoint - Plan
-
-```markdown
-# En context/session_log.md añadir:
-
-### [YYYY-MM-DD HH:MM] - Plan Complete ✅
-
-**Fase:** Plan → Complete
-
-**Arquitectura elegida:**
-- [Patrón/approach principal]
-
-**Archivos a crear:** X nuevos
-**Archivos a modificar:** Y existentes
-**Tasks generadas:** Z tasks
-
-**Dependencias identificadas:**
-- [Externas: libs, APIs]
-- [Internas: otros módulos]
-
-**Riesgos técnicos:**
-- [Riesgo 1]: [Mitigación]
-
-**Próximo paso:** Crear branch
-```
+2. Lee **spec.md + analysis.md** (AMBOS son input obligatorio)
+3. Exploración del codebase existente
+4. Genera plan con archivos, orden, snippets
+5. Usuario revisa y aprueba
 
 ### 📄 Documentos actualizados
-- `design.md` → Arquitectura técnica
+- `design.md` → Arquitectura técnica (informada por analysis.md)
 - `tasks.md` → Checklist ordenado con todas las tasks
 - `status.md` → Phase: Plan ✅
-- `context/session_log.md` → Checkpoint de plan
-- `context/decisions.md` → Decisiones de diseño
 
 ---
 
-## Fase 3: BRANCH (Preparación)
+## Fase 4: BRANCH (Preparación)
 
 ### ⚠️ REGLA CRÍTICA
 ```
-╔═══════════════════════════════════════════════════════════════╗
-║  NUNCA EMPEZAR A CODEAR SIN CREAR LA RAMA PRIMERO            ║
-╚═══════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════╗
+║  NUNCA EMPEZAR A CODEAR SIN CREAR LA RAMA PRIMERO                        ║
+╚═══════════════════════════════════════════════════════════════════════════╝
 ```
 
 ### Proceso
@@ -262,31 +255,12 @@ feat-001                   ❌ (muy corto)
 nueva-feature              ❌ (no descriptivo)
 ```
 
-### 📋 Context Checkpoint - Branch
-
-```markdown
-# En context/session_log.md añadir:
-
-### [YYYY-MM-DD HH:MM] - Branch Created ✅
-
-**Fase:** Branch → Complete
-**Branch:** feature/XXX-nombre
-**Base:** main @ [commit hash corto]
-
-**Estado del repo:**
-- Working tree clean: ✅
-- Synced with origin: ✅
-
-**Próximo paso:** Implement Task 1
-```
-
 ### 📄 Documentos actualizados
 - `status.md` → Phase: Branch ✅, Branch: feature/XXX-nombre
-- `context/session_log.md` → Checkpoint de branch
 
 ---
 
-## Fase 4: IMPLEMENT (Desarrollo)
+## Fase 5: IMPLEMENT (Desarrollo)
 
 ### Propósito
 Implementar siguiendo el plan, con documentación viva.
@@ -294,91 +268,39 @@ Implementar siguiendo el plan, con documentación viva.
 ### ⚠️ FLUJO OBLIGATORIO POR CADA TASK
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                         POR CADA TASK                                            │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│   1. ANTES DE EMPEZAR                                                           │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ □ Actualizar tasks.md:  - [ ] Task N  →  - [🟡] Task N               │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                              │                                                   │
-│                              ▼                                                   │
-│   2. IMPLEMENTAR                                                                │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ □ Escribir código                                                     │     │
-│   │ □ Escribir tests (si aplica)                                          │     │
-│   │ □ Verificar que funciona                                              │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                              │                                                   │
-│                              ▼                                                   │
-│   3. DESPUÉS DE COMPLETAR                                                       │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ □ Actualizar tasks.md:  - [🟡] Task N  →  - [x] Task N               │     │
-│   │ □ git add [archivos de esta task]                                     │     │
-│   │ □ git commit -m "FEAT-XXX: Complete Task N - descripción"            │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                              │                                                   │
-│                              ▼                                                   │
-│   4. CHECKPOINT (cada 30 min o 3 tasks)                                         │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ □ Actualizar status.md: Progress: X/Y tasks                           │     │
-│   │ □ Actualizar context/session_log.md                                   │     │
-│   │ □ git add docs/features/FEAT-XXX/                                     │     │
-│   │ □ git commit -m "FEAT-XXX: Update progress X/Y"                       │     │
-│   │ □ git push (backup remoto)                                            │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 📋 Context Logging - Durante Implement
-
-```markdown
-# En context/session_log.md añadir cada checkpoint:
-
-### [YYYY-MM-DD HH:MM] - Implement Progress
-
-**Progreso:** 5/12 tasks (42%)
-**Última task completada:** B3 - Create UserService
-
-**Cambios esta sesión:**
-- Creado: src/services/user_service.py
-- Creado: tests/test_user_service.py
-- Modificado: src/main.py
-
-**Decisiones tomadas:**
-- Usar async para operaciones DB (performance)
-
-**Problemas encontrados:**
-- [Ninguno] o [Descripción + resolución]
-
-**Próxima task:** B4 - Create API endpoints
-
-**Tiempo en sesión:** ~1h 30min
-```
-
-### Si hay BLOCKER
-
-```markdown
-# En context/blockers.md añadir:
-
-### 🔴 BLK-001: [Título del blocker]
-
-**Detectado:** YYYY-MM-DD HH:MM
-**Task afectada:** [Task ID]
-**Severidad:** Alta/Media/Baja
-
-**Descripción:**
-[Qué está bloqueando]
-
-**Intentos de resolución:**
-1. [Intento 1] → [Resultado]
-
-**Status:** 🔴 Activo / 🟢 Resuelto
-
-**Resolución (cuando aplique):**
-[Cómo se resolvió]
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         POR CADA TASK                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   1. ANTES DE EMPEZAR                                                       │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ □ Actualizar tasks.md:  - [ ] Task N  →  - [🟡] Task N             │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                              │                                              │
+│                              ▼                                              │
+│   2. IMPLEMENTAR                                                            │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ □ Escribir código                                                   │   │
+│   │ □ Escribir tests (si aplica)                                        │   │
+│   │ □ Verificar que funciona                                            │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                              │                                              │
+│                              ▼                                              │
+│   3. DESPUÉS DE COMPLETAR                                                   │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ □ Actualizar tasks.md:  - [🟡] Task N  →  - [x] Task N             │   │
+│   │ □ git add [archivos de esta task]                                   │   │
+│   │ □ git commit -m "FEAT-XXX: Complete Task N - descripción"          │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                              │                                              │
+│                              ▼                                              │
+│   4. CHECKPOINT (cada 30 min o 3 tasks)                                     │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ □ Actualizar status.md: Progress: X/Y tasks                         │   │
+│   │ □ git push (backup remoto)                                          │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Orden de Implementación Típico
@@ -389,32 +311,13 @@ Implementar siguiendo el plan, con documentación viva.
 5. Integración con sistema existente
 6. Tests
 
-### Reglas de Implementación
-
-| ✅ HACER | ❌ NO HACER |
-|----------|-------------|
-| Un archivo/módulo a la vez | Implementar todo de golpe |
-| Commit después de cada task | Commits gigantes |
-| Tests para cada módulo nuevo | Saltarse los tests |
-| Seguir patrones existentes | Inventar nuevos patrones |
-| Actualizar docs en tiempo real | Dejar docs para el final |
-| Context checkpoint cada 30 min | Olvidar el contexto |
-
 ### 📄 Documentos actualizados (CONTINUAMENTE)
 - `tasks.md` → Marcadores actualizados por cada task
 - `status.md` → Progress actualizado cada 3 tasks
-- `context/session_log.md` → Log continuo de progreso
-- `context/blockers.md` → Si hay blockers
-- `context/decisions.md` → Si hay decisiones importantes
 
 ---
 
-## Fase 5: PR (Pull Request)
-
-### Comando
-```
-/git pr
-```
+## Fase 6: PR (Pull Request)
 
 ### Proceso
 
@@ -431,274 +334,96 @@ git commit -m "FEAT-XXX: Final adjustments"
 git push -u origin feature/XXX-nombre
 
 # 4. Crear PR
-gh pr create --title "FEAT-XXX: Nombre Descriptivo" --body "$(cat <<'EOF'
-## Summary
-[1-3 bullets de qué hace]
-
-## Features
-- [x] Feature 1
-- [x] Feature 2
-
-## Files Changed
-**New:** src/module/...
-**Modified:** src/main.py
-
-## Tests
-- X unit tests ✅
-- Y integration tests ✅
-
-## Checklist
-- [x] Tests passing
-- [x] Docs updated
-- [x] No console.logs / prints
-EOF
-)" --base main
-```
-
-### 📋 Context Checkpoint - PR
-
-```markdown
-# En context/session_log.md añadir:
-
-### [YYYY-MM-DD HH:MM] - PR Created ✅
-
-**Fase:** PR → Created
-**PR:** #123 - [url completa]
-**Branch:** feature/XXX-nombre → main
-
-**Resumen de cambios:**
-- Archivos nuevos: X
-- Archivos modificados: Y
-- Tests añadidos: Z
-- Líneas: +A / -B
-
-**Cobertura:** X%
-
-**Reviewer:** [si asignado]
+gh pr create --title "FEAT-XXX: Nombre Descriptivo" --body "..." --base main
 ```
 
 ### 📄 Documentos actualizados
 - `status.md` → Phase: PR ✅, PR: #123 [url]
 - `_index.md` → Status: 🔵 In Review
-- `context/session_log.md` → Checkpoint de PR
 
 ---
 
-## Fase 6: MERGE (Cierre)
+## Fase 7: MERGE (Cierre)
 
 ### Proceso
 
 1. **Review** del PR
 2. **Aprobar y Merge** en GitHub
-3. **Actualizar documentación**:
-   ```
-   "Update FEAT-XXX status to complete"
-   ```
-4. **Limpiar rama local**:
+3. **Actualizar documentación final**
+4. **Limpiar**:
    ```bash
    git checkout main
    git pull
    git branch -d feature/XXX-nombre
    ```
 
-### 📋 Context Checkpoint - Merge
-
-```markdown
-# En context/session_log.md añadir:
-
-### [YYYY-MM-DD HH:MM] - Merged ✅
-
-**Fase:** Merge → Complete
-**PR:** #123 merged
-**Commit en main:** [hash]
-
-**Próximo paso:** /wrap-up FEAT-XXX
-```
-
 ### 📄 Documentos actualizados
 - `status.md` → Status: 🟢 Complete, Merged: [date]
 - `_index.md` → Status: 🟢 Complete
-- `tests.md` → Results documentados
-- `context/session_log.md` → Checkpoint de merge
 
 ---
 
-## Fase 7: WRAP-UP (Context Closure) 🆕
+## Fase 8: WRAP-UP (Cierre de Contexto) ← NUEVA
 
 ### Propósito
-Cerrar el ciclo de contexto, documentar aprendizajes y limpiar archivos temporales.
-
-### Comando
-```
-/wrap-up FEAT-XXX
-```
-
-### ⚠️ ESTA FASE ES OBLIGATORIA
-```
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║  NO HAY FEATURE COMPLETA SIN WRAP-UP                                          ║
-║  El wrap-up captura conocimiento que se pierde si no se documenta ahora       ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
-```
+Capturar aprendizajes, cerrar contexto, y documentar decisiones para futuras sesiones.
 
 ### Proceso
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                         WRAP-UP CHECKLIST                                        │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│   1. CREAR RESUMEN FINAL                                                        │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ □ Completar context/wrap_up.md con template                           │     │
-│   │ □ Documentar tiempo total invertido                                   │     │
-│   │ □ Listar todas las decisiones clave                                   │     │
-│   │ □ Documentar deuda técnica creada (si aplica)                         │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   2. CAPTURAR APRENDIZAJES                                                      │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ □ ¿Qué funcionó bien?                                                 │     │
-│   │ □ ¿Qué se podría mejorar?                                             │     │
-│   │ □ ¿Hay patrones reutilizables?                                        │     │
-│   │ □ ¿Algo que añadir a CLAUDE.md?                                       │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   3. LIMPIAR CONTEXTO TEMPORAL                                                  │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ □ Revisar .claude/context/mcp/FEAT-XXX_* → mover útiles o eliminar   │     │
-│   │ □ Consolidar session_log.md (eliminar ruido si hay)                   │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   4. ACTUALIZAR DOCUMENTACIÓN GLOBAL (si aplica)                                │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ □ Si hay nuevo patrón → añadir a docs/patterns.md                     │     │
-│   │ □ Si hay nueva regla → añadir a CLAUDE.md                             │     │
-│   │ □ Actualizar README si cambió funcionalidad visible                   │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   5. COMMIT FINAL                                                               │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ □ git add docs/features/FEAT-XXX/context/                             │     │
-│   │ □ git commit -m "FEAT-XXX: Add wrap-up documentation"                 │     │
-│   │ □ git push                                                            │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
+1. Revisar todas las decisiones tomadas durante implementación
+2. Documentar lo que funcionó y lo que no
+3. Registrar deuda técnica creada
+4. Actualizar context files para futuras features
 
 ### 📄 Documentos actualizados
-- `context/wrap_up.md` → Resumen final completo
-- `context/session_log.md` → Entrada final de cierre
-- `status.md` → Status: 🟢 Complete + Wrap-up ✅
-- `CLAUDE.md` → Si hay nuevas reglas (opcional)
+- `context/wrap_up.md` → Aprendizajes capturados
+- `context/decisions.md` → Decisiones finales consolidadas
+- `status.md` → Phase: Wrap-Up ✅
+- `_index.md` → 🟢 Complete
 
 ---
 
-## Protocolo de Recuperación de Sesión (Resume)
+## Ralph Loop (Ejecución Autónoma)
 
-### Cuándo usar
-- Sesión interrumpida inesperadamente
-- Retomando feature después de días/semanas
-- Cambio de máquina o entorno
-
-### Comando
-```
-/resume FEAT-XXX
-```
-
-### Proceso
+### Flujo Completo
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                    RESUME PROTOCOL                                               │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│   1. LEER CONTEXTO EXISTENTE (en este orden)                                    │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ 1. docs/features/FEAT-XXX/status.md           # Estado actual         │     │
-│   │ 2. docs/features/FEAT-XXX/context/session_log.md  # Último progreso  │     │
-│   │ 3. docs/features/FEAT-XXX/tasks.md            # Tasks pendientes      │     │
-│   │ 4. docs/features/FEAT-XXX/context/blockers.md # Blockers activos      │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   2. VERIFICAR ESTADO GIT                                                       │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ git branch --show-current                      # Verificar rama       │     │
-│   │ git status                                     # Cambios pendientes   │     │
-│   │ git log -n 3 --oneline                         # Últimos commits      │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   3. CREAR ENTRADA DE RESUME                                                    │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ Añadir a context/session_log.md:                                      │     │
-│   │                                                                       │     │
-│   │ ### [YYYY-MM-DD HH:MM] - Session Resumed 🔄                          │     │
-│   │ **Última actividad:** [fecha del último log]                          │     │
-│   │ **Días sin actividad:** X                                             │     │
-│   │ **Estado encontrado:** [fase actual, progreso]                        │     │
-│   │ **Continuando desde:** [task o acción]                                │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│                                                                                  │
-│   4. CONTINUAR DESDE DONDE QUEDÓ                                                │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  RALPH LOOP - 8 ITERACIONES AUTÓNOMAS                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Iter 1: INTERVIEW          → spec.md            → INTERVIEW_COMPLETE       │
+│  Iter 2: THINK CRITICALLY   → analysis.md        → ANALYSIS_COMPLETE        │
+│           ⚠️ Pausa si: Low conf + High impact / Red flag / Low confidence    │
+│  Iter 3: PLAN               → design.md + tasks  → PLAN_COMPLETE            │
+│  Iter 4: BRANCH             → feature/XXX-name   → BRANCH_COMPLETE          │
+│  Iter 5-N: IMPLEMENT        → código + tests     → IMPLEMENT_PROGRESS       │
+│           ...hasta que todas las tasks estén ✅   → IMPLEMENT_COMPLETE       │
+│  Iter N+1: PR               → push + gh pr       → PR_COMPLETE              │
+│  Iter N+2: MERGE            → espera aprobación   → MERGE_COMPLETE          │
+│  Iter N+3: WRAP-UP          → wrap_up.md          → FEATURE_COMPLETE        │
+│                                                                              │
+│  ✅ LOOP TERMINADO                                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Trabajo en Paralelo (Fork)
-
-### Cuándo usar Fork
-- Feature grande que se puede dividir (backend + frontend)
-- Quieres acelerar desarrollo
-- Tasks independientes que no se pisan
-
-### Comando
-```
-/fork-feature FEAT-XXX backend
-/fork-feature FEAT-XXX frontend
-```
-
-### Cómo funciona
+## Estructura de Archivos por Feature
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                         PARALLEL WORK WITH FORK                                  │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│   Terminal Principal (tú)                                                       │
-│   ┌───────────────────────────────────────────────────────────────────────┐     │
-│   │ Orquesta, revisa, hace tareas que no se pueden paralelizar            │     │
-│   └───────────────────────────────────────────────────────────────────────┘     │
-│        │                                                                         │
-│        ├──► /fork-feature FEAT-001 backend                                      │
-│        │    ┌───────────────────────────────────────────────────────────┐       │
-│        │    │ Nueva terminal con contexto de FEAT-001                   │       │
-│        │    │ Solo trabaja en tasks de Backend                          │       │
-│        │    │ Actualiza tasks.md Y context/session_log.md               │       │
-│        │    └───────────────────────────────────────────────────────────┘       │
-│        │                                                                         │
-│        └──► /fork-feature FEAT-001 frontend                                     │
-│             ┌───────────────────────────────────────────────────────────┐       │
-│             │ Nueva terminal con contexto de FEAT-001                   │       │
-│             │ Solo trabaja en tasks de Frontend                         │       │
-│             │ Actualiza tasks.md Y context/session_log.md               │       │
-│             └───────────────────────────────────────────────────────────┘       │
-│                                                                                  │
-│   ⚠️  IMPORTANTE:                                                               │
-│   • Ambos trabajan en MISMA RAMA                                                │
-│   • git pull frecuente para evitar conflictos                                   │
-│   • Cada fork actualiza SU SECCIÓN de tasks.md                                  │
-│   • Prefijo en session_log.md: [FORK:backend] o [FORK:frontend]                │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Context en Forks
-Cada fork añade prefijo a sus entradas:
-```markdown
-### [YYYY-MM-DD HH:MM] - [FORK:backend] Task B3 complete
+docs/features/FEAT-XXX/
+├── spec.md           ← Phase 1: Interview (+ Market Validation)
+├── analysis.md       ← Phase 2: Think Critically
+├── design.md         ← Phase 3: Plan
+├── tasks.md          ← Phase 3: Plan
+├── tests.md          ← Phase 5: Implement
+├── status.md         ← Updated each phase
+└── context/
+    ├── session_log.md
+    ├── decisions.md   ← Enriched by Think Critically
+    ├── blockers.md
+    └── wrap_up.md     ← Phase 8: Wrap-Up
 ```
 
 ---
@@ -709,20 +434,27 @@ Cada fork añade prefijo a sus entradas:
 □ INTERVIEW
   □ Preguntas hechas
   □ Decisiones en spec.md
+  □ Market Validation (Pain Level 7+)
   □ status.md → Phase: Interview ✅
-  □ context/session_log.md → Checkpoint ✅
 
-□ PLAN  
+□ THINK CRITICALLY                    ← NUEVO
+  □ Profundidad determinada
+  □ Protocolo ejecutado
+  □ analysis.md generado
+  □ Sin red flags críticos
+  □ Confidence level ≥ Medium
+  □ status.md → Phase: Critical Analysis ✅
+
+□ PLAN
+  □ spec.md + analysis.md leídos (AMBOS)
   □ Codebase explorado
   □ design.md creado
   □ tasks.md con checklist
   □ status.md → Phase: Plan ✅
-  □ context/session_log.md → Checkpoint ✅
 
 □ BRANCH
   □ git checkout -b feature/XXX
   □ status.md → Branch creado
-  □ context/session_log.md → Checkpoint ✅
 
 □ IMPLEMENT
   □ Por cada task:
@@ -730,15 +462,13 @@ Cada fork añade prefijo a sus entradas:
     □ Implementar
     □ Marcar ✅ después
     □ Commit
-  □ Checkpoint cada 30 min o 3 tasks:
-    □ context/session_log.md actualizado
-    □ git push
+  □ Push cada 30 min
+  □ status.md actualizado
 
 □ PR
   □ Todo commiteado
   □ gh pr create
   □ status.md → PR link
-  □ context/session_log.md → Checkpoint ✅
 
 □ MERGE
   □ Review aprobado
@@ -746,17 +476,12 @@ Cada fork añade prefijo a sus entradas:
   □ status.md → 🟢 Complete
   □ _index.md actualizado
   □ Rama local borrada
-  □ context/session_log.md → Checkpoint ✅
 
-□ WRAP-UP (OBLIGATORIO)
+□ WRAP-UP                             ← NUEVO
+  □ Learnings capturados
+  □ Deuda técnica documentada
   □ context/wrap_up.md completado
-  □ Métricas documentadas
-  □ Aprendizajes capturados
-  □ Deuda técnica identificada
-  □ Temporales limpiados
-  □ CLAUDE.md actualizado si aplica
-  □ status.md → Wrap-up ✅
-  □ Commit y push final
+  □ status.md → Wrap-Up ✅
 ```
 
 ---
@@ -766,38 +491,41 @@ Cada fork añade prefijo a sus entradas:
 | ❌ Anti-Pattern | ✅ Correcto |
 |----------------|-------------|
 | Codear sin interview | Interview primero |
+| Planear sin análisis crítico | Think Critically antes de Plan |
 | Codear sin rama | Rama antes de código |
 | Codear sin plan | Plan primero |
 | Actualizar docs al final | Docs en tiempo real |
 | Commits gigantes | Commit por task |
 | Ignorar tests | Tests obligatorios |
-| Fork sin contexto | Fork con /fork-feature |
-| Terminar sin wrap-up | Wrap-up obligatorio |
-| No loguear decisiones | Log continuo en context/ |
-| Perder contexto entre sesiones | Usar /resume |
+| No capturar learnings | Wrap-Up al final |
+| Ignorar red flags del análisis | Resolver antes de implementar |
+| Proceder con confianza baja | Validar asunciones primero |
 
 ---
 
-## Comandos Disponibles - Quick Reference
+## Flujo Completo End-to-End
 
-| Comando | Fase | Propósito |
-|---------|------|-----------|
-| `/new-project` | Setup | Crear estructura de proyecto |
-| `/project-interview` | Setup | Definir proyecto |
-| `/architecture` | Setup | Definir arquitectura y ADRs |
-| `/mvp` | Setup | Planificar MVP features |
-| `/new-feature FEAT-XXX` | Pre-cycle | Crear feature desde template |
-| `/interview FEAT-XXX` | 1. Interview | Especificar feature |
-| `/plan FEAT-XXX` | 2. Plan | Diseñar implementación |
-| `/git sync` | 3+ | Sincronizar con main |
-| `/git "mensaje"` | 4. Implement | Commit con mensaje |
-| `/git pr` | 5. PR | Crear pull request |
-| `/fork-feature FEAT-XXX role` | 4. Implement | Trabajo paralelo |
-| `/resume FEAT-XXX` | Any | Retomar feature |
-| `/wrap-up FEAT-XXX` | 7. Wrap-up | Cerrar feature |
-| `/log "mensaje"` | Any | Añadir entrada manual |
+```bash
+# Phase 0: Setup (una vez por proyecto)
+/project-interview
+/saas-validate project      # Gate: Pain Level 7+?
+/architecture
+/mvp
+
+# Per-Feature Cycle (manual o via Ralph)
+/interview FEAT-001-auth
+/think-critically FEAT-001-auth    # ← NUEVO: 11-step protocol → analysis.md
+/plan implement FEAT-001-auth      # Lee spec.md + analysis.md
+git checkout -b feature/001-auth
+# Implement (via Ralph o manual)
+/git pr
+# Review + merge
+/wrap-up FEAT-001-auth
+
+# O completamente autónomo:
+./ralph-orchestrator.sh 3          # Ejecuta las 8 fases autónomamente
+```
 
 ---
 
 *Última actualización: {date}*
-*Versión: 2.0 - Con Context Management integrado*
