@@ -198,7 +198,7 @@
   - Test authentication and authorization
   - Test validation and error handling
 
-- [ ] **T8.4**: Integration tests for agent
+- [x] **T8.4**: Integration tests for agent
   - Test detection flow (mock Gmail)
   - Test reminder flow (mock Slack)
   - Test escalation flow
