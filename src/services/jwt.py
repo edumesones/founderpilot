@@ -3,6 +3,8 @@ JWT service for creating and verifying access tokens.
 Uses RS256 (RSA + SHA-256) for asymmetric signing.
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 from uuid import UUID

@@ -2,7 +2,9 @@
 FastAPI dependencies for dependency injection.
 """
 
-from typing import Annotated, AsyncGenerator
+from __future__ import annotations
+
+from typing import Annotated, AsyncGenerator, Optional
 
 import redis.asyncio as redis
 from fastapi import Depends, HTTPException, Request, status
@@ -217,8 +219,8 @@ def get_user_agent(request: Request) -> str | None:
 
 # Type aliases for cleaner annotations
 CurrentUser = Annotated[User, Depends(get_current_user)]
-OptionalUser = Annotated[User | None, Depends(get_current_user_optional)]
+OptionalUser = Annotated[Optional[User], Depends(get_current_user_optional)]
 DbSession = Annotated[AsyncSession, Depends(get_db)]
 RedisClient = Annotated[redis.Redis, Depends(get_redis)]
-ClientIP = Annotated[str | None, Depends(get_client_ip)]
-UserAgent = Annotated[str | None, Depends(get_user_agent)]
+ClientIP = Annotated[Optional[str], Depends(get_client_ip)]
+UserAgent = Annotated[Optional[str], Depends(get_user_agent)]
