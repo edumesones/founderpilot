@@ -243,7 +243,7 @@
   - Add InvoicePilot endpoints to OpenAPI spec
   - Add examples for request/response
 
-- [🟡] **T10.4**: Create user guide
+- [x] **T10.4**: Create user guide
   - How to enable InvoicePilot
   - How to configure reminder schedule
   - How to handle Slack notifications
@@ -275,8 +275,8 @@
 | Phase 7: Gmail Integration | 3 | 3 | 100% |
 | Phase 8: Testing | 5 | 5 | 100% |
 | Phase 9: Config & DevOps | 3 | 3 | 100% |
-| Phase 10: Documentation | 2 | 4 | 50% |
-| **TOTAL** | **39** | **41** | **95%** |
+| Phase 10: Documentation | 4 | 4 | 100% |
+| **TOTAL** | **41** | **41** | **100%** |
 
 ---
 
