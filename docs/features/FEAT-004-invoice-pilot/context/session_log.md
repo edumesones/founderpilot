@@ -336,6 +336,54 @@
 **Continuando desde:** [task o fase]
 ```
 
+---
+
+### [2026-02-02 14:45] - Iteration 6: Phase 3 & 4 Progress
+
+**Fase:** Implement
+**Progreso:** 19/41 tasks (46%)
+
+**Qué se hizo:**
+- T3.4: Created InvoiceValidationService with data validation and sanitization
+  - Validates invoice data (amounts, dates, emails, currency codes)
+  - ISO 4217 currency validation
+  - LLM input/output sanitization
+- T4.4: Created Pydantic schemas for invoice API
+  - InvoiceCreate, InvoiceResponse, InvoiceWithReminders
+  - ReminderCreate, ReminderResponse
+  - InvoiceSettings, InvoiceFilters
+  - Action and status enums
+- T4.1: Created invoice router with main endpoints
+  - GET /api/v1/invoices (list with filters)
+  - GET /api/v1/invoices/:id (details + reminders)
+  - POST /api/v1/invoices/:id/confirm
+  - POST /api/v1/invoices/:id/reject
+  - POST /api/v1/invoices/:id/mark-paid
+  - GET/PUT /api/v1/invoices/settings
+
+**Decisiones tomadas:**
+- Used existing auth system (get_current_user, CurrentUser) from dependencies.py
+- Followed existing API pattern from billing.py
+- Added comprehensive validation in ValidationService to prevent LLM hallucinations
+- Separated settings endpoints at root level (/invoices/settings) rather than per-invoice
+
+**Problemas/Blockers:**
+- Ninguno
+
+**Archivos modificados:**
+- src/services/invoice_validation_service.py (new)
+- src/schemas/invoice.py (new)
+- src/api/v1/invoices.py (new)
+- docs/features/FEAT-004-invoice-pilot/tasks.md
+- docs/features/FEAT-004-invoice-pilot/status.md
+
+**Commits:**
+- 47c6c38: Create InvoiceValidationService with data validation and sanitization (T3.4)
+- 369f861: Create Pydantic schemas for invoice API (T4.4)
+- ed3a4f1: Create invoice router with main endpoints (T4.1)
+
+**Próximo paso:** Continue with Phase 4 (T4.2: reminder endpoints, T4.3: settings endpoints already done in T4.1)
+
 
 
 
