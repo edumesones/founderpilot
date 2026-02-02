@@ -7,6 +7,9 @@ from uuid import uuid4
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.graph import END, StateGraph
 
+from src.agents.invoice_pilot.nodes.detect import detect_invoice
+from src.agents.invoice_pilot.nodes.extract import extract_data
+from src.agents.invoice_pilot.nodes.scan import scan_inbox
 from src.agents.invoice_pilot.state import (
     EscalationState,
     InvoiceState,
@@ -138,64 +141,19 @@ class InvoicePilotAgent:
             interrupt_before=["confirm_invoice"],
         )
 
-    # Detection node stubs (will implement in T2.2)
+    # Detection node implementations
 
     async def _node_scan_inbox(self, state: InvoiceState) -> dict:
         """Scan inbox for sent emails with PDF attachments."""
-        # TODO: Implement in T2.2
-        return {
-            "steps": state.get("steps", []) + [{
-                "node": "scan_inbox",
-                "timestamp": datetime.utcnow().isoformat(),
-                "result": {"status": "stub"},
-                "error": None,
-            }],
-        }
+        return await scan_inbox(state, self.gmail)
 
     async def _node_detect_invoice(self, state: InvoiceState) -> dict:
         """Detect if email contains an invoice using LLM."""
-        # TODO: Implement in T2.2
-        return {
-            "detection": {
-                "is_invoice": True,
-                "confidence": 0.95,
-                "reasoning": "Stub detection",
-                "gmail_message_id": state["gmail_message_id"],
-                "pdf_url": None,
-            },
-            "steps": state.get("steps", []) + [{
-                "node": "detect_invoice",
-                "timestamp": datetime.utcnow().isoformat(),
-                "result": {"status": "stub"},
-                "error": None,
-            }],
-        }
+        return await detect_invoice(state, self.llm)
 
     async def _node_extract_data(self, state: InvoiceState) -> dict:
         """Extract invoice data from PDF using multimodal LLM."""
-        # TODO: Implement in T2.2
-        return {
-            "extraction": {
-                "data": {
-                    "invoice_number": "STUB-001",
-                    "client_name": "Stub Client",
-                    "client_email": "stub@example.com",
-                    "amount_total": 1000.0,
-                    "currency": "USD",
-                    "issue_date": None,
-                    "due_date": None,
-                    "line_items": None,
-                },
-                "confidence": 0.85,
-                "missing_fields": [],
-            },
-            "steps": state.get("steps", []) + [{
-                "node": "extract_data",
-                "timestamp": datetime.utcnow().isoformat(),
-                "result": {"status": "stub"},
-                "error": None,
-            }],
-        }
+        return await extract_data(state, self.llm)
 
     async def _node_confirm_invoice(self, state: InvoiceState) -> dict:
         """Human confirmation node - this is an interrupt point."""

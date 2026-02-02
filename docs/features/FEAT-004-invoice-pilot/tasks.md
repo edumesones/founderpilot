@@ -37,7 +37,7 @@
   - StateGraph setup
   - State classes: InvoiceState, DetectionState, ReminderState
 
-- [ ] **T2.2**: Implement detection flow nodes
+- [x] **T2.2**: Implement detection flow nodes
   - scan_inbox: Fetch sent emails from Gmail API
   - detect_invoice: LLM-based invoice detection
   - extract_data: LLM multimodal extraction from PDF
