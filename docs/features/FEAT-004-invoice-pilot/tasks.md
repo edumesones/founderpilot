@@ -58,7 +58,7 @@
   - detect_problem_pattern: Check for 3+ reminders without payment
   - escalate_to_slack: Notify founder of morose client
 
-- [ ] **T2.6**: Create LLM prompt templates
+- [x] **T2.6**: Create LLM prompt templates
   - Invoice detection prompt
   - Data extraction prompt (with structured output)
   - Reminder draft prompt (customizable tone)
@@ -267,7 +267,7 @@
 | Phase | Done | Total | % |
 |-------|------|-------|---|
 | Phase 1: Models & Migrations | 4 | 4 | 100% |
-| Phase 2: LangGraph Agent | 0 | 6 | 0% |
+| Phase 2: LangGraph Agent | 6 | 6 | 100% |
 | Phase 3: Service Layer | 0 | 4 | 0% |
 | Phase 4: API Endpoints | 0 | 5 | 0% |
 | Phase 5: Celery Tasks | 0 | 4 | 0% |
@@ -276,7 +276,7 @@
 | Phase 8: Testing | 0 | 5 | 0% |
 | Phase 9: Config & DevOps | 0 | 3 | 0% |
 | Phase 10: Documentation | 0 | 4 | 0% |
-| **TOTAL** | **4** | **41** | **10%** |
+| **TOTAL** | **10** | **41** | **24%** |
 
 ---
 
