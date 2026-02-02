@@ -88,8 +88,8 @@
 
 ## DevOps Tasks
 
-- [ ] **O1**: Add environment variables to `.env.example`
-- [ ] **O2**: Update CI/CD if needed
+- [x] **O1**: Add environment variables to `.env.example` (No new vars needed - uses existing config)
+- [x] **O2**: Update CI/CD if needed (No CI/CD config exists yet - tests run via pytest)
 - [x] **O3**: Add database migrations if needed (migration 007 already exists)
 
 ---
@@ -113,8 +113,8 @@
 | Frontend | 4 | 4 | 100% |
 | Tests | 4 | 4 | 100% |
 | Docs | 3 | 3 | 100% |
-| DevOps | 1 | 3 | 33% |
-| **TOTAL** | **17** | **19** | **89%** |
+| DevOps | 3 | 3 | 100% |
+| **TOTAL** | **19** | **19** | **100%** |
 
 ---
 
