@@ -33,7 +33,7 @@
 
 ## Phase 2: LangGraph Agent (Core Intelligence)
 
-- [ ] **T2.1**: Create InvoicePilotAgent skeleton in `src/agents/invoice_pilot.py`
+- [x] **T2.1**: Create InvoicePilotAgent skeleton in `src/agents/invoice_pilot.py`
   - StateGraph setup
   - State classes: InvoiceState, DetectionState, ReminderState
 
