@@ -3,10 +3,11 @@
 # RALPH FEATURE LOOP - Single Feature Autonomous Development
 # ============================================================================
 # Windows/Git Bash compatible version
-# Executes the complete 7-phase Feature Development Cycle autonomously
+# Executes the complete 8-phase Feature Development Cycle autonomously
+# (Based on docs/feature_cycle_v_full.md)
 # Integrates with existing context management (session_log, decisions, etc.)
 #
-# Phases: Interview → Plan → Branch → Implement → PR → Merge → Wrap-Up
+# Phases: Interview → Think Critically → Plan → Branch → Implement → PR → Merge → Wrap-Up
 #
 # Usage:
 #   ./ralph-feature.sh FEAT-XXX [max_iterations]
@@ -29,10 +30,12 @@ STATE_FILE="../feature-loop-state.json"
 # Feature paths
 FEATURE_DIR="docs/features/$FEATURE_ID"
 SPEC_FILE="$FEATURE_DIR/spec.md"
+ANALYSIS_FILE="$FEATURE_DIR/analysis.md"
 DESIGN_FILE="$FEATURE_DIR/design.md"
 TASKS_FILE="$FEATURE_DIR/tasks.md"
 STATUS_FILE="$FEATURE_DIR/status.md"
 SESSION_LOG="$FEATURE_DIR/context/session_log.md"
+DECISIONS_FILE="$FEATURE_DIR/context/decisions.md"
 WRAP_UP_FILE="$FEATURE_DIR/context/wrap_up.md"
 
 # Branch name - matches worktree branch format: feat/FEAT-XXX
@@ -99,17 +102,18 @@ detect_current_phase() {
         echo "unknown"
         return
     fi
-    
-    # Check phase progress table
+
+    # Check phase progress table (8-phase cycle from feature_cycle_v_full.md)
     local interview=$(grep -E "Interview.*✅" "$STATUS_FILE" 2>/dev/null || true)
+    local analysis=$(grep -E "Critical Analysis.*✅" "$STATUS_FILE" 2>/dev/null || true)
     local plan=$(grep -E "Plan.*✅" "$STATUS_FILE" 2>/dev/null || true)
     local branch=$(grep -E "Branch.*✅" "$STATUS_FILE" 2>/dev/null || true)
     local implement=$(grep -E "Implement.*✅" "$STATUS_FILE" 2>/dev/null || true)
     local pr=$(grep -E "PR.*✅" "$STATUS_FILE" 2>/dev/null || true)
     local merge=$(grep -E "Merge.*✅" "$STATUS_FILE" 2>/dev/null || true)
-    
+
     # Check wrap_up.md existence for final phase
-    if [[ -f "$WRAP_UP_FILE" ]] && grep -q "Wrap-up completado" "$WRAP_UP_FILE" 2>/dev/null; then
+    if [[ -f "$WRAP_UP_FILE" ]] && grep -q "Wrap-up completado\|Wrap-Up Complete" "$WRAP_UP_FILE" 2>/dev/null; then
         echo "complete"
     elif [[ -n "$merge" ]]; then
         echo "wrapup"
@@ -126,12 +130,19 @@ detect_current_phase() {
         fi
     elif [[ -n "$plan" ]]; then
         echo "branch"
-    elif [[ -n "$interview" ]]; then
+    elif [[ -n "$analysis" ]]; then
         echo "plan"
+    elif [[ -n "$interview" ]]; then
+        # Check if analysis is complete or should be skipped
+        if is_analysis_complete; then
+            echo "plan"
+        else
+            echo "analysis"
+        fi
     else
         # Check if spec.md has decisions
         if is_interview_complete; then
-            echo "plan"
+            echo "analysis"
         else
             echo "interview"
         fi
@@ -183,6 +194,61 @@ is_pr_merged() {
     [[ "$state" == "MERGED" ]]
 }
 
+is_analysis_complete() {
+    # Check if analysis.md exists and has substantive content
+    if [[ ! -f "$ANALYSIS_FILE" ]]; then
+        return 1
+    fi
+
+    # Check for required sections (at least problem clarification and decision summary)
+    local has_problem=$(grep -c "## 1\. Clarificación\|## Problem Clarification\|Step 1" "$ANALYSIS_FILE" 2>/dev/null || echo "0")
+    local has_decision=$(grep -c "## 11\. Resumen\|## Decision Summary\|Step 11\|Confidence Level" "$ANALYSIS_FILE" 2>/dev/null || echo "0")
+
+    [[ $has_problem -ge 1 ]] && [[ $has_decision -ge 1 ]]
+}
+
+should_skip_analysis() {
+    # Determine if analysis can be abbreviated or skipped based on feature complexity
+    # Returns 0 (true) if can skip, 1 (false) if must analyze
+
+    if [[ ! -f "$SPEC_FILE" ]]; then
+        return 1  # Can't determine, must analyze
+    fi
+
+    # Check for bug fix / hotfix keywords
+    local is_bugfix=$(grep -ciE "bug|fix|hotfix|patch" "$SPEC_FILE" 2>/dev/null || echo "0")
+    if [[ $is_bugfix -ge 2 ]]; then
+        return 0  # Skip analysis for bug fixes
+    fi
+
+    return 1  # Default: must analyze
+}
+
+get_analysis_depth() {
+    # Returns: full, medium, light, skip
+    # Based on feature_cycle_v_full.md abbreviation rules
+
+    if should_skip_analysis; then
+        echo "skip"
+        return
+    fi
+
+    # Check if this is a new system or existing patterns
+    local has_patterns=$(find src -name "*.py" 2>/dev/null | head -5 | wc -l)
+
+    if [[ $has_patterns -lt 5 ]]; then
+        echo "full"  # New system, full 11 steps
+    else
+        # Existing system - check feature complexity
+        local decision_count=$(grep -cE "^\| [0-9]+ \|" "$SPEC_FILE" 2>/dev/null || echo "0")
+        if [[ $decision_count -ge 5 ]]; then
+            echo "medium"  # Complex feature, steps 1-2-3-5-9-11
+        else
+            echo "light"   # Simple feature, steps 1-2-5-11
+        fi
+    fi
+}
+
 # ============================================================================
 # PHASE EXECUTION
 # ============================================================================
@@ -194,6 +260,9 @@ execute_phase() {
     case "$phase" in
         interview)
             execute_interview
+            ;;
+        analysis)
+            execute_analysis
             ;;
         plan)
             execute_plan
@@ -239,8 +308,9 @@ execute_interview() {
         fi
     fi
     
-    # Build prompt for Claude
-    local prompt=$(cat << EOF
+    # Build prompt for Claude - write to temp file to avoid escaping issues
+    local prompt_file=$(mktemp)
+    cat > "$prompt_file" << EOF
 You are executing the INTERVIEW phase for $FEATURE_ID.
 
 Read the spec file and complete any missing technical decisions.
@@ -249,52 +319,174 @@ If the spec is already complete, emit the completion signal.
 Steps:
 1. Read $SPEC_FILE
 2. If Technical Decisions table has TBD values, fill them with sensible defaults
-3. Update status.md to mark Interview as ✅
+3. Update status.md to mark Interview as complete
 4. Add checkpoint to context/session_log.md
 
-When complete, emit: <phase>INTERVIEW_COMPLETE</phase>
-If human input is needed, emit: <phase>INTERVIEW_NEEDS_INPUT</phase>
+When complete, emit: INTERVIEW_COMPLETE
+If human input is needed, emit: INTERVIEW_NEEDS_INPUT
 EOF
-)
-    
-    # Run Claude
-    local output=$(claude -p "$prompt" --output-format text 2>&1 || true)
-    
+
+    # Run Claude with prompt from file
+    echo "DEBUG: Calling claude -p with prompt from file..."
+    local output=$(cat "$prompt_file" | claude -p - --output-format text 2>&1 || true)
+    rm -f "$prompt_file"
+    echo "DEBUG: Claude returned, output length: ${#output} chars"
+    echo "DEBUG: First 500 chars of output: ${output:0:500}"
+
     # Check for completion signal
-    if echo "$output" | grep -q "<phase>INTERVIEW_COMPLETE</phase>"; then
+    if echo "$output" | grep -qi "INTERVIEW_COMPLETE"; then
         log_success "Interview phase complete"
-        add_session_log "Interview Complete ✅ - Decisions documented"
+        add_session_log "Interview Complete - Decisions documented"
         return 0
-    elif echo "$output" | grep -q "<phase>INTERVIEW_NEEDS_INPUT</phase>"; then
+    elif echo "$output" | grep -qi "INTERVIEW_NEEDS_INPUT"; then
         log_warning "Interview needs human input"
         return 3
     else
-        log_error "Interview phase failed"
+        log_error "Interview phase failed - no completion signal found"
+        echo "DEBUG: Full output was:"
+        echo "$output"
+        return 1
+    fi
+}
+
+execute_analysis() {
+    log_info "Executing Think Critically phase..."
+
+    # Check if already complete
+    if is_analysis_complete; then
+        log_info "Analysis already complete, skipping..."
+        return 0
+    fi
+
+    # Determine analysis depth
+    local depth=$(get_analysis_depth)
+    log_info "Analysis depth: $depth"
+
+    if [[ "$depth" == "skip" ]]; then
+        log_info "Skipping analysis (bug fix / hotfix detected)"
+        # Create minimal analysis.md
+        cat > "$ANALYSIS_FILE" << 'ANALYSIS_EOF'
+# Critical Analysis - SKIPPED
+
+**Reason:** Bug fix / hotfix - no architectural risk
+**Depth:** Skip
+**Confidence:** High
+
+Proceeding directly to Plan phase.
+ANALYSIS_EOF
+        add_session_log "Analysis Skipped - Bug fix/hotfix"
+        return 0
+    fi
+
+    # Build prompt based on depth
+    local steps_to_run=""
+    case "$depth" in
+        full)
+            steps_to_run="ALL 11 STEPS (1-2-3-4-5-6-7-8-9-10-11)"
+            ;;
+        medium)
+            steps_to_run="Steps 1, 2, 3, 5, 9, 11 (medium complexity)"
+            ;;
+        light)
+            steps_to_run="Steps 1, 2, 5, 11 (light complexity)"
+            ;;
+    esac
+
+    local prompt_file=$(mktemp)
+    cat > "$prompt_file" << EOF
+You are executing the THINK CRITICALLY phase (Phase 2) for $FEATURE_ID.
+This is a critical pre-implementation analysis to prevent architectural mistakes.
+
+Analysis Depth: $depth
+Steps to execute: $steps_to_run
+
+## The 11-Step Protocol
+
+1. Problem Clarification - What exactly are we solving?
+2. Implicit Assumptions - What are we assuming is true? (Mark confidence: High/Medium/Low)
+3. Design Space - What approaches exist?
+4. Trade-off Analysis - What are we trading?
+5. Failure Analysis - What will break and how?
+6. Invariants & Boundaries - What must always be true?
+7. Observability - How will we know it works?
+8. Reversibility - Can we undo this?
+9. Adversarial Review - Attack your own design (RED FLAGS)
+10. AI Delegation - What can Ralph automate?
+11. Decision Summary - Final synthesis + CONFIDENCE LEVEL (High/Medium/Low)
+
+## Instructions
+
+1. Read $SPEC_FILE for requirements
+2. Execute the steps listed above for depth: $depth
+3. Create $ANALYSIS_FILE with your analysis
+4. If any of these conditions are met, PAUSE:
+   - Step 2: Assumption with Low confidence + High impact
+   - Step 9: Critical red flag identified
+   - Step 11: Confidence Level = "Low"
+5. Update $DECISIONS_FILE with key decisions
+6. Update $STATUS_FILE to mark Critical Analysis phase
+
+## Signals
+
+If analysis is complete and safe to proceed:
+  Emit: ANALYSIS_COMPLETE
+
+If human intervention needed (pause conditions met):
+  Emit: ANALYSIS_NEEDS_REVIEW
+  Include: Which pause condition was triggered
+
+If analysis failed:
+  Emit: ANALYSIS_FAILED
+EOF
+
+    # Run Claude with prompt
+    log_info "Running 11-step protocol (depth: $depth)..."
+    local output=$(cat "$prompt_file" | claude -p - --output-format text 2>&1 || true)
+    rm -f "$prompt_file"
+
+    # Check for signals
+    if echo "$output" | grep -qi "ANALYSIS_COMPLETE"; then
+        log_success "Think Critically phase complete"
+        add_session_log "Critical Analysis Complete - Confidence verified"
+        return 0
+    elif echo "$output" | grep -qi "ANALYSIS_NEEDS_REVIEW"; then
+        log_warning "Analysis requires human review (pause condition triggered)"
+        add_session_log "[PAUSED] Critical Analysis needs review - see analysis.md"
+        return 3  # Human input needed
+    else
+        log_error "Think Critically phase failed"
         return 1
     fi
 }
 
 execute_plan() {
     log_info "Executing Plan phase..."
-    
+
     if is_plan_complete; then
         log_info "Plan already complete, skipping..."
         return 0
     fi
     
     local prompt=$(cat << EOF
-You are executing the PLAN phase for $FEATURE_ID.
+You are executing the PLAN phase (Phase 3) for $FEATURE_ID.
 
-Create the technical design and task breakdown.
+Create the technical design and task breakdown, informed by the critical analysis.
 
 Steps:
-1. Read $SPEC_FILE for requirements
+1. Read BOTH inputs (MANDATORY):
+   - $SPEC_FILE for requirements and decisions
+   - $ANALYSIS_FILE for architectural guidance and risk mitigations
 2. Generate $DESIGN_FILE with:
-   - Architecture overview
+   - Architecture overview (use recommended approach from analysis)
    - Data models
    - API design
    - File structure
-3. Generate $TASKS_FILE with ordered task checklist
+   - Error handling (from failure analysis)
+   - Observability tasks (from analysis Step 7)
+3. Generate $TASKS_FILE with ordered task checklist including:
+   - Implementation tasks
+   - Mitigation tasks from analysis
+   - Monitoring/observability tasks
 4. Update status.md to mark Plan as ✅
 5. Add checkpoint to context/session_log.md
 
