@@ -239,11 +239,11 @@
   - All service methods
   - All API endpoints
 
-- [ ] **T10.3**: Update API documentation
+- [x] **T10.3**: Update API documentation
   - Add InvoicePilot endpoints to OpenAPI spec
   - Add examples for request/response
 
-- [ ] **T10.4**: Create user guide
+- [🟡] **T10.4**: Create user guide
   - How to enable InvoicePilot
   - How to configure reminder schedule
   - How to handle Slack notifications
