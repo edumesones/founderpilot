@@ -212,7 +212,7 @@
 
 ## Phase 9: Configuration & DevOps
 
-- [ ] **T9.1**: Add environment variables
+- [x] **T9.1**: Add environment variables
   - INVOICE_PILOT_ENABLED (feature flag)
   - INVOICE_CONFIDENCE_THRESHOLD (default 0.8)
   - INVOICE_REMINDER_SCHEDULE (default: -3,3,7,14)
@@ -273,10 +273,10 @@
 | Phase 5: Celery Tasks | 4 | 4 | 100% |
 | Phase 6: Slack Integration | 3 | 3 | 100% |
 | Phase 7: Gmail Integration | 3 | 3 | 100% |
-| Phase 8: Testing | 0 | 5 | 0% |
-| Phase 9: Config & DevOps | 0 | 3 | 0% |
+| Phase 8: Testing | 5 | 5 | 100% |
+| Phase 9: Config & DevOps | 1 | 3 | 33% |
 | Phase 10: Documentation | 1 | 4 | 25% |
-| **TOTAL** | **30** | **41** | **73%** |
+| **TOTAL** | **36** | **41** | **88%** |
 
 ---
 

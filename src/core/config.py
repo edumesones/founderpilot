@@ -144,9 +144,43 @@ class Settings(BaseSettings):
         default=100, alias="MEETING_PILOT_RATE_LIMIT_PAID"
     )
 
+    # InvoicePilot specific (FEAT-004)
+    invoice_pilot_enabled: bool = Field(
+        default=True, alias="INVOICE_PILOT_ENABLED"
+    )
+    invoice_confidence_threshold: float = Field(
+        default=0.8, alias="INVOICE_CONFIDENCE_THRESHOLD"
+    )
+    invoice_reminder_schedule: str = Field(
+        default="-3,3,7,14", alias="INVOICE_REMINDER_SCHEDULE"
+    )
+    invoice_scan_interval: int = Field(
+        default=5, alias="INVOICE_SCAN_INTERVAL"
+    )
+    invoice_escalation_threshold: int = Field(
+        default=3, alias="INVOICE_ESCALATION_THRESHOLD"
+    )
+    invoice_overdue_days_warning: int = Field(
+        default=30, alias="INVOICE_OVERDUE_DAYS_WARNING"
+    )
+    invoice_reminder_tone: str = Field(
+        default="friendly", alias="INVOICE_REMINDER_TONE"
+    )
+    invoice_pilot_rate_limit_trial: int = Field(
+        default=20, alias="INVOICE_PILOT_RATE_LIMIT_TRIAL"
+    )
+    invoice_pilot_rate_limit_paid: int = Field(
+        default=200, alias="INVOICE_PILOT_RATE_LIMIT_PAID"
+    )
+
     # Rate Limiting (FEAT-001)
     rate_limit_auth_requests: int = Field(default=10)
     rate_limit_auth_window_seconds: int = Field(default=60)
+
+    @property
+    def invoice_reminder_schedule_list(self) -> list[int]:
+        """Parse invoice reminder schedule string into list of integers."""
+        return [int(day.strip()) for day in self.invoice_reminder_schedule.split(",")]
 
     @field_validator("jwt_private_key", "jwt_public_key", mode="before")
     @classmethod
