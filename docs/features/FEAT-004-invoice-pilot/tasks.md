@@ -231,7 +231,7 @@
 
 ## Phase 10: Documentation
 
-- [ ] **T10.1**: Update main router to include invoice routes
+- [x] **T10.1**: Update main router to include invoice routes
   - Import and mount invoice router in src/api/main.py
 
 - [ ] **T10.2**: Add docstrings
@@ -269,14 +269,14 @@
 | Phase 1: Models & Migrations | 4 | 4 | 100% |
 | Phase 2: LangGraph Agent | 6 | 6 | 100% |
 | Phase 3: Service Layer | 4 | 4 | 100% |
-| Phase 4: API Endpoints | 2 | 5 | 40% |
+| Phase 4: API Endpoints | 4 | 5 | 80% |
 | Phase 5: Celery Tasks | 0 | 4 | 0% |
 | Phase 6: Slack Integration | 0 | 3 | 0% |
 | Phase 7: Gmail Integration | 0 | 3 | 0% |
 | Phase 8: Testing | 0 | 5 | 0% |
 | Phase 9: Config & DevOps | 0 | 3 | 0% |
-| Phase 10: Documentation | 0 | 4 | 0% |
-| **TOTAL** | **19** | **41** | **46%** |
+| Phase 10: Documentation | 1 | 4 | 25% |
+| **TOTAL** | **22** | **41** | **54%** |
 
 ---
 
