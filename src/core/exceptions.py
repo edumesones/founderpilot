@@ -299,3 +299,84 @@ class NotFoundError(FounderPilotError):
             status_code=404,
             details=details,
         )
+
+
+# =============================================================================
+# MeetingPilot Errors (FEAT-005)
+# =============================================================================
+
+
+class CalendarDisconnectedError(IntegrationError):
+    """Raised when Google Calendar is not connected or tokens expired."""
+
+    def __init__(
+        self,
+        message: str = "Google Calendar is disconnected. Please reconnect.",
+        user_id: Optional[str] = None,
+    ):
+        details = {}
+        if user_id:
+            details["user_id"] = user_id
+        super().__init__(
+            message=message,
+            error_code="calendar_disconnected",
+            provider="google_calendar",
+            status_code=401,
+            details=details,
+        )
+
+
+class CalendarSyncError(IntegrationError):
+    """Raised when calendar sync fails."""
+
+    def __init__(
+        self,
+        message: str = "Failed to sync calendar",
+        user_id: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
+        details = details or {}
+        if user_id:
+            details["user_id"] = user_id
+        super().__init__(
+            message=message,
+            error_code="calendar_sync_error",
+            provider="google_calendar",
+            status_code=502,
+            details=details,
+        )
+
+
+class MeetingNotFoundError(NotFoundError):
+    """Raised when a meeting is not found."""
+
+    def __init__(
+        self,
+        message: str = "Meeting not found",
+        meeting_id: Optional[str] = None,
+    ):
+        super().__init__(
+            message=message,
+            resource_type="meeting",
+            resource_id=meeting_id,
+        )
+
+
+class BriefGenerationError(FounderPilotError):
+    """Raised when meeting brief generation fails."""
+
+    def __init__(
+        self,
+        message: str = "Failed to generate meeting brief",
+        meeting_id: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
+        details = details or {}
+        if meeting_id:
+            details["meeting_id"] = meeting_id
+        super().__init__(
+            message=message,
+            error_code="brief_generation_error",
+            status_code=500,
+            details=details,
+        )
