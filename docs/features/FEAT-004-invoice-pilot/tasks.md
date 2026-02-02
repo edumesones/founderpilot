@@ -115,7 +115,7 @@
   - ReminderCreate, ReminderResponse
   - InvoiceSettings
 
-- [ ] **T4.5**: Add error handling and validation
+- [x] **T4.5**: Add error handling and validation
   - 404 for not found
   - 422 for validation errors
   - 403 for cross-tenant access

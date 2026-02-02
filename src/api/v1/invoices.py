@@ -6,8 +6,11 @@ import logging
 from typing import List, Optional
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from src.api.dependencies import get_db, get_current_user, CurrentUser, DbSession
 from src.models.user import User
@@ -34,14 +37,79 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/invoices", tags=["invoices"])
 
 
+# ========== ERROR HANDLING ==========
+
+
+class InvoiceNotFoundError(Exception):
+    """Raised when invoice is not found or doesn't belong to tenant."""
+    pass
+
+
+class ReminderNotFoundError(Exception):
+    """Raised when reminder is not found or doesn't belong to tenant."""
+    pass
+
+
+class InvalidOperationError(Exception):
+    """Raised when operation is not valid for current invoice state."""
+    pass
+
+
+def handle_service_errors(func):
+    """Decorator to handle common service layer errors."""
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except InvoiceNotFoundError as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e) or "Invoice not found or access denied",
+            )
+        except ReminderNotFoundError as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e) or "Reminder not found or access denied",
+            )
+        except InvalidOperationError as e:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(e),
+            )
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(e),
+            )
+        except IntegrityError as e:
+            logger.error(f"Database integrity error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Operation conflicts with existing data",
+            )
+        except SQLAlchemyError as e:
+            logger.error(f"Database error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Database error occurred",
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error in {func.__name__}: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="An unexpected error occurred",
+            )
+    return wrapper
+
+
 @router.get("", response_model=InvoiceListResponse)
+@handle_service_errors
 async def list_invoices(
     status: Optional[InvoiceStatus] = Query(None, description="Filter by status"),
     client_name: Optional[str] = Query(None, description="Filter by client name (partial match)"),
     client_email: Optional[str] = Query(None, description="Filter by client email"),
-    currency: Optional[str] = Query(None, description="Filter by currency code"),
-    min_amount: Optional[float] = Query(None, description="Filter by minimum amount"),
-    max_amount: Optional[float] = Query(None, description="Filter by maximum amount"),
+    currency: Optional[str] = Query(None, description="Filter by currency code (ISO 4217)"),
+    min_amount: Optional[float] = Query(None, ge=0, description="Filter by minimum amount"),
+    max_amount: Optional[float] = Query(None, ge=0, description="Filter by maximum amount"),
     issue_date_from: Optional[date] = Query(None, description="Filter by issue date from"),
     issue_date_to: Optional[date] = Query(None, description="Filter by issue date to"),
     due_date_from: Optional[date] = Query(None, description="Filter by due date from"),
@@ -50,7 +118,7 @@ async def list_invoices(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(50, ge=1, le=100, description="Items per page"),
     sort_by: str = Query("due_date", description="Sort field"),
-    sort_order: str = Query("asc", description="Sort order (asc/desc)"),
+    sort_order: str = Query("asc", regex="^(asc|desc)$", description="Sort order (asc/desc)"),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> InvoiceListResponse:
@@ -59,6 +127,26 @@ async def list_invoices(
 
     Returns paginated list of invoices for the current tenant.
     """
+    # Validate amount range
+    if min_amount is not None and max_amount is not None and min_amount > max_amount:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="min_amount cannot be greater than max_amount",
+        )
+
+    # Validate date ranges
+    if issue_date_from and issue_date_to and issue_date_from > issue_date_to:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="issue_date_from cannot be after issue_date_to",
+        )
+
+    if due_date_from and due_date_to and due_date_from > due_date_to:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="due_date_from cannot be after due_date_to",
+        )
+
     service = InvoiceService(db)
 
     # Build filters dict
@@ -79,30 +167,28 @@ async def list_invoices(
     # Remove None values
     filters = {k: v for k, v in filters.items() if v is not None}
 
-    try:
-        invoices, total = await service.list_invoices(
-            tenant_id=user.tenant_id,
-            filters=filters,
-            page=page,
-            page_size=page_size,
-            sort_by=sort_by,
-            sort_order=sort_order,
-        )
+    invoices, total = await service.list_invoices(
+        tenant_id=user.tenant_id,
+        filters=filters,
+        page=page,
+        page_size=page_size,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
 
-        total_pages = (total + page_size - 1) // page_size
+    total_pages = (total + page_size - 1) // page_size
 
-        return InvoiceListResponse(
-            invoices=invoices,
-            total=total,
-            page=page,
-            page_size=page_size,
-            total_pages=total_pages,
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return InvoiceListResponse(
+        invoices=invoices,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages,
+    )
 
 
 @router.get("/{invoice_id}", response_model=InvoiceWithReminders)
+@handle_service_errors
 async def get_invoice(
     invoice_id: int,
     user: User = Depends(get_current_user),
@@ -115,21 +201,19 @@ async def get_invoice(
     """
     service = InvoiceService(db)
 
-    try:
-        invoice = await service.get_invoice_with_reminders(
-            invoice_id=invoice_id,
-            tenant_id=user.tenant_id,
-        )
+    invoice = await service.get_invoice_with_reminders(
+        invoice_id=invoice_id,
+        tenant_id=user.tenant_id,
+    )
 
-        if not invoice:
-            raise HTTPException(status_code=404, detail="Invoice not found")
+    if not invoice:
+        raise InvoiceNotFoundError(f"Invoice {invoice_id} not found")
 
-        return invoice
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return invoice
 
 
 @router.post("/{invoice_id}/confirm", response_model=InvoiceResponse)
+@handle_service_errors
 async def confirm_invoice(
     invoice_id: int,
     confirm_data: InvoiceConfirm,
@@ -144,24 +228,22 @@ async def confirm_invoice(
     """
     service = InvoiceService(db)
 
-    try:
-        invoice = await service.confirm_invoice(
-            invoice_id=invoice_id,
-            tenant_id=user.tenant_id,
-            notes=confirm_data.notes,
-            confirmed_by=user.id,
-        )
+    invoice = await service.confirm_invoice(
+        invoice_id=invoice_id,
+        tenant_id=user.tenant_id,
+        notes=confirm_data.notes,
+        confirmed_by=user.id,
+    )
 
-        if not invoice:
-            raise HTTPException(status_code=404, detail="Invoice not found")
+    if not invoice:
+        raise InvoiceNotFoundError(f"Invoice {invoice_id} not found")
 
-        logger.info(f"Invoice {invoice_id} confirmed by user {user.id}")
-        return invoice
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    logger.info(f"Invoice {invoice_id} confirmed by user {user.id}")
+    return invoice
 
 
 @router.post("/{invoice_id}/reject", response_model=dict)
+@handle_service_errors
 async def reject_invoice(
     invoice_id: int,
     reject_data: InvoiceReject,
@@ -176,24 +258,22 @@ async def reject_invoice(
     """
     service = InvoiceService(db)
 
-    try:
-        success = await service.reject_invoice(
-            invoice_id=invoice_id,
-            tenant_id=user.tenant_id,
-            reason=reject_data.reason,
-            rejected_by=user.id,
-        )
+    success = await service.reject_invoice(
+        invoice_id=invoice_id,
+        tenant_id=user.tenant_id,
+        reason=reject_data.reason,
+        rejected_by=user.id,
+    )
 
-        if not success:
-            raise HTTPException(status_code=404, detail="Invoice not found")
+    if not success:
+        raise InvoiceNotFoundError(f"Invoice {invoice_id} not found")
 
-        logger.info(f"Invoice {invoice_id} rejected by user {user.id}: {reject_data.reason}")
-        return {"message": "Invoice rejected successfully"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    logger.info(f"Invoice {invoice_id} rejected by user {user.id}: {reject_data.reason}")
+    return {"message": "Invoice rejected successfully"}
 
 
 @router.post("/{invoice_id}/mark-paid", response_model=InvoiceResponse)
+@handle_service_errors
 async def mark_invoice_paid(
     invoice_id: int,
     payment_data: InvoiceMarkPaid,
@@ -208,29 +288,27 @@ async def mark_invoice_paid(
     """
     service = InvoiceService(db)
 
-    try:
-        invoice = await service.mark_as_paid(
-            invoice_id=invoice_id,
-            tenant_id=user.tenant_id,
-            amount=payment_data.amount,
-            payment_date=payment_data.payment_date,
-            notes=payment_data.notes,
-            recorded_by=user.id,
-        )
+    invoice = await service.mark_as_paid(
+        invoice_id=invoice_id,
+        tenant_id=user.tenant_id,
+        amount=payment_data.amount,
+        payment_date=payment_data.payment_date,
+        notes=payment_data.notes,
+        recorded_by=user.id,
+    )
 
-        if not invoice:
-            raise HTTPException(status_code=404, detail="Invoice not found")
+    if not invoice:
+        raise InvoiceNotFoundError(f"Invoice {invoice_id} not found")
 
-        logger.info(
-            f"Invoice {invoice_id} payment recorded by user {user.id}: "
-            f"{payment_data.amount} ({invoice.status})"
-        )
-        return invoice
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    logger.info(
+        f"Invoice {invoice_id} payment recorded by user {user.id}: "
+        f"{payment_data.amount} ({invoice.status})"
+    )
+    return invoice
 
 
 @router.get("/settings", response_model=InvoiceSettings)
+@handle_service_errors
 async def get_invoice_settings(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -241,15 +319,12 @@ async def get_invoice_settings(
     Returns configuration including reminder schedule, confidence threshold, etc.
     """
     service = InvoiceService(db)
-
-    try:
-        settings = await service.get_settings(tenant_id=user.tenant_id)
-        return settings
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    settings = await service.get_settings(tenant_id=user.tenant_id)
+    return settings
 
 
 @router.put("/settings", response_model=InvoiceSettings)
+@handle_service_errors
 async def update_invoice_settings(
     settings_update: InvoiceSettingsUpdate,
     user: User = Depends(get_current_user),
@@ -262,22 +337,20 @@ async def update_invoice_settings(
     """
     service = InvoiceService(db)
 
-    try:
-        settings = await service.update_settings(
-            tenant_id=user.tenant_id,
-            settings_update=settings_update,
-        )
+    settings = await service.update_settings(
+        tenant_id=user.tenant_id,
+        settings_update=settings_update,
+    )
 
-        logger.info(f"Invoice settings updated by user {user.id} for tenant {user.tenant_id}")
-        return settings
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    logger.info(f"Invoice settings updated by user {user.id} for tenant {user.tenant_id}")
+    return settings
 
 
 # ========== REMINDER ENDPOINTS ==========
 
 
 @router.get("/{invoice_id}/reminders", response_model=List[ReminderResponse])
+@handle_service_errors
 async def list_invoice_reminders(
     invoice_id: int,
     user: User = Depends(get_current_user),
@@ -289,19 +362,15 @@ async def list_invoice_reminders(
     Returns all reminders (scheduled, sent, skipped) for the specified invoice.
     """
     service = ReminderService(db)
-
-    try:
-        reminders = await service.get_reminders_for_invoice(
-            invoice_id=invoice_id,
-            tenant_id=user.tenant_id,
-        )
-
-        return reminders
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    reminders = await service.get_reminders_for_invoice(
+        invoice_id=invoice_id,
+        tenant_id=user.tenant_id,
+    )
+    return reminders
 
 
 @router.post("/{invoice_id}/reminders/{reminder_id}/approve", response_model=ReminderResponse)
+@handle_service_errors
 async def approve_reminder(
     invoice_id: int,
     reminder_id: int,
@@ -317,25 +386,23 @@ async def approve_reminder(
     """
     service = ReminderService(db)
 
-    try:
-        reminder = await service.approve_reminder(
-            reminder_id=reminder_id,
-            invoice_id=invoice_id,
-            tenant_id=user.tenant_id,
-            final_message=approve_data.final_message,
-            approved_by=user.id,
-        )
+    reminder = await service.approve_reminder(
+        reminder_id=reminder_id,
+        invoice_id=invoice_id,
+        tenant_id=user.tenant_id,
+        final_message=approve_data.final_message,
+        approved_by=user.id,
+    )
 
-        if not reminder:
-            raise HTTPException(status_code=404, detail="Reminder not found")
+    if not reminder:
+        raise ReminderNotFoundError(f"Reminder {reminder_id} not found")
 
-        logger.info(f"Reminder {reminder_id} for invoice {invoice_id} approved by user {user.id}")
-        return reminder
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    logger.info(f"Reminder {reminder_id} for invoice {invoice_id} approved by user {user.id}")
+    return reminder
 
 
 @router.post("/{invoice_id}/reminders/{reminder_id}/edit", response_model=ReminderResponse)
+@handle_service_errors
 async def edit_reminder(
     invoice_id: int,
     reminder_id: int,
@@ -350,25 +417,23 @@ async def edit_reminder(
     """
     service = ReminderService(db)
 
-    try:
-        reminder = await service.edit_reminder(
-            reminder_id=reminder_id,
-            invoice_id=invoice_id,
-            tenant_id=user.tenant_id,
-            new_message=edit_data.message,
-            edited_by=user.id,
-        )
+    reminder = await service.edit_reminder(
+        reminder_id=reminder_id,
+        invoice_id=invoice_id,
+        tenant_id=user.tenant_id,
+        new_message=edit_data.message,
+        edited_by=user.id,
+    )
 
-        if not reminder:
-            raise HTTPException(status_code=404, detail="Reminder not found")
+    if not reminder:
+        raise ReminderNotFoundError(f"Reminder {reminder_id} not found")
 
-        logger.info(f"Reminder {reminder_id} for invoice {invoice_id} edited by user {user.id}")
-        return reminder
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    logger.info(f"Reminder {reminder_id} for invoice {invoice_id} edited by user {user.id}")
+    return reminder
 
 
 @router.post("/{invoice_id}/reminders/{reminder_id}/skip", response_model=dict)
+@handle_service_errors
 async def skip_reminder(
     invoice_id: int,
     reminder_id: int,
@@ -384,22 +449,19 @@ async def skip_reminder(
     """
     service = ReminderService(db)
 
-    try:
-        success = await service.skip_reminder(
-            reminder_id=reminder_id,
-            invoice_id=invoice_id,
-            tenant_id=user.tenant_id,
-            reason=skip_data.reason,
-            skipped_by=user.id,
-        )
+    success = await service.skip_reminder(
+        reminder_id=reminder_id,
+        invoice_id=invoice_id,
+        tenant_id=user.tenant_id,
+        reason=skip_data.reason,
+        skipped_by=user.id,
+    )
 
-        if not success:
-            raise HTTPException(status_code=404, detail="Reminder not found")
+    if not success:
+        raise ReminderNotFoundError(f"Reminder {reminder_id} not found")
 
-        logger.info(
-            f"Reminder {reminder_id} for invoice {invoice_id} skipped by user {user.id}: "
-            f"{skip_data.reason}"
-        )
-        return {"message": "Reminder skipped successfully"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    logger.info(
+        f"Reminder {reminder_id} for invoice {invoice_id} skipped by user {user.id}: "
+        f"{skip_data.reason}"
+    )
+    return {"message": "Reminder skipped successfully"}
