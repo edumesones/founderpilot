@@ -73,7 +73,7 @@
   - Mark as paid (total or partial)
   - Confirm/reject detected invoice
 
-- [ ] **T3.2**: Create ReminderService in `src/services/reminder_service.py`
+- [x] **T3.2**: Create ReminderService in `src/services/reminder_service.py`
   - Schedule reminders based on due_date and config
   - Approve/edit/skip reminder
   - Track reminder history per invoice
