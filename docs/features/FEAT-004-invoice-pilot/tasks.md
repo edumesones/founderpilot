@@ -193,7 +193,7 @@
   - Test InvoiceDetectionService logic
   - Mock LLM calls
 
-- [ ] **T8.3**: Integration tests for API
+- [x] **T8.3**: Integration tests for API
   - Test all endpoints
   - Test authentication and authorization
   - Test validation and error handling
