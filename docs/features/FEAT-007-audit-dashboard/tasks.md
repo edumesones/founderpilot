@@ -12,9 +12,9 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Create data models | ⬜ |
-| 2 | Create service layer | ⬜ |
-| 3 | Create API endpoints | ⬜ |
+| 1 | Create data models | ✅ |
+| 2 | Create service layer | ✅ |
+| 3 | Create API endpoints | ✅ |
 | 4 | Add validation | ⬜ |
 | 5 | Add error handling | ⬜ |
 
@@ -30,9 +30,9 @@
   - [x] B2.2: Business logic
   - [x] B2.3: Validation
 
-- [ ] **B3**: Create API in `src/api/`
-  - [ ] B3.1: Router setup
-  - [ ] B3.2: Endpoints
+- [x] **B3**: Create API in `src/api/`
+  - [x] B3.1: Router setup
+  - [x] B3.2: Endpoints
   - [x] B3.3: Request/Response models
 
 ---
@@ -109,12 +109,12 @@
 
 | Section | Done | Total | % |
 |---------|------|-------|---|
-| Backend | 0 | 5 | 0% |
+| Backend | 3 | 5 | 60% |
 | Frontend | 0 | 4 | 0% |
 | Tests | 0 | 4 | 0% |
 | Docs | 0 | 3 | 0% |
 | DevOps | 0 | 3 | 0% |
-| **TOTAL** | **0** | **19** | **0%** |
+| **TOTAL** | **3** | **19** | **16%** |
 
 ---
 
