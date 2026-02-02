@@ -8,6 +8,35 @@ AI-powered productivity assistant for founders.
 - **Gmail Integration** - Connect Gmail for email management
 - **Slack Integration** - Add FounderPilot bot to your Slack workspace
 - **Onboarding Flow** - Guided setup for new users
+- **Agent Audit Dashboard** - Monitor and review AI agent actions with confidence scoring and escalation tracking
+
+### Agent Audit Dashboard
+
+The Agent Audit Dashboard provides comprehensive monitoring and oversight of AI agent actions:
+
+**Key Features:**
+- **Real-time Monitoring** - View all agent actions (InboxPilot, InvoicePilot, MeetingPilot) in chronological order
+- **Confidence Scoring** - Track agent confidence levels (0.0-1.0) for each decision
+- **Escalation Tracking** - Identify actions that required human review
+- **Advanced Filtering** - Filter by agent type, confidence threshold, escalation status, date range, and text search
+- **Detailed Audit Logs** - View complete input/output data, decisions, and metadata for each action
+- **Rollback Capability** - Mark actions as rolled back for audit trail purposes
+- **Statistics Dashboard** - View aggregate metrics including action counts, escalation rates, and average confidence
+- **CSV Export** - Export filtered audit logs for external analysis
+
+**API Endpoints:**
+- `GET /api/v1/audit` - List audit logs with filtering and pagination
+- `GET /api/v1/audit/{id}` - Get detailed audit log entry
+- `POST /api/v1/audit/{id}/rollback` - Mark action as rolled back
+- `GET /api/v1/audit/stats/summary` - Get aggregate statistics
+- `GET /api/v1/audit/export/csv` - Export audit logs to CSV
+
+**Use Cases:**
+- Monitor agent performance and accuracy
+- Review high-stakes decisions before they execute
+- Investigate issues when agents make unexpected decisions
+- Generate compliance reports for AI-driven actions
+- Train and improve agent prompts based on historical data
 
 ## Tech Stack
 
