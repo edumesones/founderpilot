@@ -47,7 +47,7 @@
   - confirm_invoice: Handle human approval via Slack
   - store_invoice: Save to DB with audit log
 
-- [ ] **T2.4**: Implement reminder flow nodes
+- [x] **T2.4**: Implement reminder flow nodes
   - check_reminders_due: Daily check for due reminders
   - draft_reminder: Generate reminder message with LLM
   - await_approval: Slack approval for reminder

@@ -1,5 +1,33 @@
 """Reminder draft generation prompts for LLM."""
 
+# Simple format-based prompt for reminder drafting
+REMINDER_DRAFT_PROMPT = """Draft a payment reminder email for the following invoice:
+
+**Invoice Details:**
+- Invoice Number: {invoice_number}
+- Client Name: {client_name}
+- Amount: {amount}
+- Due Date: {due_date}
+- Days Overdue: {days_overdue}
+
+**Reminder Context:**
+- This is reminder #{reminder_count}
+- Suggested tone: {tone}
+
+**Instructions:**
+- Use a {tone} tone appropriate for this reminder
+- Be clear about the amount due and payment deadline
+- Keep it concise (2-3 short paragraphs)
+- Include a clear call-to-action
+
+Respond with valid JSON only:
+{{
+  "subject": "Email subject line",
+  "body": "Full email body with greeting, context, ask, details, closing",
+  "confidence": 0.0-1.0
+}}
+"""
+
 REMINDER_DRAFT_SYSTEM_PROMPT = """You are a payment reminder assistant for freelancers and small businesses.
 
 Your job is to draft polite, professional payment reminder emails based on invoice status and reminder history.

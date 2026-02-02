@@ -11,6 +11,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.agents.invoice_pilot.nodes.detect import detect_invoice
 from src.agents.invoice_pilot.nodes.extract import extract_data
+from src.agents.invoice_pilot.nodes.reminder import (
+    check_reminders_due,
+    draft_reminder,
+    log_reminder_action,
+    send_reminder,
+)
 from src.agents.invoice_pilot.nodes.scan import scan_inbox
 from src.agents.invoice_pilot.nodes.store import store_invoice
 from src.agents.invoice_pilot.state import (
@@ -245,37 +251,15 @@ class InvoicePilotAgent:
             interrupt_before=["await_approval"],
         )
 
-    # Reminder node stubs (will implement in T2.4)
+    # Reminder node implementations
 
     async def _node_check_reminders(self, state: ReminderState) -> dict:
         """Check which reminders are due."""
-        # TODO: Implement in T2.4
-        return {
-            "steps": state.get("steps", []) + [{
-                "node": "check_reminders_due",
-                "timestamp": datetime.utcnow().isoformat(),
-                "result": {"status": "stub"},
-                "error": None,
-            }],
-        }
+        return await check_reminders_due(state, self.db)
 
     async def _node_draft_reminder(self, state: ReminderState) -> dict:
         """Generate reminder message with LLM."""
-        # TODO: Implement in T2.4
-        return {
-            "draft": {
-                "subject": "Stub Reminder",
-                "body": "This is a stub reminder.",
-                "tone": "friendly",
-                "confidence": 0.9,
-            },
-            "steps": state.get("steps", []) + [{
-                "node": "draft_reminder",
-                "timestamp": datetime.utcnow().isoformat(),
-                "result": {"status": "stub"},
-                "error": None,
-            }],
-        }
+        return await draft_reminder(state, self.llm)
 
     async def _node_await_approval(self, state: ReminderState) -> dict:
         """Wait for human approval - this is an interrupt point."""
@@ -283,32 +267,11 @@ class InvoicePilotAgent:
 
     async def _node_send_reminder(self, state: ReminderState) -> dict:
         """Send reminder via Gmail API."""
-        # TODO: Implement in T2.4
-        return {
-            "sent": True,
-            "sent_message_id": "stub_message_id",
-            "steps": state.get("steps", []) + [{
-                "node": "send_reminder",
-                "timestamp": datetime.utcnow().isoformat(),
-                "result": {"sent": True},
-                "error": None,
-            }],
-        }
+        return await send_reminder(state, self.gmail, self.db)
 
     async def _node_log_reminder(self, state: ReminderState) -> dict:
         """Log reminder action to audit trail."""
-        step = {
-            "node": "log_action",
-            "timestamp": datetime.utcnow().isoformat(),
-            "result": {
-                "reminder_id": state.get("reminder_id"),
-                "sent": state.get("sent"),
-            },
-            "error": None,
-        }
-        return {
-            "steps": state.get("steps", []) + [step],
-        }
+        return await log_reminder_action(state, self.db)
 
     # ========================================================================
     # Escalation Flow: Problem Pattern Detection
