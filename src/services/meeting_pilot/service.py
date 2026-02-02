@@ -17,6 +17,7 @@ from src.models.meeting_pilot.meeting_note import MeetingNote
 from src.models.meeting_pilot.meeting_record import MeetingRecord
 from src.schemas.meeting_pilot.brief import BriefResult
 from src.schemas.meeting_pilot.meeting import MeetingNoteCreate, MeetingRecordCreate
+from src.integrations.slack.blocks import build_meeting_brief_blocks
 
 logger = logging.getLogger(__name__)
 
@@ -221,13 +222,16 @@ class MeetingPilotService:
         now = datetime.utcnow()
 
         # Find meetings starting in the next brief_minutes
-        # that haven't had briefs sent
+        # that haven't had briefs sent and aren't snoozed
         stmt = select(MeetingRecord).where(
             MeetingRecord.user_id == user_id,
             MeetingRecord.status == "pending",
             MeetingRecord.brief_sent_at.is_(None),
             MeetingRecord.start_time >= now,
             MeetingRecord.start_time <= now + timedelta(minutes=brief_minutes),
+        ).where(
+            # Exclude snoozed meetings
+            (MeetingRecord.snoozed_until.is_(None)) | (MeetingRecord.snoozed_until <= now)
         )
 
         if config.only_external_meetings:
@@ -282,6 +286,93 @@ class MeetingPilotService:
         if meeting:
             meeting.status = action
             await self.db.commit()
+
+    # Notification
+
+    async def send_brief_notification(
+        self,
+        meeting: MeetingRecord,
+        brief: BriefResult,
+        user_slack_id: str,
+    ) -> bool:
+        """Send meeting brief notification via Slack DM.
+
+        Args:
+            meeting: Meeting record with all data
+            brief: Generated brief result
+            user_slack_id: User's Slack ID for DM
+
+        Returns:
+            True if notification was sent successfully
+        """
+        if not self.slack:
+            logger.warning("Slack notifier not configured, skipping notification")
+            return False
+
+        try:
+            # Calculate meeting duration
+            duration_minutes = None
+            if meeting.start_time and meeting.end_time:
+                duration = meeting.end_time - meeting.start_time
+                duration_minutes = int(duration.total_seconds() / 60)
+
+            # Build notification blocks
+            blocks = build_meeting_brief_blocks(
+                meeting_id=str(meeting.id),
+                title=meeting.title,
+                start_time=meeting.start_time,
+                duration_minutes=duration_minutes,
+                attendees=meeting.attendees,
+                brief_content=brief.content,
+                confidence=brief.confidence,
+                location=meeting.location,
+                warnings=brief.warnings if hasattr(brief, "warnings") else None,
+            )
+
+            # Send DM to user
+            await self.slack.send_dm(
+                user_id=user_slack_id,
+                blocks=blocks,
+                text=f"📅 Meeting brief: {meeting.title}",
+            )
+
+            # Mark brief as sent
+            await self.mark_brief_sent(
+                meeting_id=meeting.id,
+                brief_content=brief.content,
+                confidence=brief.confidence,
+            )
+
+            # Update stats
+            await self.increment_briefs_sent(meeting.user_id)
+
+            logger.info(f"Brief notification sent for meeting {meeting.id}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Error sending brief notification: {e}")
+            return False
+
+    async def snooze_meeting(
+        self,
+        meeting_id: UUID,
+        snooze_minutes: int = 10,
+    ) -> None:
+        """Snooze a meeting brief notification.
+
+        Delays the brief by the specified minutes.
+
+        Args:
+            meeting_id: Meeting UUID
+            snooze_minutes: Minutes to delay the brief
+        """
+        meeting = await self.get_meeting(meeting_id)
+        if meeting:
+            # Add snooze time to a snooze counter
+            # In practice, this delays when the next brief check will pick it up
+            meeting.snoozed_until = datetime.utcnow() + timedelta(minutes=snooze_minutes)
+            await self.db.commit()
+            logger.info(f"Meeting {meeting_id} snoozed for {snooze_minutes} minutes")
 
     # Notes Management
 

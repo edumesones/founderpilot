@@ -55,6 +55,8 @@ def upgrade() -> None:
         sa.Column("brief_confidence", sa.Float, nullable=True),
         # Status: pending, brief_sent, completed, cancelled, skipped
         sa.Column("status", sa.String(50), default="pending", nullable=False),
+        # Snooze tracking
+        sa.Column("snoozed_until", sa.DateTime(timezone=True), nullable=True),
         # Audit
         sa.Column("workflow_run_id", postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column("trace_id", sa.String(255), nullable=True),

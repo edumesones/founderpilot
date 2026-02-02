@@ -126,6 +126,24 @@ class Settings(BaseSettings):
         default=500, alias="INBOX_PILOT_RATE_LIMIT_PAID"
     )
 
+    # MeetingPilot specific (FEAT-005)
+    # Uses same Google OAuth credentials as Gmail - calendar.readonly scope
+    meeting_pilot_escalation_threshold: float = Field(
+        default=0.8, alias="MEETING_PILOT_ESCALATION_THRESHOLD"
+    )
+    meeting_pilot_brief_minutes_before: int = Field(
+        default=30, alias="MEETING_PILOT_BRIEF_MINUTES_BEFORE"
+    )
+    meeting_pilot_sync_interval_minutes: int = Field(
+        default=15, alias="MEETING_PILOT_SYNC_INTERVAL_MINUTES"
+    )
+    meeting_pilot_rate_limit_trial: int = Field(
+        default=30, alias="MEETING_PILOT_RATE_LIMIT_TRIAL"
+    )
+    meeting_pilot_rate_limit_paid: int = Field(
+        default=100, alias="MEETING_PILOT_RATE_LIMIT_PAID"
+    )
+
     # Rate Limiting (FEAT-001)
     rate_limit_auth_requests: int = Field(default=10)
     rate_limit_auth_window_seconds: int = Field(default=60)

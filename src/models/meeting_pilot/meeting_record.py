@@ -67,6 +67,11 @@ class MeetingRecord(Base, UUIDMixin, TimestampMixin):
     # Status: pending, brief_sent, completed, cancelled, skipped
     status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
 
+    # Snooze tracking
+    snoozed_until: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
     # Audit
     workflow_run_id: Mapped[Optional[UUID]] = mapped_column(
         PGUUID(as_uuid=True), nullable=True
