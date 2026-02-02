@@ -1,96 +1,253 @@
-# FEAT-XXX: Tasks
+# FEAT-004: InvoicePilot - Implementation Tasks
 
 ## Pre-Implementation Checklist
-- [ ] spec.md complete and approved
+- [x] spec.md complete and approved
 - [ ] design.md complete and approved
-- [ ] Branch created: `feature/XXX-name`
-- [ ] status.md updated to "In Progress"
+- [x] Branch created: `feat/FEAT-004`
+- [x] status.md updated
 
 ---
 
-## Backend Tasks
+## Phase 1: Data Models & Migrations (Backend Foundation)
 
-| # | Task | Status |
-|---|------|--------|
-| 1 | Create data models | ⬜ |
-| 2 | Create service layer | ⬜ |
-| 3 | Create API endpoints | ⬜ |
-| 4 | Add validation | ⬜ |
-| 5 | Add error handling | ⬜ |
+- [x] **T1.1**: Create Invoice model in `src/models/invoice.py`
+  - Schema: id, tenant_id, gmail_message_id, invoice_number, client_name, client_email
+  - Fields: amount_total, amount_paid, currency, issue_date, due_date, status
+  - Fields: pdf_url, confidence, notes, created_at, updated_at
+  - Relationships: to InvoiceReminder, InvoiceAction
 
-### Detailed Backend Tasks
+- [x] **T1.2**: Create InvoiceReminder model in `src/models/invoice.py`
+  - Schema: id, invoice_id, scheduled_at, sent_at, type, status
+  - Fields: draft_message, final_message, approved_by, response_received
+  - Relationship: FK to Invoice
 
-- [ ] **B1**: Create models in `src/models/`
-  - [ ] B1.1: Define schema
-  - [ ] B1.2: Add relationships
-  - [ ] B1.3: Add indexes
+- [x] **T1.3**: Create InvoiceAction model in `src/models/invoice.py`
+  - Schema: id, invoice_id, workflow_id, action_type, actor, details, timestamp
+  - For audit trail
 
-- [ ] **B2**: Create service in `src/services/`
-  - [ ] B2.1: CRUD operations
-  - [ ] B2.2: Business logic
-  - [ ] B2.3: Validation
-
-- [ ] **B3**: Create API in `src/api/`
-  - [ ] B3.1: Router setup
-  - [ ] B3.2: Endpoints
-  - [ ] B3.3: Request/Response models
+- [x] **T1.4**: Create Alembic migration for Invoice tables
+  - Tables: invoices, invoice_reminders, invoice_actions
+  - Indexes: tenant_id, status, due_date, gmail_message_id (unique per tenant)
 
 ---
 
-## Frontend Tasks
+## Phase 2: LangGraph Agent (Core Intelligence)
 
-| # | Task | Status |
-|---|------|--------|
-| 1 | Create UI components | ⬜ |
-| 2 | Connect to API | ⬜ |
-| 3 | Add error handling | ⬜ |
-| 4 | Add loading states | ⬜ |
+- [ ] **T2.1**: Create InvoicePilotAgent skeleton in `src/agents/invoice_pilot.py`
+  - StateGraph setup
+  - State classes: InvoiceState, DetectionState, ReminderState
 
-### Detailed Frontend Tasks
+- [ ] **T2.2**: Implement detection flow nodes
+  - scan_inbox: Fetch sent emails from Gmail API
+  - detect_invoice: LLM-based invoice detection
+  - extract_data: LLM multimodal extraction from PDF
 
-- [ ] **F1**: Create components in `src/components/`
-  - [ ] F1.1: Main component
-  - [ ] F1.2: Form component
-  - [ ] F1.3: List component
+- [ ] **T2.3**: Implement confirmation flow
+  - needs_confirmation: Check if confidence < 80%
+  - confirm_invoice: Handle human approval via Slack
+  - store_invoice: Save to DB with audit log
 
-- [ ] **F2**: API integration
-  - [ ] F2.1: API client
-  - [ ] F2.2: State management
-  - [ ] F2.3: Error handling
+- [ ] **T2.4**: Implement reminder flow nodes
+  - check_reminders_due: Daily check for due reminders
+  - draft_reminder: Generate reminder message with LLM
+  - await_approval: Slack approval for reminder
+  - send_reminder: Send via Gmail API
+  - log_action: Audit trail
 
----
+- [ ] **T2.5**: Implement escalation flow
+  - detect_problem_pattern: Check for 3+ reminders without payment
+  - escalate_to_slack: Notify founder of morose client
 
-## Tests Tasks
-
-| # | Task | Status |
-|---|------|--------|
-| 1 | Unit tests - models | ⬜ |
-| 2 | Unit tests - services | ⬜ |
-| 3 | Integration tests - API | ⬜ |
-| 4 | E2E tests | ⬜ |
-
-### Detailed Test Tasks
-
-- [ ] **T1**: Unit tests for models
-- [ ] **T2**: Unit tests for services
-- [ ] **T3**: Integration tests for API endpoints
-- [ ] **T4**: E2E test for main flow
+- [ ] **T2.6**: Create LLM prompt templates
+  - Invoice detection prompt
+  - Data extraction prompt (with structured output)
+  - Reminder draft prompt (customizable tone)
 
 ---
 
-## Documentation Tasks
+## Phase 3: Service Layer (Business Logic)
 
-- [ ] **D1**: Update README with feature docs
-- [ ] **D2**: Add docstrings to all public functions
-- [ ] **D3**: Update API documentation
+- [ ] **T3.1**: Create InvoiceService in `src/services/invoice_service.py`
+  - CRUD operations: create, get, list, update, delete
+  - Filters: by status, date range, client, amount
+  - Mark as paid (total or partial)
+  - Confirm/reject detected invoice
+
+- [ ] **T3.2**: Create ReminderService in `src/services/reminder_service.py`
+  - Schedule reminders based on due_date and config
+  - Approve/edit/skip reminder
+  - Track reminder history per invoice
+
+- [ ] **T3.3**: Create InvoiceDetectionService in `src/services/invoice_detection_service.py`
+  - Scan Gmail for invoice emails
+  - Call LLM for detection and extraction
+  - Handle PDF parsing
+  - Confidence scoring
+
+- [ ] **T3.4**: Create validation logic
+  - Validate invoice data (amount > 0, dates valid, etc)
+  - Validate currency codes (ISO 4217)
+  - Sanitize LLM inputs/outputs
 
 ---
 
-## DevOps Tasks
+## Phase 4: API Endpoints
 
-- [ ] **O1**: Add environment variables to `.env.example`
-- [ ] **O2**: Update CI/CD if needed
-- [ ] **O3**: Add database migrations if needed
+- [ ] **T4.1**: Create invoice router in `src/api/v1/invoices.py`
+  - GET /api/v1/invoices (list with filters)
+  - GET /api/v1/invoices/:id (details + reminders)
+  - POST /api/v1/invoices/:id/confirm
+  - POST /api/v1/invoices/:id/reject
+  - POST /api/v1/invoices/:id/mark-paid
+
+- [ ] **T4.2**: Create reminder endpoints
+  - GET /api/v1/invoices/:id/reminders
+  - POST /api/v1/invoices/:id/reminders/:reminder_id/approve
+  - POST /api/v1/invoices/:id/reminders/:reminder_id/edit
+  - POST /api/v1/invoices/:id/reminders/:reminder_id/skip
+
+- [ ] **T4.3**: Create settings endpoints
+  - GET /api/v1/invoices/settings
+  - PUT /api/v1/invoices/settings (reminder schedule, tone)
+
+- [ ] **T4.4**: Create Pydantic schemas in `src/schemas/invoice.py`
+  - InvoiceCreate, InvoiceResponse, InvoiceList
+  - ReminderCreate, ReminderResponse
+  - InvoiceSettings
+
+- [ ] **T4.5**: Add error handling and validation
+  - 404 for not found
+  - 422 for validation errors
+  - 403 for cross-tenant access
+  - Rate limiting
+
+---
+
+## Phase 5: Celery Tasks (Automation)
+
+- [ ] **T5.1**: Create Celery task for invoice scanning
+  - Task: scan_invoices_for_all_tenants (every 5 min)
+  - Call InvoicePilotAgent.scan_inbox() per tenant
+
+- [ ] **T5.2**: Create Celery task for reminders
+  - Task: check_invoice_reminders (daily at 9am)
+  - Call InvoicePilotAgent.check_reminders_due() per tenant
+
+- [ ] **T5.3**: Create Celery task for escalation
+  - Task: check_problem_patterns (daily at 10am)
+  - Call InvoicePilotAgent.detect_problem_pattern() per tenant
+
+- [ ] **T5.4**: Configure Celery beat schedule
+  - Add tasks to celeryconfig.py
+
+---
+
+## Phase 6: Slack Integration
+
+- [ ] **T6.1**: Create Slack notification templates
+  - Low confidence invoice detected
+  - Reminder ready for approval
+  - Problem pattern escalation
+
+- [ ] **T6.2**: Create Slack action handlers
+  - Handle confirm/reject invoice
+  - Handle approve/edit/skip reminder
+  - Handle escalation actions
+
+- [ ] **T6.3**: Add Slack message formatting
+  - Rich formatting with blocks
+  - Inline buttons for actions
+  - Context information (client, amount, days overdue)
+
+---
+
+## Phase 7: Gmail Integration
+
+- [ ] **T7.1**: Create Gmail inbox scanner
+  - Fetch sent emails with attachments
+  - Filter by date (last 30 days for initial scan)
+  - Extract PDF attachments
+
+- [ ] **T7.2**: Create Gmail reminder sender
+  - Send reminder email to client
+  - Track sent message ID
+  - Handle bounces and errors
+
+- [ ] **T7.3**: Add PDF parsing utility
+  - Extract text from PDF
+  - Convert to image for multimodal LLM
+  - Handle corrupted/unreadable PDFs
+
+---
+
+## Phase 8: Testing
+
+- [ ] **T8.1**: Unit tests for models
+  - Test Invoice, InvoiceReminder, InvoiceAction models
+  - Test status transitions
+  - Test relationships
+
+- [ ] **T8.2**: Unit tests for services
+  - Test InvoiceService CRUD
+  - Test ReminderService scheduling
+  - Test InvoiceDetectionService logic
+  - Mock LLM calls
+
+- [ ] **T8.3**: Integration tests for API
+  - Test all endpoints
+  - Test authentication and authorization
+  - Test validation and error handling
+
+- [ ] **T8.4**: Integration tests for agent
+  - Test detection flow (mock Gmail)
+  - Test reminder flow (mock Slack)
+  - Test escalation flow
+  - Mock LLM responses
+
+- [ ] **T8.5**: E2E test for main flow
+  - Send invoice email → Detect → Extract → Confirm → Schedule → Send reminder → Mark paid
+  - Use test Gmail account and test Slack workspace
+
+---
+
+## Phase 9: Configuration & DevOps
+
+- [ ] **T9.1**: Add environment variables
+  - INVOICE_PILOT_ENABLED (feature flag)
+  - INVOICE_CONFIDENCE_THRESHOLD (default 0.8)
+  - INVOICE_REMINDER_SCHEDULE (default: -3,3,7,14)
+  - INVOICE_SCAN_INTERVAL (default: 5min)
+  - Add to .env.example
+
+- [ ] **T9.2**: Update Docker configuration
+  - Add Celery beat container if not exists
+  - Add volumes for PDF storage
+
+- [ ] **T9.3**: Run migrations
+  - Test migration up/down
+  - Seed test data for development
+
+---
+
+## Phase 10: Documentation
+
+- [ ] **T10.1**: Update main router to include invoice routes
+  - Import and mount invoice router in src/api/main.py
+
+- [ ] **T10.2**: Add docstrings
+  - All agent nodes
+  - All service methods
+  - All API endpoints
+
+- [ ] **T10.3**: Update API documentation
+  - Add InvoicePilot endpoints to OpenAPI spec
+  - Add examples for request/response
+
+- [ ] **T10.4**: Create user guide
+  - How to enable InvoicePilot
+  - How to configure reminder schedule
+  - How to handle Slack notifications
+  - How to mark invoices as paid
 
 ---
 
@@ -107,29 +264,69 @@
 
 ### Current Progress
 
-| Section | Done | Total | % |
-|---------|------|-------|---|
-| Backend | 0 | 5 | 0% |
-| Frontend | 0 | 4 | 0% |
-| Tests | 0 | 4 | 0% |
-| Docs | 0 | 3 | 0% |
-| DevOps | 0 | 3 | 0% |
-| **TOTAL** | **0** | **19** | **0%** |
+| Phase | Done | Total | % |
+|-------|------|-------|---|
+| Phase 1: Models & Migrations | 4 | 4 | 100% |
+| Phase 2: LangGraph Agent | 0 | 6 | 0% |
+| Phase 3: Service Layer | 0 | 4 | 0% |
+| Phase 4: API Endpoints | 0 | 5 | 0% |
+| Phase 5: Celery Tasks | 0 | 4 | 0% |
+| Phase 6: Slack Integration | 0 | 3 | 0% |
+| Phase 7: Gmail Integration | 0 | 3 | 0% |
+| Phase 8: Testing | 0 | 5 | 0% |
+| Phase 9: Config & DevOps | 0 | 3 | 0% |
+| Phase 10: Documentation | 0 | 4 | 0% |
+| **TOTAL** | **4** | **41** | **10%** |
+
+---
+
+## Implementation Strategy
+
+### Priority Order (MVP)
+1. **Phase 1**: Models & Migrations (foundation)
+2. **Phase 3**: Service Layer (business logic)
+3. **Phase 4**: API Endpoints (user interface)
+4. **Phase 2**: LangGraph Agent (can be stubbed initially)
+5. **Phase 7**: Gmail Integration (critical for detection)
+6. **Phase 5**: Celery Tasks (automation)
+7. **Phase 6**: Slack Integration (notifications)
+8. **Phase 8**: Testing (quality assurance)
+9. **Phase 9**: Config & DevOps (deployment)
+10. **Phase 10**: Documentation (polish)
+
+### Can Be Parallelized
+- Phase 1 + Phase 4 (schemas)
+- Phase 3 + Phase 7 (services + integrations)
+- Phase 5 + Phase 6 (Celery + Slack)
+- Phase 8 (all tests can be written in parallel)
+
+### Critical Path
+Phase 1 → Phase 3 → Phase 4 → Phase 7 → Phase 2 → Phase 5
 
 ---
 
 ## Notes
 
-### Blockers
-_None currently_
+### Assumptions
+- Gmail API integration already exists from FEAT-003 (InboxPilot)
+- Slack integration framework exists from FEAT-006
+- LLM provider infrastructure exists (ADR-007)
+- LangGraph setup exists (ADR-001)
+- Tenant isolation working properly
 
-### Decisions Made During Implementation
-_Document any decisions made while implementing_
+### Dependencies to Verify
+- [ ] Verify Gmail API scopes include sending emails
+- [ ] Verify Slack app has required permissions
+- [ ] Verify LLM provider supports structured output
+- [ ] Verify S3 or file storage for PDFs
 
-### Technical Debt
-_Track any shortcuts taken that need future work_
+### Risks
+- LLM extraction accuracy (mitigated by confidence threshold)
+- Gmail API rate limits (mitigated by batch processing)
+- PDF parsing failures (mitigated by escalation to human)
+- Reminder email deliverability (mitigated by bounce handling)
 
 ---
 
-*Last updated: {date}*
-*Updated by: [you / fork-backend / fork-frontend]*
+*Created: 2026-02-02*
+*Last updated: 2026-02-02*
