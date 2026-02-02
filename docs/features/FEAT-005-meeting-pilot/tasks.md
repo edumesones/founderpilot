@@ -1,96 +1,215 @@
-# FEAT-XXX: Tasks
+# FEAT-005: MeetingPilot - Tasks
 
 ## Pre-Implementation Checklist
-- [ ] spec.md complete and approved
-- [ ] design.md complete and approved
-- [ ] Branch created: `feature/XXX-name`
+- [x] spec.md complete and approved
+- [x] analysis.md complete (Medium-High confidence)
+- [x] design.md complete and approved
+- [ ] Branch created: `feat/FEAT-005` (already on branch)
 - [ ] status.md updated to "In Progress"
 
 ---
 
-## Backend Tasks
+## Phase 1: Foundation (Tasks 1-4)
 
-| # | Task | Status |
-|---|------|--------|
-| 1 | Create data models | ⬜ |
-| 2 | Create service layer | ⬜ |
-| 3 | Create API endpoints | ⬜ |
-| 4 | Add validation | ⬜ |
-| 5 | Add error handling | ⬜ |
+### Database & Models
 
-### Detailed Backend Tasks
+- [x] **T1**: Create database migration for MeetingPilot tables
+  - [x] T1.1: Create `meeting_records` table with indexes
+  - [x] T1.2: Create `meeting_notes` table with FK
+  - [x] T1.3: Create `meeting_pilot_configs` table
+  - [⏭️] T1.4: Run migration, verify schema (skip - no DB in dev)
 
-- [ ] **B1**: Create models in `src/models/`
-  - [ ] B1.1: Define schema
-  - [ ] B1.2: Add relationships
-  - [ ] B1.3: Add indexes
+- [x] **T2**: Create SQLAlchemy models
+  - [x] T2.1: `src/models/meeting_pilot/meeting_record.py`
+  - [x] T2.2: `src/models/meeting_pilot/meeting_note.py`
+  - [x] T2.3: `src/models/meeting_pilot/agent_config.py`
+  - [x] T2.4: `src/models/meeting_pilot/__init__.py` exports
+  - [x] T2.5: Update `src/models/__init__.py`
 
-- [ ] **B2**: Create service in `src/services/`
-  - [ ] B2.1: CRUD operations
-  - [ ] B2.2: Business logic
-  - [ ] B2.3: Validation
+### Calendar Integration
 
-- [ ] **B3**: Create API in `src/api/`
-  - [ ] B3.1: Router setup
-  - [ ] B3.2: Endpoints
-  - [ ] B3.3: Request/Response models
+- [x] **T3**: Create Google Calendar client
+  - [x] T3.1: `src/integrations/calendar/__init__.py`
+  - [x] T3.2: `src/integrations/calendar/client.py` - CalendarClient class
+  - [x] T3.3: Implement `list_events()` method
+  - [x] T3.4: Implement `get_event()` method
+  - [x] T3.5: Implement `parse_attendees()` helper
 
----
-
-## Frontend Tasks
-
-| # | Task | Status |
-|---|------|--------|
-| 1 | Create UI components | ⬜ |
-| 2 | Connect to API | ⬜ |
-| 3 | Add error handling | ⬜ |
-| 4 | Add loading states | ⬜ |
-
-### Detailed Frontend Tasks
-
-- [ ] **F1**: Create components in `src/components/`
-  - [ ] F1.1: Main component
-  - [ ] F1.2: Form component
-  - [ ] F1.3: List component
-
-- [ ] **F2**: API integration
-  - [ ] F2.1: API client
-  - [ ] F2.2: State management
-  - [ ] F2.3: Error handling
+- [x] **T4**: Create Pydantic schemas
+  - [x] T4.1: `src/schemas/meeting_pilot/meeting.py` - MeetingRecord schemas
+  - [x] T4.2: `src/schemas/meeting_pilot/brief.py` - Brief schemas
+  - [x] T4.3: `src/schemas/meeting_pilot/config.py` - Config schemas
+  - [x] T4.4: `src/schemas/meeting_pilot/__init__.py` exports
 
 ---
 
-## Tests Tasks
+## Phase 2: Agent Core (Tasks 5-9)
 
-| # | Task | Status |
-|---|------|--------|
-| 1 | Unit tests - models | ⬜ |
-| 2 | Unit tests - services | ⬜ |
-| 3 | Integration tests - API | ⬜ |
-| 4 | E2E tests | ⬜ |
+### State & Agent Structure
 
-### Detailed Test Tasks
+- [ ] **T5**: Create MeetingState TypedDict
+  - [ ] T5.1: `src/agents/meeting_pilot/state.py`
+  - [ ] T5.2: Define all state fields (meeting, context, brief, notes, etc.)
+  - [ ] T5.3: Define helper TypedDicts (AttendeeData, BriefResult, etc.)
 
-- [ ] **T1**: Unit tests for models
-- [ ] **T2**: Unit tests for services
-- [ ] **T3**: Integration tests for API endpoints
-- [ ] **T4**: E2E test for main flow
+- [ ] **T6**: Create agent node functions
+  - [ ] T6.1: `src/agents/meeting_pilot/nodes/__init__.py`
+  - [ ] T6.2: `src/agents/meeting_pilot/nodes/fetch.py` - fetch_meeting node
+  - [ ] T6.3: `src/agents/meeting_pilot/nodes/context.py` - gather_context node
+  - [ ] T6.4: `src/agents/meeting_pilot/nodes/brief.py` - generate_brief node
+  - [ ] T6.5: `src/agents/meeting_pilot/nodes/notify.py` - notify_slack node
+  - [ ] T6.6: `src/agents/meeting_pilot/nodes/notes.py` - capture_notes node
+  - [ ] T6.7: `src/agents/meeting_pilot/nodes/followup.py` - suggest_followup node
+
+### LLM Prompts
+
+- [ ] **T7**: Create brief generation prompt
+  - [ ] T7.1: `src/agents/meeting_pilot/prompts/__init__.py`
+  - [ ] T7.2: `src/agents/meeting_pilot/prompts/brief.py` - BRIEF_SYSTEM_PROMPT
+  - [ ] T7.3: Create prompt template for meeting context
+
+### Agent Assembly
+
+- [ ] **T8**: Create MeetingPilotAgent class
+  - [ ] T8.1: `src/agents/meeting_pilot/__init__.py`
+  - [ ] T8.2: `src/agents/meeting_pilot/agent.py` - MeetingPilotAgent
+  - [ ] T8.3: Implement `_build_graph()` with StateGraph
+  - [ ] T8.4: Add routing functions (_route_after_brief)
+  - [ ] T8.5: Implement `run()` method
+  - [ ] T8.6: Implement `resume()` method for human input
+
+- [ ] **T9**: Create MeetingPilotService
+  - [ ] T9.1: `src/services/meeting_pilot/__init__.py`
+  - [ ] T9.2: `src/services/meeting_pilot/service.py`
+  - [ ] T9.3: Implement `sync_calendar()` method
+  - [ ] T9.4: Implement `process_upcoming_meetings()` method
+  - [ ] T9.5: Implement `generate_brief()` method
+  - [ ] T9.6: Implement `add_note()` method
 
 ---
 
-## Documentation Tasks
+## Phase 3: Notifications (Tasks 10-12)
 
-- [ ] **D1**: Update README with feature docs
-- [ ] **D2**: Add docstrings to all public functions
-- [ ] **D3**: Update API documentation
+### Slack Integration
+
+- [ ] **T10**: Create Slack blocks for meeting brief
+  - [ ] T10.1: Add `build_meeting_brief_blocks()` to `src/integrations/slack/blocks.py`
+  - [ ] T10.2: Add meeting header block
+  - [ ] T10.3: Add participants section
+  - [ ] T10.4: Add brief content section
+  - [ ] T10.5: Add action buttons (Add Note, Snooze, Skip)
+
+- [ ] **T11**: Add Slack action handlers
+  - [ ] T11.1: Add `meeting_add_note` handler to `src/integrations/slack/handlers.py`
+  - [ ] T11.2: Add `meeting_snooze` handler
+  - [ ] T11.3: Add `meeting_skip` handler
+  - [ ] T11.4: Add modal for note input
+
+- [ ] **T12**: Implement brief notification flow
+  - [ ] T12.1: Add `send_brief_notification()` to service
+  - [ ] T12.2: Handle DM-only delivery
+  - [ ] T12.3: Add error handling for Slack failures
 
 ---
 
-## DevOps Tasks
+## Phase 4: Scheduling (Tasks 13-15)
 
-- [ ] **O1**: Add environment variables to `.env.example`
-- [ ] **O2**: Update CI/CD if needed
-- [ ] **O3**: Add database migrations if needed
+### Celery Tasks
+
+- [ ] **T13**: Create Celery tasks for MeetingPilot
+  - [ ] T13.1: `src/workers/tasks/meeting_tasks.py`
+  - [ ] T13.2: `sync_all_calendars` task
+  - [ ] T13.3: `process_user_meetings` task
+  - [ ] T13.4: `send_meeting_brief` task
+
+- [ ] **T14**: Configure Celery Beat schedule
+  - [ ] T14.1: Add meeting sync to beat schedule (every 15 min)
+  - [ ] T14.2: Add meeting brief check (every 5 min)
+  - [ ] T14.3: Update `src/workers/celery_app.py`
+
+- [ ] **T15**: Add sync job health monitoring
+  - [ ] T15.1: Add last_sync_at tracking
+  - [ ] T15.2: Add sync failure alerting
+  - [ ] T15.3: Add health check endpoint
+
+---
+
+## Phase 5: API & Config (Tasks 16-18)
+
+### REST API
+
+- [ ] **T16**: Create API routes
+  - [ ] T16.1: `src/api/routes/meeting_pilot.py`
+  - [ ] T16.2: GET `/meetings` - list upcoming meetings
+  - [ ] T16.3: GET `/meetings/{id}` - get meeting with brief
+  - [ ] T16.4: POST `/meetings/{id}/notes` - add note
+  - [ ] T16.5: GET `/config` - get user config
+  - [ ] T16.6: PUT `/config` - update user config
+  - [ ] T16.7: POST `/sync` - trigger manual sync
+
+- [ ] **T17**: Register router and add dependencies
+  - [ ] T17.1: Update `src/api/main.py` to include meeting_pilot router
+  - [ ] T17.2: Add get_current_user dependency
+  - [ ] T17.3: Add get_calendar_client dependency
+
+- [ ] **T18**: Add config settings
+  - [ ] T18.1: Add GOOGLE_CALENDAR_* settings to `src/core/config.py`
+  - [ ] T18.2: Add calendar scopes to OAuth flow
+  - [ ] T18.3: Update .env.example
+
+---
+
+## Phase 6: Testing (Tasks 19-22)
+
+### Unit Tests
+
+- [ ] **T19**: Test agent state and nodes
+  - [ ] T19.1: `tests/unit/agents/meeting_pilot/test_state.py`
+  - [ ] T19.2: `tests/unit/agents/meeting_pilot/nodes/test_fetch.py`
+  - [ ] T19.3: `tests/unit/agents/meeting_pilot/nodes/test_context.py`
+  - [ ] T19.4: `tests/unit/agents/meeting_pilot/nodes/test_brief.py`
+
+- [ ] **T20**: Test service layer
+  - [ ] T20.1: `tests/unit/services/test_meeting_pilot_service.py`
+  - [ ] T20.2: Test sync_calendar with mock Calendar API
+  - [ ] T20.3: Test process_upcoming_meetings
+  - [ ] T20.4: Test generate_brief with mock LLM
+
+- [ ] **T21**: Test calendar client
+  - [ ] T21.1: `tests/unit/integrations/test_calendar_client.py`
+  - [ ] T21.2: Test list_events
+  - [ ] T21.3: Test parse_attendees
+
+### Integration Tests
+
+- [ ] **T22**: Integration tests for API
+  - [ ] T22.1: `tests/integration/test_meeting_pilot_api.py`
+  - [ ] T22.2: Test GET /meetings endpoint
+  - [ ] T22.3: Test POST /notes endpoint
+  - [ ] T22.4: Test PUT /config endpoint
+
+---
+
+## Phase 7: Polish (Tasks 23-25)
+
+### Error Handling & Audit
+
+- [ ] **T23**: Implement comprehensive error handling
+  - [ ] T23.1: Add CalendarDisconnectedError exception
+  - [ ] T23.2: Add rate limit handling with backoff
+  - [ ] T23.3: Add graceful LLM timeout handling
+  - [ ] T23.4: Add audit log entries for all agent actions
+
+- [ ] **T24**: Add observability
+  - [ ] T24.1: Add Langfuse tracing to brief generation
+  - [ ] T24.2: Add metrics for sync job
+  - [ ] T24.3: Add logging throughout
+
+- [ ] **T25**: Final cleanup and documentation
+  - [ ] T25.1: Add docstrings to all public functions
+  - [ ] T25.2: Update tests.md with test results
+  - [ ] T25.3: Final code review pass
+  - [ ] T25.4: Update status.md to complete
 
 ---
 
@@ -99,22 +218,24 @@
 ### Status Legend
 | Symbol | Meaning |
 |--------|---------|
-| `- [ ]` | ⬜ Pending |
-| `- [🟡]` | 🟡 In Progress |
-| `- [x]` | ✅ Completed |
-| `- [🔴]` | 🔴 Blocked |
-| `- [⏭️]` | ⏭️ Skipped |
+| `- [ ]` | Pending |
+| `- [🟡]` | In Progress |
+| `- [x]` | Completed |
+| `- [🔴]` | Blocked |
+| `- [⏭️]` | Skipped |
 
 ### Current Progress
 
-| Section | Done | Total | % |
-|---------|------|-------|---|
-| Backend | 0 | 5 | 0% |
-| Frontend | 0 | 4 | 0% |
-| Tests | 0 | 4 | 0% |
-| Docs | 0 | 3 | 0% |
-| DevOps | 0 | 3 | 0% |
-| **TOTAL** | **0** | **19** | **0%** |
+| Phase | Done | Total | % |
+|-------|------|-------|---|
+| Phase 1: Foundation | 4 | 4 | 100% |
+| Phase 2: Agent Core | 0 | 5 | 0% |
+| Phase 3: Notifications | 0 | 3 | 0% |
+| Phase 4: Scheduling | 0 | 3 | 0% |
+| Phase 5: API & Config | 0 | 3 | 0% |
+| Phase 6: Testing | 0 | 4 | 0% |
+| Phase 7: Polish | 0 | 3 | 0% |
+| **TOTAL** | **4** | **25** | **16%** |
 
 ---
 
@@ -131,5 +252,5 @@ _Track any shortcuts taken that need future work_
 
 ---
 
-*Last updated: {date}*
-*Updated by: [you / fork-backend / fork-frontend]*
+*Last updated: 2026-02-02*
+*Updated by: Ralph Loop*
