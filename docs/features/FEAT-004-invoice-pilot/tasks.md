@@ -223,7 +223,7 @@
   - Add Celery beat container if not exists
   - Add volumes for PDF storage
 
-- [ ] **T9.3**: Run migrations
+- [x] **T9.3**: Run migrations
   - Test migration up/down
   - Seed test data for development
 
