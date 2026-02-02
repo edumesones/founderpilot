@@ -424,6 +424,67 @@
 **Próximo paso:** Continue with Phase 4 (T4.2: reminder endpoints, T4.3: settings endpoints already done in T4.1)
 
 
+---
+
+
+### [2026-02-02 - Iteration 8] - Complete Phase 4 & 5 (API + Celery)
+
+**Fase:** Implement
+**Progreso:** 30/41 tasks (73%)
+
+**Qué se hizo:**
+- T4.2: Created reminder endpoints in invoice router
+  - GET /api/v1/invoices/:id/reminders
+  - POST /api/v1/invoices/:id/reminders/:reminder_id/approve
+  - POST /api/v1/invoices/:id/reminders/:reminder_id/edit
+  - POST /api/v1/invoices/:id/reminders/:reminder_id/skip
+- T10.1: Registered invoice router in main API
+- T4.5: Added comprehensive error handling and validation
+  - Custom exception types: InvoiceNotFoundError, ReminderNotFoundError, InvalidOperationError
+  - Error handler decorator for all endpoints
+  - Enhanced validation: amount ranges, date ranges, sort order regex
+  - Proper HTTP status codes: 404, 422, 409, 500
+  - Added rate limiting for invoice endpoints (200 req/min)
+  - Database error handling with detailed logging
+- T5.1-T5.4: Implemented complete Celery automation system
+  - Created invoice_tasks.py with 5 tasks:
+    - scan_invoices_for_all_tenants: Periodic scanning (every 5 min)
+    - scan_invoices_for_tenant: On-demand scanning
+    - process_invoice_detection: Single invoice processing
+    - check_invoice_reminders: Daily reminder check (9am UTC)
+    - check_problem_patterns: Daily problem detection (10am UTC)
+  - Added invoice_pilot queue to Celery config
+  - Configured Celery beat schedule for automated execution
+  - Async/await pattern with proper error handling
+  - Statistics tracking for monitoring
+
+**Decisiones tomadas:**
+- Used decorator pattern for error handling to avoid code duplication
+- Custom exceptions for better error messages and proper HTTP status codes
+- Cross-tenant access protection via tenant_id checks
+- Rate limiting configured at 200 req/min for invoice endpoints
+- Celery tasks run every 5 minutes for invoices, daily for reminders and escalations
+- Separate queues (invoice_pilot) for better resource management
+- Statistics tracking in Celery tasks for monitoring and debugging
+
+**Problemas/Blockers:**
+- Ninguno
+
+**Archivos modificados:**
+- src/api/v1/invoices.py (enhanced with error handling)
+- src/middleware/rate_limit.py (added invoice endpoints)
+- src/workers/tasks/invoice_tasks.py (new)
+- src/workers/celery_app.py (added invoice tasks and schedules)
+- docs/features/FEAT-004-invoice-pilot/tasks.md
+- docs/features/FEAT-004-invoice-pilot/status.md
+
+**Commits:**
+- c7a98a1: Register invoice router in main API (T10.1)
+- 2410f93: Add reminder endpoints to invoice API (T4.2)
+- b37e238: Add comprehensive error handling and validation (T4.5)
+- c00723a: Implement Celery tasks for automation (T5.1-T5.4)
+
+**Próximo paso:** Phase 4 & 5 complete! Moving to Phase 6 (Slack Integration) or Phase 7 (Gmail Integration)
 
 
 
