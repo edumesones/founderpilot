@@ -17,6 +17,50 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
+### [2026-02-02 11:45] - [RALPH] Phase 3 Service Layer - 75% Complete ✅
+
+**Fase:** Implement (Iteration 5)
+**Progreso:** 16/41 tasks (39%)
+
+**Qué se hizo:**
+- Completed Phase 3: Service Layer (3 of 4 tasks):
+  - **T3.1**: Created InvoiceService (src/services/invoice_pilot/invoice_service.py)
+    - CRUD operations: create, get, list, update, delete
+    - Filters: status, client_email, date_from/to, amount_min/max, is_overdue
+    - Business methods: mark_as_paid, confirm_invoice, reject_invoice
+    - Audit logging: _log_action helper creates InvoiceAction records
+    - Bulk operations: get_overdue_invoices, get_invoices_by_client
+    - Tenant isolation: All operations verify tenant_id
+  - **T3.2**: Created ReminderService (src/services/invoice_pilot/reminder_service.py)
+    - Scheduling: schedule_reminders with configurable schedule (default: [-3, 3, 7, 14])
+    - Reminder workflow: set_draft_message → approve_reminder → mark_as_sent
+    - Actions: approve, edit, skip reminder with audit logging
+    - Queries: get_due_reminders, list_reminders_for_invoice, get_reminder_history
+    - Tracking: count_sent_reminders, mark_response_received
+  - **T3.3**: Created InvoiceDetectionService (src/services/invoice_pilot/detection_service.py)
+    - Detection: detect_and_create_invoice from LLM results
+    - Confidence: calculate_confidence based on 8 factors (fields, validation, context)
+    - Validation: _validate_currency (ISO 4217), _validate_email, _parse_date (multiple formats)
+    - Extraction helpers: extract_client_info_from_email, extract_amount_from_text
+    - Auto-confirmation: status='pending' if confidence ≥ 0.8, else 'detected'
+- Phase 3 now 75% complete (3/4 tasks)
+
+**Decisiones tomadas:**
+- Service pattern: Each service takes db: Session in __init__, follows existing patterns
+- Confidence threshold: 0.8 for auto-confirmation (configurable via class constant)
+- Date parsing: Supports ISO, US, EU, long formats with fallback chain
+- Currency validation: Basic 3-letter ISO check against common currencies
+- Audit trail: All services log actions via InvoiceAction model
+- Tenant isolation: All queries filter by tenant_id (cross-tenant access forbidden)
+- Error handling: Raises NotFoundError (404) and ValidationError (422) exceptions
+
+**Commits realizados:**
+- f0c17e7: FEAT-004-invoice-pilot: Create InvoiceService with CRUD operations (T3.1)
+- eeab219: FEAT-004-invoice-pilot: Create ReminderService with scheduling and approval (T3.2)
+- bb59047: FEAT-004-invoice-pilot: Create InvoiceDetectionService with LLM extraction (T3.3)
+
+**Próximo paso:** Complete T3.4 (validation logic), then move to Phase 4 (API Endpoints)
+
 ### [2026-02-02 11:15] - [RALPH] Phase 2 Complete - All LangGraph Nodes Implemented ✅
 ### [2026-02-02 10:53] - [RALPH] Implementation Progress - Batch complete
 
