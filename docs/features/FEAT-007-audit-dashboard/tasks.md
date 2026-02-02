@@ -20,10 +20,10 @@
 
 ### Detailed Backend Tasks
 
-- [ ] **B1**: Create models in `src/models/`
-  - [ ] B1.1: Define schema
-  - [ ] B1.2: Add relationships
-  - [ ] B1.3: Add indexes
+- [x] **B1**: Create models in `src/models/`
+  - [x] B1.1: Define schema
+  - [x] B1.2: Add relationships
+  - [x] B1.3: Add indexes
 
 - [ ] **B2**: Create service in `src/services/`
   - [ ] B2.1: CRUD operations
