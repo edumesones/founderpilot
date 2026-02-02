@@ -110,7 +110,7 @@
   - GET /api/v1/invoices/settings
   - PUT /api/v1/invoices/settings (reminder schedule, tone)
 
-- [ ] **T4.4**: Create Pydantic schemas in `src/schemas/invoice.py`
+- [x] **T4.4**: Create Pydantic schemas in `src/schemas/invoice.py`
   - InvoiceCreate, InvoiceResponse, InvoiceList
   - ReminderCreate, ReminderResponse
   - InvoiceSettings
