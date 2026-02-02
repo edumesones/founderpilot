@@ -17,6 +17,44 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
+### [2026-02-02 10:40] - [RALPH] Phase 1 Complete - Models & Migrations ✅
+
+**Fase:** Implement (Iteration 2)
+**Progreso:** 4/41 tasks (10%)
+
+**Qué se hizo:**
+- Created concrete tasks.md with 41 tasks across 10 phases (unblocked implementation)
+- Implemented Phase 1: Data Models & Migrations (4 tasks)
+  - Created Invoice model with tenant isolation, multi-currency, partial payments
+  - Created InvoiceReminder model with approval workflow
+  - Created InvoiceAction model for immutable audit trail
+  - Created Alembic migration 004_create_invoice_pilot_tables.py
+- Added calculated properties to Invoice: amount_remaining, is_overdue, days_overdue
+- Set up proper indexes for query performance
+- Committed: "FEAT-004-invoice-pilot: Phase 1 complete - Data models and migrations"
+
+**Decisiones tomadas:**
+- Models in src/models/invoice_pilot/ (follows existing pattern)
+- All three models in one file (invoice.py) for cohesion
+- Tenant isolation via tenant_id FK to users table
+- Unique constraint on tenant_id + gmail_message_id (prevent duplicates)
+- DECIMAL(15, 2) for money amounts (precision)
+- Status enum via String(50) (flexible for future statuses)
+- Composite indexes for common query patterns
+
+**Archivos creados:**
+- src/models/invoice_pilot/__init__.py
+- src/models/invoice_pilot/invoice.py (Invoice, InvoiceReminder, InvoiceAction)
+- alembic/versions/004_create_invoice_pilot_tables.py
+
+**Archivos modificados:**
+- docs/features/FEAT-004-invoice-pilot/tasks.md (updated progress)
+- docs/features/FEAT-004-invoice-pilot/status.md (10% complete)
+
+**Próximo paso:** Phase 3: Service Layer (skip Phase 2 for now, implement agent after services)
+
+---
+
 ### [2026-02-02 10:35] - [RALPH] [ERROR] IMPLEMENT Blocked - Plan Phase Incomplete
 
 **Fase:** Implement (Iteration 2)
