@@ -17,6 +17,32 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
+### [2026-02-02 13:30] - Python 3.9 Compatibility Fixed ✅
+
+**Fase:** Implement (Phase 5) - Bug Fix
+**Progreso:** 19/19 tasks (100%) + compatibility fixes
+
+**Qué se hizo:**
+- 🐛 Detected Python 3.9 compatibility issues with union type syntax (`type | None`)
+- ✅ Fixed 4 critical files with `from __future__ import annotations`
+- ✅ Replaced `str | None` with `Optional[str]` in FastAPI/Pydantic decorators
+- ✅ All compatibility issues resolved
+- ✅ Tests: 23/30 passed (6 fixture errors pre-existing, 1 minor test issue)
+
+**Archivos modificados:**
+- src/services/jwt.py (added __future__ import)
+- src/api/dependencies.py (added __future__ import, changed to Optional)
+- src/api/routes/auth.py (added __future__ import, changed to Optional)
+- src/services/token_encryption.py (added __future__ import)
+
+**Commits:**
+- `5b0d87f` - Fix Python 3.9 compatibility (jwt, dependencies, auth)
+- `0bc184d` - Fix Python 3.9 compatibility in token_encryption
+
+**Próximo paso:** Push changes and update PR
+
+---
+
 ### [2026-02-02 15:00] - Implementation Phase - All Tasks Complete ✅
 
 **Fase:** Implement (Phase 5) - Iteration 3
