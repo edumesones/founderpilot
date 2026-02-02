@@ -204,7 +204,7 @@
   - Test escalation flow
   - Mock LLM responses
 
-- [ ] **T8.5**: E2E test for main flow
+- [x] **T8.5**: E2E test for main flow
   - Send invoice email → Detect → Extract → Confirm → Schedule → Send reminder → Mark paid
   - Use test Gmail account and test Slack workspace
 
