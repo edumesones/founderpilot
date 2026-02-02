@@ -17,8 +17,55 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
-### [2026-02-02 Current] - [RALPH] Phase 2 Progress - Detection Flow Complete ✅
-### [2026-02-02 10:47] - [RALPH] Implementation Progress - Batch complete
+### [2026-02-02 11:15] - [RALPH] Phase 2 Complete - All LangGraph Nodes Implemented ✅
+
+**Fase:** Implement (Iteration 4)
+**Progreso:** 10/41 tasks (24%)
+
+**Qué se hizo:**
+- Completed Phase 2: LangGraph Agent (3 additional tasks):
+  - **T2.4**: Implemented reminder flow nodes
+    - check_reminders_due: Queries DB for due reminders based on schedule
+    - draft_reminder: LLM-based message generation with tone adaptation
+    - send_reminder: Gmail API integration with audit trail
+    - log_reminder_action: Creates InvoiceAction records
+  - **T2.5**: Implemented escalation flow
+    - detect_problem_pattern: Identifies 4 problem types (repeated_reminders, long_overdue, extended_delay, multiple_invoices)
+    - escalate_to_slack: Sends formatted notifications with severity levels
+  - **T2.6**: Verified LLM prompt templates (already complete)
+    - detection.py: Binary classification with confidence scoring
+    - extraction.py: Structured output with missing field detection
+    - reminder.py: Tone-based drafting (friendly/professional/firm)
+- Phase 2 now 100% complete (6/6 tasks)
+
+**Decisiones tomadas:**
+- Reminder schedule: Configurable array (default: [-3, 3, 7, 14] days relative to due_date)
+- Tone progression: friendly (0-3 days) → professional (4-7) → firm (8+)
+- Escalation thresholds: 3+ reminders OR 30+ days overdue OR multiple invoices from client
+- Severity levels: low/medium/high/critical (based on pattern complexity)
+- Slack notifications: Rich blocks with action buttons (View Invoice, Contact Client)
+- Skip handling: send_reminder checks human_decision for "skip" action
+
+**Commits realizados:**
+- "FEAT-004-invoice-pilot: Implement reminder flow nodes (T2.4)"
+- "FEAT-004-invoice-pilot: Implement escalation flow (T2.5)"
+- "FEAT-004-invoice-pilot: Complete Phase 2 LangGraph Agent (T2.6)"
+
+**Archivos creados:**
+- src/agents/invoice_pilot/nodes/reminder.py (4 nodes)
+- src/agents/invoice_pilot/nodes/escalation.py (2 nodes)
+
+**Archivos modificados:**
+- src/agents/invoice_pilot/agent.py (updated to use real node implementations)
+- src/agents/invoice_pilot/prompts/reminder.py (added REMINDER_DRAFT_PROMPT)
+- docs/features/FEAT-004-invoice-pilot/tasks.md (Phase 2: 6/6 complete, Overall: 10/41 = 24%)
+- docs/features/FEAT-004-invoice-pilot/status.md (updated progress, ready for Phase 3)
+
+**Próximo paso:** Phase 3: Service Layer (InvoiceService, ReminderService, InvoiceDetectionService)
+
+---
+
+### [2026-02-02 10:47] - [RALPH] Phase 2 Progress - Detection Flow Complete ✅
 
 **Fase:** Implement (Iteration 3)
 **Progreso:** 10/41 tasks (24%)
