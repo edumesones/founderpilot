@@ -163,17 +163,17 @@
 
 ## Phase 7: Gmail Integration
 
-- [ ] **T7.1**: Create Gmail inbox scanner
+- [x] **T7.1**: Create Gmail inbox scanner
   - Fetch sent emails with attachments
   - Filter by date (last 30 days for initial scan)
   - Extract PDF attachments
 
-- [ ] **T7.2**: Create Gmail reminder sender
+- [x] **T7.2**: Create Gmail reminder sender
   - Send reminder email to client
   - Track sent message ID
   - Handle bounces and errors
 
-- [ ] **T7.3**: Add PDF parsing utility
+- [x] **T7.3**: Add PDF parsing utility
   - Extract text from PDF
   - Convert to image for multimodal LLM
   - Handle corrupted/unreadable PDFs
@@ -272,11 +272,11 @@
 | Phase 4: API Endpoints | 5 | 5 | 100% |
 | Phase 5: Celery Tasks | 4 | 4 | 100% |
 | Phase 6: Slack Integration | 3 | 3 | 100% |
-| Phase 7: Gmail Integration | 0 | 3 | 0% |
+| Phase 7: Gmail Integration | 3 | 3 | 100% |
 | Phase 8: Testing | 0 | 5 | 0% |
 | Phase 9: Config & DevOps | 0 | 3 | 0% |
 | Phase 10: Documentation | 1 | 4 | 25% |
-| **TOTAL** | **27** | **41** | **66%** |
+| **TOTAL** | **30** | **41** | **73%** |
 
 ---
 

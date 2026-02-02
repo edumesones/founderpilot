@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 import logging
 import re
@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 
 from src.models.invoice_pilot.invoice import Invoice
 from src.services.invoice_pilot.invoice_service import InvoiceService
+from src.services.invoice_pilot.gmail_service import InvoicePilotGmailService, InvoiceEmail
+from src.services.invoice_pilot.pdf_parser import get_pdf_parser, PDFParseError
 from src.core.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
@@ -34,10 +36,117 @@ class InvoiceDetectionService:
     def __init__(
         self,
         db: Session,
+        user_id: UUID,
         invoice_service: Optional[InvoiceService] = None,
+        gmail_service: Optional[InvoicePilotGmailService] = None,
     ):
         self.db = db
+        self.user_id = user_id
         self.invoice_service = invoice_service or InvoiceService(db)
+        self.gmail_service = gmail_service or InvoicePilotGmailService(db, user_id)
+        self.pdf_parser = get_pdf_parser()
+
+    # --- Gmail Scanning ---
+
+    async def scan_gmail_for_invoices(
+        self,
+        tenant_id: UUID,
+        days_back: int = 30,
+        max_results: int = 50,
+    ) -> List[Invoice]:
+        """
+        Scan Gmail sent folder for potential invoices.
+
+        Args:
+            tenant_id: Tenant ID
+            days_back: Number of days to look back
+            max_results: Maximum number of emails to process
+
+        Returns:
+            List of created Invoice objects
+        """
+        logger.info(f"Scanning Gmail for invoices (last {days_back} days)")
+
+        # Scan Gmail
+        emails = await self.gmail_service.scan_sent_folder(
+            days_back=days_back,
+            max_results=max_results,
+            only_with_attachments=True,
+        )
+
+        logger.info(f"Found {len(emails)} emails with PDF attachments")
+
+        invoices = []
+        for email in emails:
+            try:
+                # Process each email
+                invoice = await self.process_email_for_invoice(tenant_id, email)
+                if invoice:
+                    invoices.append(invoice)
+            except Exception as e:
+                logger.error(f"Error processing email {email.message_id}: {e}")
+                continue
+
+        logger.info(f"Created {len(invoices)} invoices from Gmail scan")
+        return invoices
+
+    async def process_email_for_invoice(
+        self,
+        tenant_id: UUID,
+        email: InvoiceEmail,
+    ) -> Optional[Invoice]:
+        """
+        Process a single email to detect and extract invoice data.
+
+        Args:
+            tenant_id: Tenant ID
+            email: InvoiceEmail object from Gmail scan
+
+        Returns:
+            Created Invoice object or None if not an invoice
+        """
+        # Check if already processed
+        existing = self.invoice_service.get_by_gmail_message_id(tenant_id, email.message_id)
+        if existing:
+            logger.debug(f"Email {email.message_id} already processed")
+            return None
+
+        # Extract PDF attachments
+        pdf_attachments = [
+            att for att in email.attachments
+            if att.get("filename", "").lower().endswith(".pdf")
+        ]
+
+        if not pdf_attachments:
+            logger.debug(f"Email {email.message_id} has no PDF attachments")
+            return None
+
+        # Process first PDF attachment (usually invoices are single-page or first attachment)
+        attachment = pdf_attachments[0]
+        pdf_bytes = await self.gmail_service.get_attachment(
+            email.message_id,
+            attachment["attachmentId"],
+        )
+
+        # Validate PDF
+        if not self.pdf_parser.is_valid_invoice_pdf(pdf_bytes):
+            logger.warning(f"PDF from {email.message_id} is invalid or too large")
+            return None
+
+        # Extract data from PDF
+        try:
+            pdf_data = self.pdf_parser.extract_structured_data(pdf_bytes, prefer_images=False)
+        except PDFParseError as e:
+            logger.error(f"Failed to parse PDF from {email.message_id}: {e}")
+            return None
+
+        # TODO: Call LLM to detect and extract invoice data
+        # For now, return None (this will be implemented in the agent)
+        logger.info(f"PDF extracted from {email.message_id}, ready for LLM processing")
+
+        # Placeholder for LLM detection result
+        # This will be called from the LangGraph agent in production
+        return None
 
     # --- Detection Workflow ---
 
