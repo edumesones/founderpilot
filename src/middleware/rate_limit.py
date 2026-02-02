@@ -24,6 +24,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     # Rate limit configurations: path_prefix -> (requests, window_seconds)
     RATE_LIMITS = {
         "/api/v1/auth/": (settings.rate_limit_auth_requests, settings.rate_limit_auth_window_seconds),
+        "/api/v1/invoices/": (200, 60),  # 200 requests per minute for invoice endpoints
     }
 
     DEFAULT_LIMIT = (100, 60)  # 100 requests per minute default
