@@ -64,16 +64,16 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Unit tests - models | ⬜ |
-| 2 | Unit tests - services | ⬜ |
-| 3 | Integration tests - API | ⬜ |
+| 1 | Unit tests - models | ✅ |
+| 2 | Unit tests - services | ✅ |
+| 3 | Integration tests - API | ✅ |
 | 4 | E2E tests | ⬜ |
 
 ### Detailed Test Tasks
 
-- [ ] **T1**: Unit tests for models
-- [ ] **T2**: Unit tests for services
-- [ ] **T3**: Integration tests for API endpoints
+- [x] **T1**: Unit tests for models
+- [x] **T2**: Unit tests for services
+- [x] **T3**: Integration tests for API endpoints
 - [ ] **T4**: E2E test for main flow
 
 ---
@@ -111,10 +111,10 @@
 |---------|------|-------|---|
 | Backend | 5 | 5 | 100% |
 | Frontend | 4 | 4 | 100% |
-| Tests | 0 | 4 | 0% |
+| Tests | 3 | 4 | 75% |
 | Docs | 0 | 3 | 0% |
 | DevOps | 1 | 3 | 33% |
-| **TOTAL** | **10** | **19** | **53%** |
+| **TOTAL** | **13** | **19** | **68%** |
 
 ---
 
