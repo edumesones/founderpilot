@@ -144,17 +144,17 @@
 
 ## Phase 6: Slack Integration
 
-- [ ] **T6.1**: Create Slack notification templates
+- [x] **T6.1**: Create Slack notification templates
   - Low confidence invoice detected
   - Reminder ready for approval
   - Problem pattern escalation
 
-- [ ] **T6.2**: Create Slack action handlers
+- [x] **T6.2**: Create Slack action handlers
   - Handle confirm/reject invoice
   - Handle approve/edit/skip reminder
   - Handle escalation actions
 
-- [ ] **T6.3**: Add Slack message formatting
+- [x] **T6.3**: Add Slack message formatting
   - Rich formatting with blocks
   - Inline buttons for actions
   - Context information (client, amount, days overdue)
