@@ -7,9 +7,12 @@ from uuid import uuid4
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.graph import END, StateGraph
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.agents.invoice_pilot.nodes.detect import detect_invoice
 from src.agents.invoice_pilot.nodes.extract import extract_data
 from src.agents.invoice_pilot.nodes.scan import scan_inbox
+from src.agents.invoice_pilot.nodes.store import store_invoice
 from src.agents.invoice_pilot.state import (
     EscalationState,
     InvoiceState,
@@ -49,6 +52,7 @@ class InvoicePilotAgent:
         gmail_client: GmailClient,
         slack_notifier: SlackNotifier,
         llm_router: LLMRouter,
+        db_session: AsyncSession,
         checkpointer: AsyncPostgresSaver,
         config: dict | None = None,
     ):
@@ -58,12 +62,14 @@ class InvoicePilotAgent:
             gmail_client: Gmail API client for the user
             slack_notifier: Slack notification client
             llm_router: LLM provider router for detection/extraction/drafting
+            db_session: Database session for storing invoices
             checkpointer: LangGraph checkpointer for state persistence
             config: Agent configuration (thresholds, reminder schedule, etc.)
         """
         self.gmail = gmail_client
         self.slack = slack_notifier
         self.llm = llm_router
+        self.db = db_session
         self.checkpointer = checkpointer
         self.config = config or {}
 
@@ -161,17 +167,7 @@ class InvoicePilotAgent:
 
     async def _node_store_invoice(self, state: InvoiceState) -> dict:
         """Store invoice in database."""
-        # TODO: Implement in T2.3
-        return {
-            "invoice_id": 1,
-            "stored": True,
-            "steps": state.get("steps", []) + [{
-                "node": "store_invoice",
-                "timestamp": datetime.utcnow().isoformat(),
-                "result": {"invoice_id": 1},
-                "error": None,
-            }],
-        }
+        return await store_invoice(state, self.db)
 
     async def _node_audit_detection(self, state: InvoiceState) -> dict:
         """Audit log node for detection workflow."""

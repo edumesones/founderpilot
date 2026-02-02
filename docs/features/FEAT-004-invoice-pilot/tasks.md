@@ -42,7 +42,7 @@
   - detect_invoice: LLM-based invoice detection
   - extract_data: LLM multimodal extraction from PDF
 
-- [ ] **T2.3**: Implement confirmation flow
+- [x] **T2.3**: Implement confirmation flow
   - needs_confirmation: Check if confidence < 80%
   - confirm_invoice: Handle human approval via Slack
   - store_invoice: Save to DB with audit log
