@@ -234,7 +234,7 @@
 - [x] **T10.1**: Update main router to include invoice routes
   - Import and mount invoice router in src/api/main.py
 
-- [ ] **T10.2**: Add docstrings
+- [x] **T10.2**: Add docstrings
   - All agent nodes
   - All service methods
   - All API endpoints
