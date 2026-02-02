@@ -34,7 +34,7 @@ class AgentAuditLog(Base, UUIDMixin, TimestampMixin):
         escalated: Whether the action was escalated for human approval
         authorized_by: Who authorized the action ('agent' or user_id)
         trace_id: Langfuse trace ID for detailed debugging
-        metadata: Full input/output and extra context (JSONB)
+        metadata_: Full input/output and extra context (JSONB)
         rolled_back: Whether this action has been rolled back
         created_at: Record creation timestamp
         updated_at: Record last update timestamp
@@ -96,7 +96,8 @@ class AgentAuditLog(Base, UUIDMixin, TimestampMixin):
         String(255),
         nullable=True,
     )
-    metadata: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+    metadata_: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        "metadata",
         JSONB,
         nullable=True,
         default=dict,

@@ -74,7 +74,7 @@
 - [x] **T1**: Unit tests for models
 - [x] **T2**: Unit tests for services
 - [x] **T3**: Integration tests for API endpoints
-- [ ] **T4**: E2E test for main flow
+- [🟡] **T4**: E2E test for main flow
 
 ---
 

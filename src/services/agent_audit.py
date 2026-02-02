@@ -86,7 +86,7 @@ class AgentAuditService:
             escalated=escalated,
             authorized_by=authorized_by or "agent",
             trace_id=trace_id,
-            metadata=metadata or {},
+            metadata_=metadata or {},
             rolled_back=False,
         )
 

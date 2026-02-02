@@ -52,7 +52,7 @@ def mock_audit_log():
     log.escalated = False
     log.authorized_by = "agent"
     log.trace_id = "trace_123"
-    log.metadata = {"raw_input": "full email content"}
+    log.metadata_ = {"raw_input": "full email content"}
     log.rolled_back = False
     log.created_at = datetime.now(timezone.utc)
     log.updated_at = datetime.now(timezone.utc)

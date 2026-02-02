@@ -50,7 +50,7 @@ def mock_audit_log(sample_user_id):
     log.escalated = False
     log.authorized_by = "agent"
     log.trace_id = "trace_123"
-    log.metadata = {"raw_input": "full email content"}
+    log.metadata_ = {"raw_input": "full email content"}
     log.rolled_back = False
     return log
 

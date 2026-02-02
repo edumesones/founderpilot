@@ -49,9 +49,11 @@ class AgentAuditLogDetail(AgentAuditLogBase):
     id: UUID
     user_id: UUID
     workflow_id: Optional[UUID] = None
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = Field(None, alias="metadata_")
     created_at: datetime
     updated_at: Optional[datetime] = None
+
+    model_config = {"populate_by_name": True, "from_attributes": True}
 
 
 class AgentAuditLogListResponse(BaseModel):
@@ -103,8 +105,10 @@ class AgentAuditLogCreate(BaseModel):
     escalated: bool = False
     authorized_by: Optional[str] = Field(None, max_length=50)
     trace_id: Optional[str] = Field(None, max_length=255)
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = Field(None, alias="metadata_")
     workflow_id: Optional[UUID] = None
+
+    model_config = {"populate_by_name": True}
 
 
 class AgentAuditStatsResponse(BaseModel):
