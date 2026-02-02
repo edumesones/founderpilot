@@ -219,9 +219,29 @@ Ralph pauses (doesn't crash) in these situations:
 3. Update spec.md if needed
 4. Run ralph-feature.ps1 to resume
 
-### 2. Waiting for Merge Approval
+### 2. Merge Conflicts Detected (PR Phase)
 
-**When:** PR created, needs human review
+**When:** Creating PR and conflicts exist with main/master
+
+**Auto-Resolution Strategies:**
+- Documentation files (`status.md`, `session_log.md`) → keeps feature version
+- Lock files (`package-lock.json`, `yarn.lock`) → regenerates
+- Other files → **PAUSES for manual resolution**
+
+**What to do (if paused):**
+1. Check conflicted files listed in output
+2. Resolve conflicts manually:
+   ```powershell
+   # Edit conflicted files
+   git add <resolved-files>
+   git commit -m "FEAT-XXX: Resolve merge conflicts"
+   ```
+3. Run `ralph-feature.ps1 FEAT-XXX 15` to resume
+4. Ralph will retry PR creation
+
+### 3. Waiting for Merge Approval
+
+**When:** PR created successfully, needs human review
 
 **What to do:**
 1. Review PR in GitHub

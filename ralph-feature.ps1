@@ -639,6 +639,90 @@ function Invoke-PR {
         return 0
     }
 
+    # === CRITICAL: Sync with main before creating PR ===
+    Write-Log "Syncing with main branch..."
+
+    # Determine base branch (main or master)
+    git fetch origin 2>$null
+    $baseBranch = if (git show-ref --verify --quiet refs/remotes/origin/main) { "main" } else { "master" }
+    Write-Log "Base branch: $baseBranch"
+
+    # Attempt merge
+    $mergeOutput = git merge "origin/$baseBranch" 2>&1
+
+    if ($LASTEXITCODE -ne 0) {
+        # Merge conflict detected
+        Write-Log "Merge conflicts detected with $baseBranch" -Level WARNING
+
+        # Get list of conflicted files
+        $conflictedFiles = git diff --name-only --diff-filter=U 2>$null
+
+        if ($conflictedFiles) {
+            Write-Host ""
+            Write-Host "========================================" -ForegroundColor Yellow
+            Write-Host "  MERGE CONFLICTS DETECTED" -ForegroundColor Yellow
+            Write-Host "========================================" -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "Conflicted files:" -ForegroundColor Yellow
+            $conflictedFiles | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+            Write-Host ""
+
+            # Attempt auto-resolution
+            $autoResolved = $true
+            foreach ($file in $conflictedFiles) {
+                Write-Log "Attempting auto-resolution: $file"
+
+                # Strategy 1: Documentation files → take ours (feature branch)
+                if ($file -match 'docs/features/.*/status\.md|docs/features/.*/context/.*\.md') {
+                    Write-Log "  Strategy: Keep feature version (documentation)" -Level WARNING
+                    git checkout --ours $file 2>$null
+                    git add $file 2>$null
+                }
+                # Strategy 2: Generated files → regenerate
+                elseif ($file -match '\.lock$|package-lock\.json|yarn\.lock|poetry\.lock') {
+                    Write-Log "  Strategy: Regenerate lockfile" -Level WARNING
+                    git checkout --ours $file 2>$null
+                    git add $file 2>$null
+                }
+                # Strategy 3: Cannot auto-resolve
+                else {
+                    Write-Log "  Cannot auto-resolve: $file" -Level ERROR
+                    $autoResolved = $false
+                }
+            }
+
+            if ($autoResolved) {
+                # Complete the merge
+                git commit -m "$FeatureId: Resolve merge conflicts with $baseBranch (auto-resolved)" 2>$null
+                Write-Log "Conflicts auto-resolved successfully" -Level SUCCESS
+                Add-SessionLog "Merge conflicts auto-resolved"
+            }
+            else {
+                # Cannot auto-resolve - pause for human intervention
+                Write-Host ""
+                Write-Host "========================================" -ForegroundColor Red
+                Write-Host "  MANUAL INTERVENTION REQUIRED" -ForegroundColor Red
+                Write-Host "========================================" -ForegroundColor Red
+                Write-Host ""
+                Write-Host "Cannot auto-resolve all conflicts." -ForegroundColor Red
+                Write-Host ""
+                Write-Host "To resolve manually:" -ForegroundColor Yellow
+                Write-Host "  1. Resolve conflicts in the files listed above" -ForegroundColor Yellow
+                Write-Host "  2. git add <resolved-files>" -ForegroundColor Yellow
+                Write-Host "  3. git commit -m '$FeatureId: Resolve merge conflicts'" -ForegroundColor Yellow
+                Write-Host "  4. Run ralph-feature.ps1 again to continue" -ForegroundColor Yellow
+                Write-Host ""
+
+                Add-SessionLog "[PAUSED] Merge conflicts need manual resolution"
+                return 3  # Human input needed
+            }
+        }
+    }
+    else {
+        Write-Log "No merge conflicts - clean merge with $baseBranch" -Level SUCCESS
+    }
+
+    # Push to remote
     git push -u origin $BranchName 2>$null
 
     $prTitle = "${FeatureId}: " + ($FeatureId -replace 'FEAT-\d+-', '' -replace '-', ' ')
@@ -651,13 +735,14 @@ Automated PR for $FeatureId
 ## Checklist
 - [x] Implementation complete
 - [x] Tests passing
+- [x] Synced with $baseBranch
 - [ ] Review approved
 
 ---
 *Created by Ralph Loop*
 "@
 
-    gh pr create --title $prTitle --body $prBody --base main 2>$null
+    gh pr create --title $prTitle --body $prBody --base $baseBranch 2>$null
 
     Write-Log "PR created" -Level SUCCESS
     Add-SessionLog "PR Created ✅"
