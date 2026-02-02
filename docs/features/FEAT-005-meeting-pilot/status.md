@@ -43,7 +43,7 @@
 
 ### Overall
 ```
-[███░░░░░░░░░░░░░░░░░] 16% (4/25 tasks)
+[███████░░░░░░░░░░░░░] 36% (9/25 tasks)
 ```
 
 ### By Phase
@@ -51,7 +51,7 @@
 | Phase | Progress | Status |
 |-------|----------|--------|
 | Phase 1: Foundation | 4/4 | ✅ Complete |
-| Phase 2: Agent Core | 0/5 | ⬜ Not Started |
+| Phase 2: Agent Core | 5/5 | ✅ Complete |
 | Phase 3: Notifications | 0/3 | ⬜ Not Started |
 | Phase 4: Scheduling | 0/3 | ⬜ Not Started |
 | Phase 5: API & Config | 0/3 | ⬜ Not Started |
@@ -62,9 +62,9 @@
 
 ## Current Work
 
-**Working on:** Phase 5 - Implement (Phase 2: Agent Core)
+**Working on:** Phase 5 - Implement (Phase 3: Notifications)
 
-**Current task:** T5 - MeetingState TypedDict
+**Current task:** T10 - Slack blocks for meeting brief
 
 **Assigned to:** Ralph Loop
 

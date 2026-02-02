@@ -47,44 +47,44 @@
 
 ### State & Agent Structure
 
-- [ ] **T5**: Create MeetingState TypedDict
-  - [ ] T5.1: `src/agents/meeting_pilot/state.py`
-  - [ ] T5.2: Define all state fields (meeting, context, brief, notes, etc.)
-  - [ ] T5.3: Define helper TypedDicts (AttendeeData, BriefResult, etc.)
+- [x] **T5**: Create MeetingState TypedDict
+  - [x] T5.1: `src/agents/meeting_pilot/state.py`
+  - [x] T5.2: Define all state fields (meeting, context, brief, notes, etc.)
+  - [x] T5.3: Define helper TypedDicts (AttendeeData, BriefResult, etc.)
 
-- [ ] **T6**: Create agent node functions
-  - [ ] T6.1: `src/agents/meeting_pilot/nodes/__init__.py`
-  - [ ] T6.2: `src/agents/meeting_pilot/nodes/fetch.py` - fetch_meeting node
-  - [ ] T6.3: `src/agents/meeting_pilot/nodes/context.py` - gather_context node
-  - [ ] T6.4: `src/agents/meeting_pilot/nodes/brief.py` - generate_brief node
-  - [ ] T6.5: `src/agents/meeting_pilot/nodes/notify.py` - notify_slack node
-  - [ ] T6.6: `src/agents/meeting_pilot/nodes/notes.py` - capture_notes node
-  - [ ] T6.7: `src/agents/meeting_pilot/nodes/followup.py` - suggest_followup node
+- [x] **T6**: Create agent node functions
+  - [x] T6.1: `src/agents/meeting_pilot/nodes/__init__.py`
+  - [x] T6.2: `src/agents/meeting_pilot/nodes/fetch.py` - fetch_meeting node
+  - [x] T6.3: `src/agents/meeting_pilot/nodes/context.py` - gather_context node
+  - [x] T6.4: `src/agents/meeting_pilot/nodes/brief.py` - generate_brief node
+  - [x] T6.5: `src/agents/meeting_pilot/nodes/notify.py` - notify_slack node
+  - [x] T6.6: `src/agents/meeting_pilot/nodes/notes.py` - capture_notes node
+  - [x] T6.7: `src/agents/meeting_pilot/nodes/followup.py` - suggest_followup node
 
 ### LLM Prompts
 
-- [ ] **T7**: Create brief generation prompt
-  - [ ] T7.1: `src/agents/meeting_pilot/prompts/__init__.py`
-  - [ ] T7.2: `src/agents/meeting_pilot/prompts/brief.py` - BRIEF_SYSTEM_PROMPT
-  - [ ] T7.3: Create prompt template for meeting context
+- [x] **T7**: Create brief generation prompt
+  - [x] T7.1: `src/agents/meeting_pilot/prompts/__init__.py`
+  - [x] T7.2: `src/agents/meeting_pilot/prompts/brief.py` - BRIEF_SYSTEM_PROMPT
+  - [x] T7.3: Create prompt template for meeting context
 
 ### Agent Assembly
 
-- [ ] **T8**: Create MeetingPilotAgent class
-  - [ ] T8.1: `src/agents/meeting_pilot/__init__.py`
-  - [ ] T8.2: `src/agents/meeting_pilot/agent.py` - MeetingPilotAgent
-  - [ ] T8.3: Implement `_build_graph()` with StateGraph
-  - [ ] T8.4: Add routing functions (_route_after_brief)
-  - [ ] T8.5: Implement `run()` method
-  - [ ] T8.6: Implement `resume()` method for human input
+- [x] **T8**: Create MeetingPilotAgent class
+  - [x] T8.1: `src/agents/meeting_pilot/__init__.py`
+  - [x] T8.2: `src/agents/meeting_pilot/agent.py` - MeetingPilotAgent
+  - [x] T8.3: Implement `_build_graph()` with StateGraph
+  - [x] T8.4: Add routing functions (_route_after_brief)
+  - [x] T8.5: Implement `run()` method
+  - [x] T8.6: Implement `resume()` method for human input
 
-- [ ] **T9**: Create MeetingPilotService
-  - [ ] T9.1: `src/services/meeting_pilot/__init__.py`
-  - [ ] T9.2: `src/services/meeting_pilot/service.py`
-  - [ ] T9.3: Implement `sync_calendar()` method
-  - [ ] T9.4: Implement `process_upcoming_meetings()` method
-  - [ ] T9.5: Implement `generate_brief()` method
-  - [ ] T9.6: Implement `add_note()` method
+- [x] **T9**: Create MeetingPilotService
+  - [x] T9.1: `src/services/meeting_pilot/__init__.py`
+  - [x] T9.2: `src/services/meeting_pilot/service.py`
+  - [x] T9.3: Implement `sync_calendar()` method
+  - [x] T9.4: Implement `get_meetings_needing_briefs()` method
+  - [x] T9.5: Implement `mark_brief_sent()` method
+  - [x] T9.6: Implement `add_note()` method
 
 ---
 
@@ -229,13 +229,13 @@
 | Phase | Done | Total | % |
 |-------|------|-------|---|
 | Phase 1: Foundation | 4 | 4 | 100% |
-| Phase 2: Agent Core | 0 | 5 | 0% |
+| Phase 2: Agent Core | 5 | 5 | 100% |
 | Phase 3: Notifications | 0 | 3 | 0% |
 | Phase 4: Scheduling | 0 | 3 | 0% |
 | Phase 5: API & Config | 0 | 3 | 0% |
 | Phase 6: Testing | 0 | 4 | 0% |
 | Phase 7: Polish | 0 | 3 | 0% |
-| **TOTAL** | **4** | **25** | **16%** |
+| **TOTAL** | **9** | **25** | **36%** |
 
 ---
 
