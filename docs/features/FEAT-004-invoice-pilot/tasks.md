@@ -187,7 +187,7 @@
   - Test status transitions
   - Test relationships
 
-- [ ] **T8.2**: Unit tests for services
+- [x] **T8.2**: Unit tests for services
   - Test InvoiceService CRUD
   - Test ReminderService scheduling
   - Test InvoiceDetectionService logic
