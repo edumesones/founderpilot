@@ -78,7 +78,7 @@
   - Approve/edit/skip reminder
   - Track reminder history per invoice
 
-- [ ] **T3.3**: Create InvoiceDetectionService in `src/services/invoice_detection_service.py`
+- [x] **T3.3**: Create InvoiceDetectionService in `src/services/invoice_detection_service.py`
   - Scan Gmail for invoice emails
   - Call LLM for detection and extraction
   - Handle PDF parsing
