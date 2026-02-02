@@ -25,15 +25,15 @@
   - [x] B1.2: Add relationships
   - [x] B1.3: Add indexes
 
-- [ ] **B2**: Create service in `src/services/`
-  - [ ] B2.1: CRUD operations
-  - [ ] B2.2: Business logic
-  - [ ] B2.3: Validation
+- [x] **B2**: Create service in `src/services/`
+  - [x] B2.1: CRUD operations
+  - [x] B2.2: Business logic
+  - [x] B2.3: Validation
 
 - [ ] **B3**: Create API in `src/api/`
   - [ ] B3.1: Router setup
   - [ ] B3.2: Endpoints
-  - [ ] B3.3: Request/Response models
+  - [x] B3.3: Request/Response models
 
 ---
 
