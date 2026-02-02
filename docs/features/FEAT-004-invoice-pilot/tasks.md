@@ -84,7 +84,7 @@
   - Handle PDF parsing
   - Confidence scoring
 
-- [ ] **T3.4**: Create validation logic
+- [x] **T3.4**: Create validation logic
   - Validate invoice data (amount > 0, dates valid, etc)
   - Validate currency codes (ISO 4217)
   - Sanitize LLM inputs/outputs
