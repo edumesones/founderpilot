@@ -127,6 +127,18 @@ def create_app() -> FastAPI:
     except ImportError:
         logger.warning("InboxPilot routes not available")
 
+    # Include MeetingPilot router (FEAT-005)
+    try:
+        from src.api.routes import meeting_pilot
+
+        application.include_router(
+            meeting_pilot.router,
+            prefix=f"{API_V1}/meeting-pilot",
+            tags=["MeetingPilot"],
+        )
+    except ImportError:
+        logger.warning("MeetingPilot routes not available")
+
     # Include Webhooks router (FEAT-003)
     try:
         from src.api.routes import webhooks
