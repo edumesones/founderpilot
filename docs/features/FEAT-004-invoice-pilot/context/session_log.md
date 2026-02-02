@@ -17,6 +17,43 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
+### [2026-02-02 12:15] - [RALPH] Phase 4 API Complete + Phase 10 Router Registration ✅
+
+**Fase:** Implement (Iteration 7)
+**Progreso:** 22/41 tasks (54%)
+
+**Qué se hizo:**
+- Completed Phase 4: API Endpoints (2 of 3 remaining tasks):
+  - **T4.2**: Added reminder endpoints to src/api/v1/invoices.py
+    - GET /api/v1/invoices/:id/reminders - List all reminders for invoice
+    - POST /api/v1/invoices/:id/reminders/:reminder_id/approve - Approve reminder with optional message edit
+    - POST /api/v1/invoices/:id/reminders/:reminder_id/edit - Edit reminder message
+    - POST /api/v1/invoices/:id/reminders/:reminder_id/skip - Skip scheduled reminder
+    - All endpoints include tenant validation and audit logging
+  - **T4.3**: Settings endpoints already exist (discovered during review)
+    - GET /api/v1/invoices/settings - Get tenant settings
+    - PUT /api/v1/invoices/settings - Update settings (reminder schedule, thresholds)
+- Started Phase 10: Documentation (1 of 4 tasks):
+  - **T10.1**: Registered invoice router in src/api/main.py
+    - Added InvoicePilot router to main FastAPI app
+    - Mounted at /api/v1/invoices with "InvoicePilot" tag
+    - Added try/except for graceful import failure
+- Phase 4 now 80% complete (4/5 tasks) - only T4.5 (error handling) remains
+- Phase 10 now 25% complete (1/4 tasks)
+
+**Decisiones tomadas:**
+- **Router registration pattern**: Followed existing pattern (try/except with logger warning)
+- **Endpoint structure**: Nested reminder actions under invoice ID for REST consistency
+- **Response formats**: ReminderResponse for approve/edit, dict for skip (consistent with reject)
+
+**Commits:**
+1. FEAT-004-invoice-pilot: Add reminder endpoints to invoice API (T4.2) - eceb11c
+2. FEAT-004-invoice-pilot: Register invoice router in main API (T10.1) - c7a98a1
+
+**Próximo paso:** Continue with Phase 5 (Celery Tasks) or Phase 4.5 (error handling validation)
+
+---
+
 ### [2026-02-02 11:45] - [RALPH] Phase 3 Service Layer - 75% Complete ✅
 ### [2026-02-02 11:04] - [RALPH] Implementation Progress - Batch complete
 ### [2026-02-02 10:58] - [RALPH] Implementation Progress - Batch complete
