@@ -219,7 +219,7 @@
   - INVOICE_SCAN_INTERVAL (default: 5min)
   - Add to .env.example
 
-- [ ] **T9.2**: Update Docker configuration
+- [x] **T9.2**: Update Docker configuration
   - Add Celery beat container if not exists
   - Add volumes for PDF storage
 
