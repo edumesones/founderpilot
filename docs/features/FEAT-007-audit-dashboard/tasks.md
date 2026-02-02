@@ -67,20 +67,20 @@
 | 1 | Unit tests - models | ✅ |
 | 2 | Unit tests - services | ✅ |
 | 3 | Integration tests - API | ✅ |
-| 4 | E2E tests | ⬜ |
+| 4 | E2E tests | ✅ |
 
 ### Detailed Test Tasks
 
 - [x] **T1**: Unit tests for models
 - [x] **T2**: Unit tests for services
 - [x] **T3**: Integration tests for API endpoints
-- [🟡] **T4**: E2E test for main flow
+- [x] **T4**: E2E test for main flow
 
 ---
 
 ## Documentation Tasks
 
-- [ ] **D1**: Update README with feature docs
+- [🟡] **D1**: Update README with feature docs
 - [ ] **D2**: Add docstrings to all public functions
 - [ ] **D3**: Update API documentation
 
@@ -111,10 +111,10 @@
 |---------|------|-------|---|
 | Backend | 5 | 5 | 100% |
 | Frontend | 4 | 4 | 100% |
-| Tests | 3 | 4 | 75% |
+| Tests | 4 | 4 | 100% |
 | Docs | 0 | 3 | 0% |
 | DevOps | 1 | 3 | 33% |
-| **TOTAL** | **13** | **19** | **68%** |
+| **TOTAL** | **14** | **19** | **74%** |
 
 ---
 
