@@ -182,7 +182,7 @@
 
 ## Phase 8: Testing
 
-- [ ] **T8.1**: Unit tests for models
+- [x] **T8.1**: Unit tests for models
   - Test Invoice, InvoiceReminder, InvoiceAction models
   - Test status transitions
   - Test relationships
