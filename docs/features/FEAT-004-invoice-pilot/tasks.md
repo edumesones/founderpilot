@@ -125,19 +125,19 @@
 
 ## Phase 5: Celery Tasks (Automation)
 
-- [ ] **T5.1**: Create Celery task for invoice scanning
+- [x] **T5.1**: Create Celery task for invoice scanning
   - Task: scan_invoices_for_all_tenants (every 5 min)
   - Call InvoicePilotAgent.scan_inbox() per tenant
 
-- [ ] **T5.2**: Create Celery task for reminders
+- [x] **T5.2**: Create Celery task for reminders
   - Task: check_invoice_reminders (daily at 9am)
   - Call InvoicePilotAgent.check_reminders_due() per tenant
 
-- [ ] **T5.3**: Create Celery task for escalation
+- [x] **T5.3**: Create Celery task for escalation
   - Task: check_problem_patterns (daily at 10am)
   - Call InvoicePilotAgent.detect_problem_pattern() per tenant
 
-- [ ] **T5.4**: Configure Celery beat schedule
+- [x] **T5.4**: Configure Celery beat schedule
   - Add tasks to celeryconfig.py
 
 ---
