@@ -17,6 +17,65 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
+### [2026-02-02 Current] - [RALPH] Phase 2 Progress - Detection Flow Complete ✅
+
+**Fase:** Implement (Iteration 3)
+**Progreso:** 10/41 tasks (24%)
+
+**Qué se hizo:**
+- Implemented Phase 2 Detection Flow (3 tasks):
+  - **T2.1**: Created InvoicePilotAgent skeleton with StateGraph setup
+    - Three separate workflows: Detection, Reminder, Escalation
+    - State classes: InvoiceState, ReminderState, EscalationState
+    - Full graph structure with interrupt points for human review
+  - **T2.2**: Implemented detection flow nodes
+    - scan_inbox: Validates sent email with PDF attachment
+    - detect_invoice: LLM-based binary classification (is_invoice?)
+    - extract_data: Multimodal LLM extraction from PDF
+  - **T2.3**: Implemented confirmation flow
+    - store_invoice: Saves to DB with audit trail
+    - Smart routing based on confidence threshold (>80% auto-confirm)
+    - Human approval via Slack for low-confidence detections
+- Created LLM prompt templates:
+  - Invoice detection prompt (binary classification)
+  - Invoice extraction prompt (structured data extraction)
+  - Reminder draft prompt (contextual email generation)
+- Added db_session dependency to agent for database operations
+
+**Decisiones tomadas:**
+- Separate prompts/ and nodes/ directories (follows inbox_pilot pattern)
+- Three independent StateGraphs (detection, reminder, escalation) for clarity
+- Interrupt before confirm_invoice and await_approval nodes
+- Use existing LLMRouter for model abstraction
+- Store PDF URL in detection result for extraction phase
+- Confidence routing in _route_after_extract()
+
+**Commits realizados:**
+- "FEAT-004-invoice-pilot: Create InvoicePilotAgent skeleton with StateGraph setup"
+- "FEAT-004-invoice-pilot: Implement detection flow nodes (scan, detect, extract)"
+- "FEAT-004-invoice-pilot: Implement confirmation flow with store_invoice node"
+
+**Archivos creados:**
+- src/agents/invoice_pilot/agent.py (main agent with 3 workflows)
+- src/agents/invoice_pilot/state.py (InvoiceState, ReminderState, EscalationState)
+- src/agents/invoice_pilot/__init__.py
+- src/agents/invoice_pilot/nodes/scan.py
+- src/agents/invoice_pilot/nodes/detect.py
+- src/agents/invoice_pilot/nodes/extract.py
+- src/agents/invoice_pilot/nodes/store.py
+- src/agents/invoice_pilot/prompts/detection.py
+- src/agents/invoice_pilot/prompts/extraction.py
+- src/agents/invoice_pilot/prompts/reminder.py
+
+**Archivos modificados:**
+- src/agents/__init__.py (added InvoicePilotAgent export)
+- docs/features/FEAT-004-invoice-pilot/tasks.md (T2.1-T2.3 marked complete)
+- docs/features/FEAT-004-invoice-pilot/status.md (24% complete)
+
+**Próximo paso:** Continue with remaining Phase 2 tasks (T2.4: Reminder flow, T2.5: Escalation)
+
+---
+
 ### [2026-02-02 10:40] - [RALPH] Phase 1 Complete - Models & Migrations ✅
 ### [2026-02-02 10:38] - [RALPH] Implementation Progress - Batch complete
 
