@@ -93,7 +93,7 @@
 
 ## Phase 4: API Endpoints
 
-- [ ] **T4.1**: Create invoice router in `src/api/v1/invoices.py`
+- [x] **T4.1**: Create invoice router in `src/api/v1/invoices.py`
   - GET /api/v1/invoices (list with filters)
   - GET /api/v1/invoices/:id (details + reminders)
   - POST /api/v1/invoices/:id/confirm
@@ -268,15 +268,15 @@
 |-------|------|-------|---|
 | Phase 1: Models & Migrations | 4 | 4 | 100% |
 | Phase 2: LangGraph Agent | 6 | 6 | 100% |
-| Phase 3: Service Layer | 3 | 4 | 75% |
-| Phase 4: API Endpoints | 0 | 5 | 0% |
+| Phase 3: Service Layer | 4 | 4 | 100% |
+| Phase 4: API Endpoints | 2 | 5 | 40% |
 | Phase 5: Celery Tasks | 0 | 4 | 0% |
 | Phase 6: Slack Integration | 0 | 3 | 0% |
 | Phase 7: Gmail Integration | 0 | 3 | 0% |
 | Phase 8: Testing | 0 | 5 | 0% |
 | Phase 9: Config & DevOps | 0 | 3 | 0% |
 | Phase 10: Documentation | 0 | 4 | 0% |
-| **TOTAL** | **16** | **41** | **39%** |
+| **TOTAL** | **19** | **41** | **46%** |
 
 ---
 
