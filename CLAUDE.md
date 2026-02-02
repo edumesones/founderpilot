@@ -204,17 +204,20 @@ Sistema de desarrollo autónomo que ejecuta el ciclo completo de 8 fases con mí
 
 | Comando | Propósito |
 |---------|-----------|
-| `/ralph orchestrator 3` | Procesar todas las features pendientes (max 3 paralelo) |
-| `/ralph feature FEAT-XXX` | Procesar una feature específica |
+| `ralph-feature.ps1 FEAT-XXX 15` | Procesar una feature específica (Windows PowerShell) |
+| `./ralph-orchestrator.sh 3` | Procesar todas las features pendientes (max 3 paralelo, Linux/Mac) |
 | `/ralph status` | Ver estado de loops activos |
 | `/ralph stop` | Detener todos los loops |
+
+**Windows:** Ejecuta `ralph-feature.ps1` directamente en PowerShell, no uses comandos slash.
 
 ### Flujo
 
 ```
 1. Human añade features a _index.md con ⚪ Pending
-2. Human ejecuta ./ralph-orchestrator.sh 3
-3. Ralph crea worktrees, ejecuta loops
+2. Windows: Abre PowerShell en worktree y ejecuta `ralph-feature.ps1 FEAT-XXX 15`
+   Linux/Mac: Ejecuta `./ralph-orchestrator.sh 3` (múltiples features en paralelo)
+3. Ralph ejecuta las 8 fases automáticamente
 4. Ralph pausa solo para:
    - Interview incompleto (spec.md con TBD)
    - Think Critically: red flags o confianza baja
@@ -228,10 +231,12 @@ Sistema de desarrollo autónomo que ejecuta el ciclo completo de 8 fases con mí
 
 | Archivo | Propósito |
 |---------|-----------|
-| `ralph-orchestrator.sh` | Orquestador multi-feature |
-| `ralph-feature.sh` | Loop de feature individual |
+| `ralph-feature.ps1` | Loop de feature individual (PowerShell - Windows) |
+| `ralph-orchestrator.sh` | Orquestador multi-feature (bash - Linux/Mac) |
 | `feature-loop-state.json` | Estado de todos los loops |
 | `activity.md` | Log de actividad |
+
+**Nota Windows:** Usa `ralph-feature.ps1` en PowerShell. No uses `ralph-feature.sh` (deprecated).
 
 ### Documentación
 Ver `docs/ralph-feature-loop.md` para guía completa.

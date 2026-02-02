@@ -2,7 +2,7 @@
 
 ## Overview
 
-Ralph Loop is an autonomous development system that executes the complete 7-phase Feature Development Cycle with minimal human intervention.
+Ralph Loop is an autonomous development system that executes the complete 8-phase Feature Development Cycle with minimal human intervention.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -87,19 +87,20 @@ cp docs/features/_template/* docs/features/FEAT-001-auth/
 
 ## How It Works
 
-### The 7-Phase Cycle
+### The 8-Phase Cycle
 
 Ralph executes each phase of the Feature Development Cycle:
 
 | Phase | What Happens | Human Input? |
 |-------|-------------|--------------|
 | **1. Interview** | Reads/completes spec.md | Only if TBD values |
-| **2. Plan** | Generates design.md + tasks.md | No |
-| **3. Branch** | Creates git branch | No |
-| **4. Implement** | Executes tasks, commits code | No |
-| **5. PR** | Creates pull request | No |
-| **6. Merge** | Waits for approval | **YES - Review PR** |
-| **7. Wrap-Up** | Creates wrap_up.md, documents | No |
+| **2. Think Critically** | 11-step analysis → analysis.md | Pauses if red flags/low confidence |
+| **3. Plan** | Generates design.md + tasks.md | No |
+| **4. Branch** | Creates git branch | No |
+| **5. Implement** | Executes tasks, commits code | No |
+| **6. PR** | Creates pull request | No |
+| **7. Merge** | Waits for approval | **YES - Review PR** |
+| **8. Wrap-Up** | Creates wrap_up.md, documents | No |
 
 ### Phase Detection
 
@@ -107,25 +108,28 @@ Ralph automatically detects the current phase by checking:
 
 ```python
 if spec.md has all decisions filled:
-    if design.md and tasks.md exist:
-        if branch exists:
-            if all tasks [x] complete:
-                if PR exists:
-                    if PR merged:
-                        if wrap_up.md complete:
-                            → COMPLETE
+    if analysis.md exists and complete:
+        if design.md and tasks.md exist:
+            if branch exists:
+                if all tasks [x] complete:
+                    if PR exists:
+                        if PR merged:
+                            if wrap_up.md complete:
+                                → COMPLETE
+                            else:
+                                → WRAPUP
                         else:
-                            → WRAPUP
+                            → MERGE (waiting)
                     else:
-                        → MERGE (waiting)
+                        → PR
                 else:
-                    → PR
+                    → IMPLEMENT
             else:
-                → IMPLEMENT
+                → BRANCH
         else:
-            → BRANCH
+            → PLAN
     else:
-        → PLAN
+        → ANALYSIS (Think Critically)
 else:
     → INTERVIEW
 ```
@@ -136,17 +140,18 @@ Each loop iteration = one phase action:
 
 ```
 Iteration 1:  Interview phase
-Iteration 2:  Plan phase  
-Iteration 3:  Branch phase
-Iteration 4:  Implement (3 tasks)
+Iteration 2:  Think Critically phase (analysis.md)
+Iteration 3:  Plan phase
+Iteration 4:  Branch phase
 Iteration 5:  Implement (3 tasks)
 Iteration 6:  Implement (3 tasks)
-Iteration 7:  Implement (remaining tasks)
-Iteration 8:  PR phase
-Iteration 9:  Merge (waiting...)
+Iteration 7:  Implement (3 tasks)
+Iteration 8:  Implement (remaining tasks)
+Iteration 9:  PR phase
 Iteration 10: Merge (waiting...)
-Iteration 11: Merge (approved!)
-Iteration 12: Wrap-up phase
+Iteration 11: Merge (waiting...)
+Iteration 12: Merge (approved!)
+Iteration 13: Wrap-up phase
 → COMPLETE
 ```
 
@@ -202,7 +207,17 @@ Ralph pauses (doesn't crash) in these situations:
 **What to do:**
 1. Edit `docs/features/FEAT-XXX/spec.md`
 2. Fill in Technical Decisions table
-3. Run `/ralph feature FEAT-XXX` to resume
+3. Run ralph-feature.ps1 to resume
+
+### 1b. Analysis Requires Review (Think Critically)
+
+**When:** Critical analysis found red flags or low confidence
+
+**What to do:**
+1. Read `docs/features/FEAT-XXX/analysis.md`
+2. Review the concerns raised
+3. Update spec.md if needed
+4. Run ralph-feature.ps1 to resume
 
 ### 2. Waiting for Merge Approval
 
@@ -273,12 +288,13 @@ Ralph Loop integrates seamlessly with your existing Feature Development Cycle:
 | Manual Command | Ralph Equivalent |
 |----------------|------------------|
 | `/interview FEAT-XXX` | Auto-executed in Interview phase |
+| `/think-critically FEAT-XXX` | Auto-executed in Think Critically phase |
 | `/plan FEAT-XXX` | Auto-executed in Plan phase |
 | `git checkout -b feature/...` | Auto-executed in Branch phase |
 | `/git "message"` | Auto-commit after each task |
 | `/git pr` | Auto-executed in PR phase |
 | `/wrap-up FEAT-XXX` | Auto-executed in Wrap-up phase |
-| `/resume FEAT-XXX` | Run `/ralph feature FEAT-XXX` |
+| `/resume FEAT-XXX` | Run `ralph-feature.ps1 FEAT-XXX 15` |
 
 ### Using Both
 
@@ -290,8 +306,8 @@ You can mix manual and autonomous work:
 # Complete the interview with human decisions
 
 # Let Ralph continue from there
-./ralph-feature.sh FEAT-001-auth
-# Ralph detects Interview complete, continues with Plan
+ralph-feature.ps1 FEAT-001-auth 15
+# Ralph detects Interview complete, continues with Think Critically → Plan
 ```
 
 ---
@@ -470,9 +486,9 @@ git worktree remove ../proyecto-FEAT-XXX-loop --force
 ## Version History
 
 - **v1.0** - Initial release
-  - 7-phase autonomous execution
+  - 8-phase autonomous execution (with Think Critically)
   - Git worktree isolation
-  - Orchestrator for parallel features
+  - PowerShell version for Windows compatibility
   - Integration with Feature Development Cycle v2.0
 
 ---
