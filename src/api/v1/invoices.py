@@ -23,6 +23,10 @@ from src.schemas.invoice import (
     InvoiceSettings,
     InvoiceSettingsUpdate,
     InvoiceStatus,
+    ReminderResponse,
+    ReminderApprove,
+    ReminderEdit,
+    ReminderSkip,
 )
 
 logger = logging.getLogger(__name__)
@@ -266,5 +270,136 @@ async def update_invoice_settings(
 
         logger.info(f"Invoice settings updated by user {user.id} for tenant {user.tenant_id}")
         return settings
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# ========== REMINDER ENDPOINTS ==========
+
+
+@router.get("/{invoice_id}/reminders", response_model=List[ReminderResponse])
+async def list_invoice_reminders(
+    invoice_id: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> List[ReminderResponse]:
+    """
+    Get all reminders for an invoice.
+
+    Returns all reminders (scheduled, sent, skipped) for the specified invoice.
+    """
+    service = ReminderService(db)
+
+    try:
+        reminders = await service.get_reminders_for_invoice(
+            invoice_id=invoice_id,
+            tenant_id=user.tenant_id,
+        )
+
+        return reminders
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/{invoice_id}/reminders/{reminder_id}/approve", response_model=ReminderResponse)
+async def approve_reminder(
+    invoice_id: int,
+    reminder_id: int,
+    approve_data: ReminderApprove,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ReminderResponse:
+    """
+    Approve a reminder for sending.
+
+    Approves a draft reminder. The reminder will be sent at its scheduled time.
+    Optionally allows editing the final message before approval.
+    """
+    service = ReminderService(db)
+
+    try:
+        reminder = await service.approve_reminder(
+            reminder_id=reminder_id,
+            invoice_id=invoice_id,
+            tenant_id=user.tenant_id,
+            final_message=approve_data.final_message,
+            approved_by=user.id,
+        )
+
+        if not reminder:
+            raise HTTPException(status_code=404, detail="Reminder not found")
+
+        logger.info(f"Reminder {reminder_id} for invoice {invoice_id} approved by user {user.id}")
+        return reminder
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/{invoice_id}/reminders/{reminder_id}/edit", response_model=ReminderResponse)
+async def edit_reminder(
+    invoice_id: int,
+    reminder_id: int,
+    edit_data: ReminderEdit,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ReminderResponse:
+    """
+    Edit a reminder message.
+
+    Allows editing the message of a scheduled reminder before it is sent.
+    """
+    service = ReminderService(db)
+
+    try:
+        reminder = await service.edit_reminder(
+            reminder_id=reminder_id,
+            invoice_id=invoice_id,
+            tenant_id=user.tenant_id,
+            new_message=edit_data.message,
+            edited_by=user.id,
+        )
+
+        if not reminder:
+            raise HTTPException(status_code=404, detail="Reminder not found")
+
+        logger.info(f"Reminder {reminder_id} for invoice {invoice_id} edited by user {user.id}")
+        return reminder
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/{invoice_id}/reminders/{reminder_id}/skip", response_model=dict)
+async def skip_reminder(
+    invoice_id: int,
+    reminder_id: int,
+    skip_data: ReminderSkip,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """
+    Skip a scheduled reminder.
+
+    Marks a reminder as skipped so it won't be sent. Useful when payment is received
+    or when a reminder is no longer needed.
+    """
+    service = ReminderService(db)
+
+    try:
+        success = await service.skip_reminder(
+            reminder_id=reminder_id,
+            invoice_id=invoice_id,
+            tenant_id=user.tenant_id,
+            reason=skip_data.reason,
+            skipped_by=user.id,
+        )
+
+        if not success:
+            raise HTTPException(status_code=404, detail="Reminder not found")
+
+        logger.info(
+            f"Reminder {reminder_id} for invoice {invoice_id} skipped by user {user.id}: "
+            f"{skip_data.reason}"
+        )
+        return {"message": "Reminder skipped successfully"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

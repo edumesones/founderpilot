@@ -100,13 +100,13 @@
   - POST /api/v1/invoices/:id/reject
   - POST /api/v1/invoices/:id/mark-paid
 
-- [ ] **T4.2**: Create reminder endpoints
+- [x] **T4.2**: Create reminder endpoints
   - GET /api/v1/invoices/:id/reminders
   - POST /api/v1/invoices/:id/reminders/:reminder_id/approve
   - POST /api/v1/invoices/:id/reminders/:reminder_id/edit
   - POST /api/v1/invoices/:id/reminders/:reminder_id/skip
 
-- [ ] **T4.3**: Create settings endpoints
+- [x] **T4.3**: Create settings endpoints
   - GET /api/v1/invoices/settings
   - PUT /api/v1/invoices/settings (reminder schedule, tone)
 
