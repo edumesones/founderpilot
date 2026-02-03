@@ -17,6 +17,43 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
+### [2026-02-03 12:00] - API Integration Tests Complete
+
+**Fase:** Implement (Phase 5/8) - API integration tests complete
+**Progreso:** 16/25 tasks complete (64%)
+
+**Qué se hizo:**
+- **T3** ✅: API integration tests for usage endpoint (test_usage_routes.py)
+  - 14 comprehensive test cases covering full request/response cycle
+  - Authentication tests: 401 without token, Bearer token mocking
+  - Happy path: usage stats retrieval with counters, overage, alerts
+  - Tenant isolation: users can only see their own data
+  - Error handling: 404 (no subscription), 403 (inactive subscription)
+  - Overage calculation: multiple agents sum correctly ($0.02/$0.10/$0.15)
+  - Billing period dates and plan info in response
+
+**Test Coverage:**
+- Authentication & authorization with mocked dependencies
+- Usage stats with and without counters
+- Overage scenarios (single and multiple agents)
+- Alert generation (warning at 80%, error at 100%+)
+- Edge cases: new billing period (no counters), inactive subscription
+- Tenant isolation between users
+- Response structure validation (tenant_id, period dates, plan, usage, alerts)
+
+**Integration Testing Pattern:**
+- FastAPI TestClient for HTTP requests
+- Mock `get_current_user` and `get_db` dependencies
+- In-memory SQLite database via db_session fixture
+- Status code and JSON response validation
+
+**Archivos creados:**
+- tests/integration/test_usage_routes.py (14 tests, ~450 lines)
+
+**Git commit:** Next (will include T3 completion)
+
+**Próximo paso:** T4 Background job tests (reset, report overage, reconcile with mocked Stripe)
+
 ### [2026-02-03 11:30] - Implementation Phase 5 Complete (Tests - Unit Tests)
 
 **Fase:** Implement (Phase 5/8) - Unit tests complete

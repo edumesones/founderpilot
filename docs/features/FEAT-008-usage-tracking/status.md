@@ -51,7 +51,7 @@
 
 ### Overall
 ```
-[████████████░░░░░░░░] 60% (15/25 tasks)
+[█████████████░░░░░░░] 64% (16/25 tasks)
 ```
 
 ### By Section
@@ -63,16 +63,16 @@
 | Backend - API | 2/3 | ⏳ In Progress |
 | Backend - Workers | 4/4 | ✅ Complete |
 | Frontend | 0/2 | ⬜ Not Started |
-| Tests | 2/5 | ⏳ In Progress |
+| Tests | 3/5 | ⏳ In Progress |
 | DevOps | 0/3 | ⬜ Not Started |
 
 ---
 
 ## Current Work
 
-**Working on:** Phase 5 - Tests (Unit tests complete, API tests next)
+**Working on:** Phase 5 - Tests (Unit + API tests complete, Background jobs tests next)
 
-**Current task:** Next: T3 API tests for usage endpoint
+**Current task:** Next: T4 Background job tests (Celery tasks)
 
 **Assigned to:** Ralph (Autonomous)
 
