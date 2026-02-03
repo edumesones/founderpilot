@@ -31,6 +31,9 @@ from src.models.agent_audit_log import (
     MeetingPilotAction,
 )
 
+# Usage Tracking models (FEAT-008)
+from src.models.usage import UsageEvent, UsageCounter
+
 __all__ = [
     # Base
     "Base",
@@ -62,4 +65,7 @@ __all__ = [
     "InboxPilotAction",
     "InvoicePilotAction",
     "MeetingPilotAction",
+    # Usage Tracking (FEAT-008)
+    "UsageEvent",
+    "UsageCounter",
 ]

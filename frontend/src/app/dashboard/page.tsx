@@ -7,6 +7,7 @@
 import { useEffect } from "react";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { UsageWidget } from "@/components/usage";
 
 function DashboardContent() {
   const { user, logout } = useAuth();
@@ -40,21 +41,35 @@ function DashboardContent() {
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl shadow p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Welcome to FounderPilot!
-          </h2>
-          <p className="text-gray-600">
-            Your AI-powered productivity assistant is ready to help.
-          </p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Welcome card */}
+          <div className="lg:col-span-2 bg-white rounded-xl shadow p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Welcome to FounderPilot!
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Your AI-powered productivity assistant is ready to help.
+            </p>
 
-          <div className="mt-8 flex justify-center gap-4">
-            <a
-              href="/dashboard/connections"
-              className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Manage Connections
-            </a>
+            <div className="flex gap-4">
+              <a
+                href="/dashboard/connections"
+                className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                Manage Connections
+              </a>
+              <a
+                href="/dashboard/audit"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                View Audit Log
+              </a>
+            </div>
+          </div>
+
+          {/* Usage widget */}
+          <div className="lg:col-span-1">
+            <UsageWidget />
           </div>
         </div>
       </main>
