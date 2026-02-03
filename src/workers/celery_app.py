@@ -12,6 +12,7 @@ celery_app = Celery(
         "src.workers.tasks.slack_tasks",
         "src.workers.tasks.meeting_tasks",
         "src.workers.tasks.invoice_tasks",
+        "src.workers.tasks.usage_tasks",  # FEAT-008: Usage tracking
     ],
 )
 
@@ -66,6 +67,25 @@ celery_app.conf.update(
             "task": "src.workers.tasks.invoice_tasks.check_problem_patterns",
             "schedule": crontab(hour=10, minute=0),
             "options": {"queue": "invoice_pilot"},
+        },
+        # FEAT-008: Usage Tracking tasks
+        # Reset usage counters daily at 00:05 UTC
+        "reset-usage-counters-daily": {
+            "task": "reset_usage_counters",
+            "schedule": crontab(hour=0, minute=5),
+            "options": {"queue": "default"},
+        },
+        # Report overage to Stripe daily at 01:00 UTC
+        "report-overage-daily": {
+            "task": "report_overage_to_stripe",
+            "schedule": crontab(hour=1, minute=0),
+            "options": {"queue": "default"},
+        },
+        # Reconcile usage counters daily at 03:00 UTC
+        "reconcile-usage-daily": {
+            "task": "reconcile_usage_counters",
+            "schedule": crontab(hour=3, minute=0),
+            "options": {"queue": "default"},
         },
     },
 )
