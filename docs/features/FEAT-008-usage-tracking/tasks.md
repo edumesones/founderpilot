@@ -8,15 +8,15 @@
 ## Progress Overview
 
 ```
-[░░░░░░░░░░░░░░░░░░░░] 0% (0/25 tasks)
+[████░░░░░░░░░░░░░░░░] 20% (5/25 tasks)
 ```
 
 ### By Section
 
 | Section | Progress | Status |
 |---------|----------|--------|
-| Backend - Models | 0/3 | ⬜ Not Started |
-| Backend - Services | 0/5 | ⬜ Not Started |
+| Backend - Models | 3/3 | ✅ Complete |
+| Backend - Services | 2/5 | ⏳ In Progress |
 | Backend - API | 0/3 | ⬜ Not Started |
 | Backend - Workers | 0/4 | ⬜ Not Started |
 | Frontend | 0/2 | ⬜ Not Started |
@@ -27,7 +27,7 @@
 
 ## Section 1: Backend - Database Models
 
-### B1.1: Create usage.py models file ⬜
+### B1.1: Create usage.py models file ✅
 **File:** `src/models/usage.py`
 **Description:** Create UsageEvent and UsageCounter SQLAlchemy models
 **Acceptance Criteria:**
@@ -40,23 +40,23 @@
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 30 min
 
-### B1.2: Create Alembic migration ⬜
-**File:** `alembic/versions/XXX_add_usage_tracking_tables.py`
+### B1.2: Create Alembic migration ✅
+**File:** `alembic/versions/008_add_usage_tracking_tables.py`
 **Description:** Database migration to create usage_events and usage_counters tables
 **Acceptance Criteria:**
-- [ ] Migration creates both tables with correct schema
-- [ ] Indexes created: idx_usage_events_tenant_agent, idx_usage_events_idempotency, idx_usage_counters_tenant_period
-- [ ] Migration is reversible (downgrade removes tables)
-- [ ] Migration tested locally
+- [x] Migration creates both tables with correct schema
+- [x] Indexes created: idx_usage_events_tenant_agent, idx_usage_events_idempotency, idx_usage_counters_tenant_period
+- [x] Migration is reversible (downgrade removes tables)
+- [ ] Migration tested locally (requires DB connection)
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 20 min
 
-### B1.3: Update models __init__.py ⬜
+### B1.3: Update models __init__.py ✅
 **File:** `src/models/__init__.py`
 **Description:** Export new models for imports
 **Acceptance Criteria:**
-- [ ] Import UsageEvent and UsageCounter from usage module
-- [ ] Add to __all__ list
+- [x] Import UsageEvent and UsageCounter from usage module
+- [x] Add to __all__ list
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 5 min
 
@@ -91,23 +91,23 @@
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 45 min
 
-### B2.3: Create Pydantic schemas ⬜
+### B2.3: Create Pydantic schemas ✅
 **File:** `src/schemas/usage.py`
 **Description:** Request/response schemas for usage API
 **Acceptance Criteria:**
-- [ ] AgentUsage schema (count, limit, percentage, overage, overage_cost_cents)
-- [ ] UsageAlert schema (agent, message, level)
-- [ ] UsageStatsResponse schema (tenant_id, period_start, period_end, plan, usage, total_overage_cost_cents, alerts)
+- [x] AgentUsage schema (count, limit, percentage, overage, overage_cost_cents)
+- [x] UsageAlert schema (agent, message, level)
+- [x] UsageStatsResponse schema (tenant_id, period_start, period_end, plan, usage, total_overage_cost_cents, alerts)
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 20 min
 
-### B2.4: Add agent type enums ⬜
-**File:** `src/core/enums.py` (or create if not exists)
+### B2.4: Add agent type enums ✅
+**File:** `src/core/enums.py`
 **Description:** Enum for agent types and action types
 **Acceptance Criteria:**
-- [ ] AgentType enum: INBOX, INVOICE, MEETING
-- [ ] ActionType enum: EMAIL_PROCESSED, INVOICE_DETECTED, MEETING_PREP
-- [ ] Used in models and services for type safety
+- [x] AgentType enum: INBOX, INVOICE, MEETING
+- [x] ActionType enum: EMAIL_PROCESSED, INVOICE_DETECTED, MEETING_PREP
+- [x] Used in models and services for type safety
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 15 min
 
