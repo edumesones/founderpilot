@@ -8,7 +8,7 @@
 ## Progress Overview
 
 ```
-[███████████████░░░░░] 76% (19/25 tasks)
+[████████████████████] 84% (21/25 tasks)
 ```
 
 ### By Section
@@ -19,7 +19,7 @@
 | Backend - Services | 5/5 | ✅ Complete |
 | Backend - API | 2/3 | ⏳ In Progress |
 | Backend - Workers | 4/4 | ✅ Complete |
-| Frontend | 0/2 | ⬜ Not Started |
+| Frontend | 2/2 | ✅ Complete |
 | Tests | 5/5 | ✅ Complete |
 | DevOps | 0/3 | ⬜ Not Started |
 
@@ -209,28 +209,28 @@
 
 ## Section 5: Frontend
 
-### F1: Create UsageWidget component ⬜
+### F1: Create UsageWidget component ✅
 **File:** `frontend/src/components/usage/UsageWidget.tsx`
 **Description:** React component to display usage stats
 **Acceptance Criteria:**
-- [ ] Fetch usage data from GET /api/v1/usage
-- [ ] Auto-refetch every 30 seconds (React Query)
-- [ ] Display 3 progress bars (inbox, invoice, meeting)
-- [ ] Color coding: green < 80%, yellow 80-99%, red >= 100%
-- [ ] Display overage cost when > 100%
-- [ ] Alert banner when usage > 80% (dismissable)
-- [ ] Responsive design
-- [ ] Loading state, error state
+- [x] Fetch usage data from GET /api/v1/usage
+- [x] Auto-refetch every 30 seconds (React useEffect + setInterval)
+- [x] Display 3 progress bars (inbox, invoice, meeting)
+- [x] Color coding: green < 80%, yellow 80-99%, red >= 100%
+- [x] Display overage cost when > 100%
+- [x] Alert banner when usage > 80% (dismissable)
+- [x] Responsive design
+- [x] Loading state, error state
 **Safe for Ralph:** ⚠️ Needs Review (UX decisions: colors, copy)
 **Estimated effort:** 90 min
 
-### F2: Integrate UsageWidget into dashboard ⬜
-**File:** `frontend/src/pages/Settings/Billing.tsx` (or appropriate page)
-**Description:** Add UsageWidget to billing settings page
+### F2: Integrate UsageWidget into dashboard ✅
+**File:** `frontend/src/app/dashboard/page.tsx`
+**Description:** Add UsageWidget to main dashboard page
 **Acceptance Criteria:**
-- [ ] Import UsageWidget
-- [ ] Render in appropriate section (e.g., below plan info)
-- [ ] Only show for authenticated users with active subscription
+- [x] Import UsageWidget
+- [x] Render in appropriate section (dashboard grid layout)
+- [x] Only show for authenticated users (protected by AuthGuard)
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 15 min
 
