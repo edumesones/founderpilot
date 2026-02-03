@@ -51,7 +51,7 @@
 
 ### Overall
 ```
-[████░░░░░░░░░░░░░░░░] 20% (5/25 tasks)
+[███████░░░░░░░░░░░░░] 36% (9/25 tasks)
 ```
 
 ### By Section
@@ -59,8 +59,8 @@
 | Section | Progress | Status |
 |---------|----------|--------|
 | Backend - Models | 3/3 | ✅ Complete |
-| Backend - Services | 2/5 | ⏳ In Progress |
-| Backend - API | 0/3 | ⬜ Not Started |
+| Backend - Services | 4/5 | ⏳ In Progress |
+| Backend - API | 2/3 | ⏳ In Progress |
 | Backend - Workers | 0/4 | ⬜ Not Started |
 | Frontend | 0/2 | ⬜ Not Started |
 | Tests | 0/5 | ⬜ Not Started |
@@ -70,9 +70,9 @@
 
 ## Current Work
 
-**Working on:** Phase 2 - Core Services
+**Working on:** Phase 4 - Background Jobs (Celery tasks)
 
-**Current task:** Next: B2.1 UsageTracker service (atomic event recording)
+**Current task:** Next: B4.1 Usage tasks (reset, report overage, reconcile)
 
 **Assigned to:** Ralph (Autonomous)
 

@@ -117,6 +117,44 @@
 
 **Próximo paso:** Phase 2 - Core Services (UsageTracker, UsageService)
 
+### [2026-02-03 11:00] - Implementation Phases 2-3 Complete
+
+**Fase:** Implement (Phase 5/8) - Core Services + API complete
+**Progreso:** 9/25 tasks complete (36%)
+
+**Qué se hizo:**
+- **B2.1** ✅: UsageTracker service with atomic transactions
+- **B2.2** ✅: UsageService with overage calculation + alerts
+- **B3.1** ✅: Usage API router (GET /api/v1/usage)
+- **B3.2** ✅: Registered router in main.py
+
+**UsageTracker Features:**
+- track_event() with atomic DB transactions (event + counter in single tx)
+- Idempotency key generation prevents duplicate charges
+- _get_or_create_counter() manages billing periods
+- Comprehensive error handling: IntegrityError, ValueError
+- Structured logging for all operations
+
+**UsageService Features:**
+- get_usage_stats() returns complete usage breakdown
+- Overage calculation: $0.02/email, $0.10/invoice, $0.15/meeting
+- Alert generation: warning at 80%, error at 100%
+- Trial user support (effectively unlimited)
+- Tenant isolation with subscription validation
+
+**API Endpoint:**
+- GET /api/v1/usage with full authentication
+- Returns UsageStatsResponse with all usage data
+- OpenAPI documentation with examples
+- Error responses: 401, 403, 404, 429, 500
+- Uses CurrentUser dependency for auth + tenant isolation
+
+**Git commits:**
+- "feat(FEAT-008): Implement core usage tracking services"
+- "feat(FEAT-008): Add usage API endpoint with authentication"
+
+**Próximo paso:** Phase 4 - Background Jobs (reset, overage reporting, reconciliation)
+
 ### [2026-02-03 09:22] - Feature Created
 
 **Fase:** Pre-Interview

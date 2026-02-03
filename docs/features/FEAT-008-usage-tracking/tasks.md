@@ -8,7 +8,7 @@
 ## Progress Overview
 
 ```
-[████░░░░░░░░░░░░░░░░] 20% (5/25 tasks)
+[███████░░░░░░░░░░░░░] 36% (9/25 tasks)
 ```
 
 ### By Section
@@ -16,8 +16,8 @@
 | Section | Progress | Status |
 |---------|----------|--------|
 | Backend - Models | 3/3 | ✅ Complete |
-| Backend - Services | 2/5 | ⏳ In Progress |
-| Backend - API | 0/3 | ⬜ Not Started |
+| Backend - Services | 4/5 | ⏳ In Progress |
+| Backend - API | 2/3 | ⏳ In Progress |
 | Backend - Workers | 0/4 | ⬜ Not Started |
 | Frontend | 0/2 | ⬜ Not Started |
 | Tests | 0/5 | ⬜ Not Started |
@@ -64,30 +64,30 @@
 
 ## Section 2: Backend - Services
 
-### B2.1: Create UsageTracker service ⬜
+### B2.1: Create UsageTracker service ✅
 **File:** `src/services/usage_tracker.py`
 **Description:** Core service for atomic event recording + counter updates
 **Acceptance Criteria:**
-- [ ] UsageTracker class with track_event() method
-- [ ] Atomic transaction: event write + counter increment
-- [ ] Idempotency key generation logic
-- [ ] _get_or_create_counter() helper method
-- [ ] Proper error handling (ValueError, IntegrityError)
-- [ ] Logging for each event tracked
-- [ ] Metrics emission (usage_events_total)
+- [x] UsageTracker class with track_event() method
+- [x] Atomic transaction: event write + counter increment
+- [x] Idempotency key generation logic
+- [x] _get_or_create_counter() helper method
+- [x] Proper error handling (ValueError, IntegrityError)
+- [x] Logging for each event tracked
+- [x] Metrics emission (usage_events_total)
 **Safe for Ralph:** ⚠️ Needs Review (transaction logic critical)
 **Estimated effort:** 60 min
 
-### B2.2: Create UsageService ⬜
+### B2.2: Create UsageService ✅
 **File:** `src/services/usage_service.py`
 **Description:** Business logic for usage stats, overage calculation, alerts
 **Acceptance Criteria:**
-- [ ] UsageService class with get_usage_stats() method
-- [ ] _calculate_overage_cost() with pricing per agent
-- [ ] _generate_alerts() for 80% and 100% thresholds
-- [ ] _get_agent_limit() to extract limits from plan.limits JSONB
-- [ ] Handle edge cases: no subscription, trial users, no counters yet
-- [ ] Return UsageStatsResponse schema
+- [x] UsageService class with get_usage_stats() method
+- [x] _calculate_overage_cost() with pricing per agent
+- [x] _generate_alerts() for 80% and 100% thresholds
+- [x] _get_agent_limit() to extract limits from plan.limits JSONB
+- [x] Handle edge cases: no subscription, trial users, no counters yet
+- [x] Return UsageStatsResponse schema
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 45 min
 
@@ -125,26 +125,26 @@
 
 ## Section 3: Backend - API Endpoints
 
-### B3.1: Create usage router ⬜
+### B3.1: Create usage router ✅
 **File:** `src/api/v1/usage.py`
 **Description:** FastAPI router with GET /usage endpoint
 **Acceptance Criteria:**
-- [ ] GET /usage endpoint
-- [ ] Authentication required (JWT dependency)
-- [ ] Rate limiting: 10 req/min per tenant
-- [ ] Tenant isolation: only return current_user's tenant data
-- [ ] Error handling: 401, 404, 429, 500
-- [ ] Calls UsageService.get_usage_stats()
-- [ ] Returns UsageStatsResponse
+- [x] GET /usage endpoint
+- [x] Authentication required (JWT dependency)
+- [x] Rate limiting: 10 req/min per tenant (via existing middleware)
+- [x] Tenant isolation: only return current_user's tenant data
+- [x] Error handling: 401, 404, 429, 500
+- [x] Calls UsageService.get_usage_stats()
+- [x] Returns UsageStatsResponse
 **Safe for Ralph:** ⚠️ Needs Review (security validation critical)
 **Estimated effort:** 45 min
 
-### B3.2: Register usage router in main.py ⬜
+### B3.2: Register usage router in main.py ✅
 **File:** `src/api/main.py`
 **Description:** Add usage router to FastAPI app
 **Acceptance Criteria:**
-- [ ] Import usage router
-- [ ] app.include_router(usage_router, prefix="/api/v1", tags=["usage"])
+- [x] Import usage router
+- [x] app.include_router(usage_router, prefix="/api/v1", tags=["usage"])
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 5 min
 
