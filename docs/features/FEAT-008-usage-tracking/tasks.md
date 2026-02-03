@@ -8,7 +8,7 @@
 ## Progress Overview
 
 ```
-[██████████████░░░░░░] 72% (18/25 tasks)
+[███████████████░░░░░] 76% (19/25 tasks)
 ```
 
 ### By Section
@@ -16,7 +16,7 @@
 | Section | Progress | Status |
 |---------|----------|--------|
 | Backend - Models | 3/3 | ✅ Complete |
-| Backend - Services | 4/5 | ⏳ In Progress |
+| Backend - Services | 5/5 | ✅ Complete |
 | Backend - API | 2/3 | ⏳ In Progress |
 | Backend - Workers | 4/4 | ✅ Complete |
 | Frontend | 0/2 | ⬜ Not Started |
@@ -111,13 +111,13 @@
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 15 min
 
-### B2.5: Update billing_service.py integration points ⬜
-**File:** `src/services/billing_service.py` (if needed for plan limits)
+### B2.5: Update billing_service.py integration points ✅
+**File:** `src/models/billing.py` (verification task)
 **Description:** Ensure billing service exposes plan limits correctly
 **Acceptance Criteria:**
-- [ ] Verify Plan model has limits JSONB field
-- [ ] Verify limits structure matches expected keys (emails_per_month, etc.)
-- [ ] Add helper method if needed to get limits for agent
+- [x] Verify Plan model has limits JSONB field (confirmed via src/models/billing.py:25)
+- [x] Verify limits structure matches expected keys (emails_per_month, etc.) - confirmed by all tests
+- [x] Add helper method if needed to get limits for agent (implemented in UsageService._get_agent_limit)
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 15 min
 
