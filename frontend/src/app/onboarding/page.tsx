@@ -14,6 +14,9 @@ import { SlackConnectCard } from "@/components/onboarding/SlackConnectCard";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useIntegrations } from "@/lib/hooks/useIntegrations";
 import { completeOnboarding, skipOnboarding } from "@/lib/api/onboarding";
+import { AnimatedCard, AnimatedButton, LoadingSkeleton } from "@/components/animated";
+import { PageTransition, StaggerContainer } from "@/components/layout";
+import { motion } from "framer-motion";
 
 function OnboardingContent() {
   const router = useRouter();
@@ -81,65 +84,76 @@ function OnboardingContent() {
 
   if (loading && !status) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <AnimatedCard variant="glass" className="w-full max-w-2xl p-8">
+          <LoadingSkeleton variant="text" height={32} width="60%" className="mx-auto mb-4" />
+          <LoadingSkeleton variant="text" height={16} width="40%" className="mx-auto mb-8" />
+          <LoadingSkeleton variant="rect" height={100} count={3} />
+        </AnimatedCard>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Welcome to FounderPilot
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Connect your accounts to get started
-          </p>
-        </div>
-
-        {/* Stepper */}
-        <div className="mb-12">
-          <OnboardingStepper steps={steps} currentStep={currentStep} />
-        </div>
-
-        {/* Integration Cards */}
-        <div className="space-y-6">
-          <GmailConnectCard />
-          <SlackConnectCard />
-        </div>
-
-        {/* Actions */}
-        <div className="mt-8 flex flex-col gap-4">
-          <button
-            onClick={handleComplete}
-            disabled={loading}
-            className={`
-              w-full px-6 py-3 rounded-lg font-medium transition-colors
-              ${
-                allConnected
-                  ? "bg-green-500 text-white hover:bg-green-600"
-                  : "bg-gray-900 text-white hover:bg-gray-800"
-              }
-              disabled:opacity-50
-            `}
+    <PageTransition>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          {/* Header */}
+          <motion.div
+            className="text-center mb-8"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
           >
-            {allConnected ? "Complete Setup" : "Continue to Dashboard"}
-          </button>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Welcome to FounderPilot
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Connect your accounts to get started
+            </p>
+          </motion.div>
 
-          {!allConnected && (
-            <button
-              onClick={handleSkip}
-              className="text-gray-500 hover:text-gray-700 text-sm"
+          {/* Stepper */}
+          <div className="mb-12">
+            <OnboardingStepper steps={steps} currentStep={currentStep} />
+          </div>
+
+          {/* Integration Cards with stagger */}
+          <StaggerContainer className="space-y-6">
+            <GmailConnectCard />
+            <SlackConnectCard />
+          </StaggerContainer>
+
+          {/* Actions */}
+          <motion.div
+            className="mt-8 flex flex-col gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <AnimatedButton
+              variant={allConnected ? "primary" : "primary"}
+              size="lg"
+              onClick={handleComplete}
+              disabled={loading}
+              loading={loading}
+              className="w-full"
             >
-              Skip for now - I&apos;ll connect later
-            </button>
-          )}
+              {allConnected ? "Complete Setup ✨" : "Continue to Dashboard"}
+            </AnimatedButton>
+
+            {!allConnected && (
+              <motion.button
+                onClick={handleSkip}
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm"
+                whileHover={{ scale: 1.02 }}
+              >
+                Skip for now - I&apos;ll connect later
+              </motion.button>
+            )}
+          </motion.div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }
 
