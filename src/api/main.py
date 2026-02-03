@@ -171,6 +171,18 @@ def create_app() -> FastAPI:
     except ImportError:
         logger.warning("Agent Audit routes not available")
 
+    # Include Usage Tracking router (FEAT-008)
+    try:
+        from src.api.v1 import usage
+
+        application.include_router(
+            usage.router,
+            prefix=API_V1,
+            tags=["Usage Tracking"],
+        )
+    except ImportError:
+        logger.warning("Usage Tracking routes not available")
+
     # Health check endpoint
     @application.get("/health")
     async def health_check():
