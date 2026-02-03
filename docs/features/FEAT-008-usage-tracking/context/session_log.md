@@ -7,9 +7,9 @@
 
 ## Quick Reference
 
-**Feature:** FEAT-XXX - [Nombre]
-**Creada:** YYYY-MM-DD
-**Status actual:** ⚪ Pending
+**Feature:** FEAT-008 - Usage Tracking
+**Creada:** 2026-02-03
+**Status actual:** 🟡 In Progress
 
 ---
 
@@ -17,12 +17,39 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
-### [YYYY-MM-DD HH:MM] - Feature Created
+### [2026-02-03 09:30] - Interview Phase Complete
+
+**Fase:** Interview (Phase 1/8)
+**Progreso:** Interview complete → Moving to Think Critically
+
+**Qué se hizo:**
+- Completado spec.md con todos los detalles de FEAT-008 Usage Tracking
+- Definido data model: UsageEvent + UsageCounter (hybrid approach)
+- Definido API endpoint GET /api/v1/usage con schema completo
+- Definido 3 background jobs: reset counters, report overage, reconciliation
+- Decisiones técnicas: PostgreSQL storage, no WebSockets, polling UI, allow overage
+- Scope claro: MVP vs v1.1 features
+
+**Decisiones tomadas:**
+- **Storage:** PostgreSQL con hybrid approach (events + counter cache)
+- **Limits:** No bloquear en límite - permitir overage y cobrar
+- **Alerts:** In-app + Slack (no email en v1)
+- **UI Update:** Polling cada 30s (no WebSockets en v1)
+- **Overage Reporting:** Stripe metered billing API, batch diario
+
+**Archivos modificados:**
+- docs/features/FEAT-008-usage-tracking/spec.md (completado)
+- docs/features/FEAT-008-usage-tracking/status.md (actualizado)
+- docs/features/FEAT-008-usage-tracking/context/session_log.md (este archivo)
+
+**Próximo paso:** Phase 2 - Think Critically analysis
+
+### [2026-02-03 09:22] - Feature Created
 
 **Fase:** Pre-Interview
-**Acción:** Feature folder creado desde template
+**Acción:** Feature folder creado desde template, branch feat/FEAT-008 exists
 
-**Próximo paso:** /interview FEAT-XXX
+**Próximo paso:** Interview FEAT-008
 
 ---
 
