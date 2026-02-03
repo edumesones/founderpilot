@@ -7,6 +7,8 @@
 
 import { useEffect, useState } from "react";
 import { getUsageStats, UsageStatsResponse, AgentUsage } from "@/lib/api/usage";
+import { AnimatedCard, AnimatedProgress, AnimatedBadge, LoadingSkeleton } from "@/components/animated";
+import { motion } from "framer-motion";
 
 interface UsageBarProps {
   label: string;
@@ -17,55 +19,57 @@ interface UsageBarProps {
 function UsageBar({ label, usage, icon }: UsageBarProps) {
   const { count, limit, percentage, overage, overage_cost_cents } = usage;
 
-  // Determine color based on percentage
-  const getColor = () => {
-    if (percentage >= 100) return "bg-red-500";
-    if (percentage >= 80) return "bg-yellow-500";
-    return "bg-green-500";
-  };
-
   const getTextColor = () => {
-    if (percentage >= 100) return "text-red-600";
-    if (percentage >= 80) return "text-yellow-600";
-    return "text-green-600";
+    if (percentage >= 100) return "text-red-600 dark:text-red-400";
+    if (percentage >= 80) return "text-yellow-600 dark:text-yellow-400";
+    return "text-green-600 dark:text-green-400";
   };
-
-  // Cap percentage at 100 for display
-  const displayPercentage = Math.min(percentage, 100);
 
   return (
-    <div className="space-y-2">
+    <motion.div
+      className="space-y-2"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-2xl">{icon}</span>
-          <span className="font-medium text-gray-700 capitalize">{label}</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300 capitalize">
+            {label}
+          </span>
         </div>
         <div className="text-sm">
           <span className={`font-semibold ${getTextColor()}`}>
             {count.toLocaleString()}
           </span>
-          <span className="text-gray-400"> / {limit.toLocaleString()}</span>
+          <span className="text-gray-400 dark:text-gray-500">
+            {" "}/ {limit.toLocaleString()}
+          </span>
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className={`h-full ${getColor()} transition-all duration-500 ease-out`}
-          style={{ width: `${displayPercentage}%` }}
-        />
-      </div>
+      {/* Animated Progress bar */}
+      <AnimatedProgress
+        value={percentage}
+        max={100}
+        showPercentage={false}
+        variant="gradient"
+      />
 
       {/* Percentage and overage info */}
       <div className="flex items-center justify-between text-xs">
-        <span className={`font-medium ${getTextColor()}`}>{percentage}% used</span>
+        <span className={`font-medium ${getTextColor()}`}>
+          {percentage}% used
+        </span>
         {overage > 0 && (
-          <span className="text-red-600 font-medium">
-            +{overage.toLocaleString()} overage (${(overage_cost_cents / 100).toFixed(2)})
-          </span>
+          <AnimatedBadge variant="error">
+            +{overage.toLocaleString()} overage ($
+            {(overage_cost_cents / 100).toFixed(2)})
+          </AnimatedBadge>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -102,28 +106,32 @@ export function UsageWidget() {
   // Loading state
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow p-6">
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <AnimatedCard variant="glass" className="space-y-4">
+        <LoadingSkeleton variant="text" width="60%" height={24} />
+        <LoadingSkeleton variant="text" width="40%" height={16} />
+        <div className="space-y-4 mt-6">
+          <LoadingSkeleton variant="rect" height={60} />
+          <LoadingSkeleton variant="rect" height={60} />
+          <LoadingSkeleton variant="rect" height={60} />
         </div>
-      </div>
+      </AnimatedCard>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow p-6">
-        <div className="text-center py-12">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={fetchUsage}
-            className="text-sm text-blue-600 hover:text-blue-700"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
+      <AnimatedCard variant="glass" className="text-center py-12">
+        <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+        <motion.button
+          onClick={fetchUsage}
+          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Try again
+        </motion.button>
+      </AnimatedCard>
     );
   }
 
@@ -147,12 +155,14 @@ export function UsageWidget() {
   );
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 space-y-6">
+    <AnimatedCard variant="glass" className="space-y-6" hover={false}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Usage This Month</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            Usage This Month
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {stats.plan.name} Plan • Period ends{" "}
             {new Date(stats.period_end).toLocaleDateString("en-US", {
               month: "short",
@@ -160,10 +170,13 @@ export function UsageWidget() {
             })}
           </p>
         </div>
-        <button
+        <motion.button
           onClick={fetchUsage}
-          className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           title="Refresh usage"
+          whileHover={{ scale: 1.1, rotate: 180 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ duration: 0.3 }}
         >
           <svg
             className="w-5 h-5"
@@ -178,21 +191,24 @@ export function UsageWidget() {
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
             />
           </svg>
-        </button>
+        </motion.button>
       </div>
 
       {/* Alerts */}
       {visibleAlerts.length > 0 && (
         <div className="space-y-2">
           {visibleAlerts.map((alert) => (
-            <div
+            <motion.div
               key={alert.agent}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
               className={`
                 flex items-start justify-between gap-3 p-4 rounded-lg
                 ${
                   alert.level === "error"
-                    ? "bg-red-50 border border-red-200"
-                    : "bg-yellow-50 border border-yellow-200"
+                    ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+                    : "bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800"
                 }
               `}
             >
@@ -203,31 +219,37 @@ export function UsageWidget() {
                 <div className="flex-1">
                   <p
                     className={`text-sm font-medium ${
-                      alert.level === "error" ? "text-red-900" : "text-yellow-900"
+                      alert.level === "error"
+                        ? "text-red-900 dark:text-red-200"
+                        : "text-yellow-900 dark:text-yellow-200"
                     }`}
                   >
                     {agentLabels[alert.agent as keyof typeof agentLabels]}
                   </p>
                   <p
                     className={`text-sm mt-1 ${
-                      alert.level === "error" ? "text-red-700" : "text-yellow-700"
+                      alert.level === "error"
+                        ? "text-red-700 dark:text-red-300"
+                        : "text-yellow-700 dark:text-yellow-300"
                     }`}
                   >
                     {alert.message}
                   </p>
                 </div>
               </div>
-              <button
+              <motion.button
                 onClick={() => dismissAlert(alert.agent)}
                 className={`text-sm ${
                   alert.level === "error"
                     ? "text-red-400 hover:text-red-600"
                     : "text-yellow-400 hover:text-yellow-600"
                 }`}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.8 }}
               >
                 ✕
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           ))}
         </div>
       )}
@@ -253,21 +275,31 @@ export function UsageWidget() {
 
       {/* Total overage cost */}
       {stats.total_overage_cost_cents > 0 && (
-        <div className="pt-4 border-t border-gray-200">
+        <motion.div
+          className="pt-4 border-t border-gray-200 dark:border-gray-700"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Total overage charges this month
             </span>
-            <span className="text-lg font-bold text-red-600">
+            <motion.span
+              className="text-lg font-bold text-red-600 dark:text-red-400"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
               ${(stats.total_overage_cost_cents / 100).toFixed(2)}
-            </span>
+            </motion.span>
           </div>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             These charges will be added to your next invoice
           </p>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </AnimatedCard>
   );
 }
 
