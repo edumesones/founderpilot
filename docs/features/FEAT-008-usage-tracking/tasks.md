@@ -8,7 +8,7 @@
 ## Progress Overview
 
 ```
-[██████████████░░░░░░] 68% (17/25 tasks)
+[██████████████░░░░░░] 72% (18/25 tasks)
 ```
 
 ### By Section
@@ -20,7 +20,7 @@
 | Backend - API | 2/3 | ⏳ In Progress |
 | Backend - Workers | 4/4 | ✅ Complete |
 | Frontend | 0/2 | ⬜ Not Started |
-| Tests | 4/5 | ⏳ In Progress |
+| Tests | 5/5 | ✅ Complete |
 | DevOps | 0/3 | ⬜ Not Started |
 
 ---
@@ -286,13 +286,14 @@
 **Safe for Ralph:** ⚠️ Needs Review (mocking Stripe API)
 **Estimated effort:** 60 min
 
-### T5: End-to-end integration test ⬜
+### T5: End-to-end integration test ✅
 **File:** `tests/integration/test_usage_flow.py`
 **Description:** Full flow test
 **Acceptance Criteria:**
-- [ ] Test: track event → counter incremented → API returns updated stats
-- [ ] Test: overage scenario → Stripe report triggered
-- [ ] Test: period rollover → new counters created
+- [x] Test: track event → counter incremented → API returns updated stats
+- [x] Test: overage scenario → Stripe report triggered
+- [x] Test: period rollover → new counters created
+- [x] Bonus: idempotency, alert progression, multi-tenant isolation
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 45 min
 
