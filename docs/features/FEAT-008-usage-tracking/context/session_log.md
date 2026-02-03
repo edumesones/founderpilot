@@ -17,6 +17,48 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
+### [2026-02-03 12:30] - Background Job Tests Complete
+
+**Fase:** Implement (Phase 5/8) - All backend tests complete
+**Progreso:** 17/25 tasks complete (68%)
+
+**Qué se hizo:**
+- **T4** ✅: Background job tests for Celery tasks (test_usage_tasks.py)
+  - 18 comprehensive test cases covering all 3 Celery tasks
+  - reset_usage_counters: new counter creation, skip existing, multiple subscriptions
+  - report_overage_to_stripe: Stripe API mocking, circuit breaker behavior, batch processing
+  - reconcile_usage_counters: auto-correct drift < 5%, alert on >= 5%, edge cases
+  - _get_limit_for_agent helper function tests
+
+**Test Coverage:**
+- Reset counters: new period rollover, existing counter preservation, multiple tenants
+- Overage reporting: Stripe API success/failure, circuit breaker open/close, idempotency
+- Reconciliation: drift detection (0.1%-100%), auto-correction threshold, zero events
+- Circuit breaker: individual failure vs circuit open, batch abort behavior
+- Mocking: SessionLocal, stripe_usage_reporter, Stripe API errors
+
+**Testing Patterns:**
+- Mock SessionLocal for database access
+- Mock stripe_usage_reporter for Stripe integration
+- Test circuit breaker with CircuitBreakerError
+- Test batch processing with multiple subscriptions
+- Edge cases: no events, high drift, zero overage
+
+**Archivos creados:**
+- tests/workers/__init__.py (new directory)
+- tests/workers/test_usage_tasks.py (18 tests, ~650 lines)
+
+**Test Summary:**
+- T1: UsageTracker (14 tests)
+- T2: UsageService (21 tests)
+- T3: API routes (14 tests)
+- T4: Background jobs (18 tests)
+- **Total: 67 test cases across all backend components**
+
+**Git commit:** Next (will include T4 completion)
+
+**Próximo paso:** T5 End-to-end integration test or Frontend components (F1-F2)
+
 ### [2026-02-03 12:00] - API Integration Tests Complete
 
 **Fase:** Implement (Phase 5/8) - API integration tests complete

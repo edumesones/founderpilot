@@ -8,7 +8,7 @@
 ## Progress Overview
 
 ```
-[█████████████░░░░░░░] 64% (16/25 tasks)
+[██████████████░░░░░░] 68% (17/25 tasks)
 ```
 
 ### By Section
@@ -20,7 +20,7 @@
 | Backend - API | 2/3 | ⏳ In Progress |
 | Backend - Workers | 4/4 | ✅ Complete |
 | Frontend | 0/2 | ⬜ Not Started |
-| Tests | 3/5 | ⏳ In Progress |
+| Tests | 4/5 | ⏳ In Progress |
 | DevOps | 0/3 | ⬜ Not Started |
 
 ---
@@ -274,15 +274,15 @@
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 45 min
 
-### T4: Tests for background jobs ⬜
+### T4: Tests for background jobs ✅
 **File:** `tests/workers/test_usage_tasks.py`
 **Description:** Test Celery tasks
 **Acceptance Criteria:**
-- [ ] Test reset_usage_counters creates new counters
-- [ ] Test report_overage_to_stripe (mocked Stripe API)
-- [ ] Test reconcile_usage_counters auto-corrects drift < 5%
-- [ ] Test reconcile_usage_counters alerts on drift > 5%
-- [ ] Test circuit breaker in report_overage task
+- [x] Test reset_usage_counters creates new counters
+- [x] Test report_overage_to_stripe (mocked Stripe API)
+- [x] Test reconcile_usage_counters auto-corrects drift < 5%
+- [x] Test reconcile_usage_counters alerts on drift >= 5%
+- [x] Test circuit breaker in report_overage task
 **Safe for Ralph:** ⚠️ Needs Review (mocking Stripe API)
 **Estimated effort:** 60 min
 
