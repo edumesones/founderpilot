@@ -3,6 +3,8 @@ Token encryption service using Fernet symmetric encryption.
 Used to encrypt OAuth tokens before storing in database.
 """
 
+from __future__ import annotations
+
 from cryptography.fernet import Fernet, InvalidToken
 
 from src.core.config import settings

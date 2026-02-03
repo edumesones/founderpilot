@@ -127,6 +127,30 @@ def create_app() -> FastAPI:
     except ImportError:
         logger.warning("InboxPilot routes not available")
 
+    # Include MeetingPilot router (FEAT-005)
+    try:
+        from src.api.routes import meeting_pilot
+
+        application.include_router(
+            meeting_pilot.router,
+            prefix=f"{API_V1}/meeting-pilot",
+            tags=["MeetingPilot"],
+        )
+    except ImportError:
+        logger.warning("MeetingPilot routes not available")
+
+    # Include InvoicePilot router (FEAT-004)
+    try:
+        from src.api.v1 import invoices
+
+        application.include_router(
+            invoices.router,
+            prefix=f"{API_V1}",
+            tags=["InvoicePilot"],
+        )
+    except ImportError:
+        logger.warning("InvoicePilot routes not available")
+
     # Include Webhooks router (FEAT-003)
     try:
         from src.api.routes import webhooks
@@ -138,6 +162,14 @@ def create_app() -> FastAPI:
         )
     except ImportError:
         logger.warning("Webhook routes not available")
+
+    # Include Agent Audit router (FEAT-007)
+    try:
+        from src.api.routes import agent_audit
+
+        application.include_router(agent_audit.router)
+    except ImportError:
+        logger.warning("Agent Audit routes not available")
 
     # Health check endpoint
     @application.get("/health")

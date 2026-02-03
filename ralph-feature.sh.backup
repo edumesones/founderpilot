@@ -41,6 +41,9 @@ WRAP_UP_FILE="$FEATURE_DIR/context/wrap_up.md"
 # Branch name - matches worktree branch format: feat/FEAT-XXX
 BRANCH_NAME="feat/$(echo "$FEATURE_ID" | grep -oE 'FEAT-[0-9]+')"
 
+# Claude CLI flags for non-interactive mode (Windows/Git Bash compatible)
+CLAUDE_FLAGS="--dangerously-skip-permissions --output-format text"
+
 # Colors disabled for Windows compatibility
 RED=''
 GREEN=''
@@ -173,9 +176,13 @@ is_implementation_complete() {
         return 1
     fi
     
-    local total=$(grep -cE "^- \[" "$TASKS_FILE" 2>/dev/null || echo "0")
-    local complete=$(grep -cE "^- \[x\]" "$TASKS_FILE" 2>/dev/null || echo "0")
-    
+    local total=$(grep -cE "^- \[" "$TASKS_FILE" 2>/dev/null)
+    local complete=$(grep -cE "^- \[x\]" "$TASKS_FILE" 2>/dev/null)
+    total=${total:-0}
+    complete=${complete:-0}
+    total=$((total))
+    complete=$((complete))
+
     # Consider complete if >90% done
     if [[ $total -gt 0 ]]; then
         local percent=$((complete * 100 / total))
@@ -201,8 +208,14 @@ is_analysis_complete() {
     fi
 
     # Check for required sections (at least problem clarification and decision summary)
-    local has_problem=$(grep -c "## 1\. Clarificación\|## Problem Clarification\|Step 1" "$ANALYSIS_FILE" 2>/dev/null || echo "0")
-    local has_decision=$(grep -c "## 11\. Resumen\|## Decision Summary\|Step 11\|Confidence Level" "$ANALYSIS_FILE" 2>/dev/null || echo "0")
+    local has_problem=$(grep -c "## 1\. Clarificación\|## Problem Clarification\|Step 1" "$ANALYSIS_FILE" 2>/dev/null)
+    local has_decision=$(grep -c "## 11\. Resumen\|## Decision Summary\|Step 11\|Confidence Level" "$ANALYSIS_FILE" 2>/dev/null)
+
+    # Default to 0 if empty, convert to integer (Git Bash compatibility)
+    has_problem=${has_problem:-0}
+    has_decision=${has_decision:-0}
+    has_problem=$((has_problem))
+    has_decision=$((has_decision))
 
     [[ $has_problem -ge 1 ]] && [[ $has_decision -ge 1 ]]
 }
@@ -216,7 +229,9 @@ should_skip_analysis() {
     fi
 
     # Check for bug fix / hotfix keywords
-    local is_bugfix=$(grep -ciE "bug|fix|hotfix|patch" "$SPEC_FILE" 2>/dev/null || echo "0")
+    local is_bugfix=$(grep -ciE "bug|fix|hotfix|patch" "$SPEC_FILE" 2>/dev/null)
+    is_bugfix=${is_bugfix:-0}
+    is_bugfix=$((is_bugfix))
     if [[ $is_bugfix -ge 2 ]]; then
         return 0  # Skip analysis for bug fixes
     fi
@@ -235,12 +250,16 @@ get_analysis_depth() {
 
     # Check if this is a new system or existing patterns
     local has_patterns=$(find src -name "*.py" 2>/dev/null | head -5 | wc -l)
+    has_patterns=${has_patterns:-0}
+    has_patterns=$((has_patterns))
 
     if [[ $has_patterns -lt 5 ]]; then
         echo "full"  # New system, full 11 steps
     else
         # Existing system - check feature complexity
-        local decision_count=$(grep -cE "^\| [0-9]+ \|" "$SPEC_FILE" 2>/dev/null || echo "0")
+        local decision_count=$(grep -cE "^\| [0-9]+ \|" "$SPEC_FILE" 2>/dev/null)
+        decision_count=${decision_count:-0}
+        decision_count=$((decision_count))
         if [[ $decision_count -ge 5 ]]; then
             echo "medium"  # Complex feature, steps 1-2-3-5-9-11
         else
@@ -299,8 +318,10 @@ execute_interview() {
     # Check if needs human input
     if ! is_interview_complete; then
         # Try to auto-complete if spec has enough structure
-        local has_structure=$(grep -c "## Technical Decisions" "$SPEC_FILE" 2>/dev/null || echo "0")
-        
+        local has_structure=$(grep -c "## Technical Decisions" "$SPEC_FILE" 2>/dev/null)
+        has_structure=${has_structure:-0}
+        has_structure=$((has_structure))
+
         if [[ $has_structure -eq 0 ]]; then
             log_warning "spec.md needs human input - Interview not complete"
             add_session_log "Interview needs human input - pausing"
@@ -313,25 +334,48 @@ execute_interview() {
     cat > "$prompt_file" << EOF
 You are executing the INTERVIEW phase for $FEATURE_ID.
 
-Read the spec file and complete any missing technical decisions.
-If the spec is already complete, emit the completion signal.
+Your job is to complete the spec.md file with ALL necessary information for this feature.
+
+Context:
+- Project overview: Read docs/features/_index.md to understand the project and this feature
+- Project definition: Read docs/project.md if available
+- This feature: $FEATURE_ID
 
 Steps:
-1. Read $SPEC_FILE
-2. If Technical Decisions table has TBD values, fill them with sensible defaults
-3. Update status.md to mark Interview as complete
-4. Add checkpoint to context/session_log.md
+1. Read docs/features/_index.md to understand what this feature is about
+2. Read $SPEC_FILE (currently a template)
+3. Fill in ALL sections of the spec:
+   - Summary: What this feature does (1-2 paragraphs)
+   - User Stories: Real user stories for this feature
+   - Acceptance Criteria: Clear definition of done
+   - Technical Decisions: Replace ALL _TBD_ values with concrete decisions
+   - Scope: What IS and is NOT included
+   - Dependencies: What this feature needs/blocks
+   - Edge Cases: How to handle errors
+   - Security: Authentication, data sensitivity, etc.
+4. Update $STATUS_FILE to mark Interview phase as ✅
+5. Add checkpoint to $SESSION_LOG
+
+Important:
+- Fill EVERY section with REAL content, not placeholders
+- Make technical decisions based on the project context
+- If you genuinely cannot decide without human input, emit INTERVIEW_NEEDS_INPUT
 
 When complete, emit: INTERVIEW_COMPLETE
 If human input is needed, emit: INTERVIEW_NEEDS_INPUT
 EOF
 
-    # Run Claude with prompt from file
+    # Run Claude with prompt from file (Windows/Git Bash compatible - no pipe)
     echo "DEBUG: Calling claude -p with prompt from file..."
-    local output=$(cat "$prompt_file" | claude -p - --output-format text 2>&1 || true)
+    local prompt_content=$(cat "$prompt_file")
     rm -f "$prompt_file"
+
+    echo "===== CLAUDE OUTPUT START ====="
+    local output=$(claude -p "$prompt_content" $CLAUDE_FLAGS 2>&1)
+    echo "$output"
+    echo "===== CLAUDE OUTPUT END ====="
+    echo ""
     echo "DEBUG: Claude returned, output length: ${#output} chars"
-    echo "DEBUG: First 500 chars of output: ${output:0:500}"
 
     # Check for completion signal
     if echo "$output" | grep -qi "INTERVIEW_COMPLETE"; then
@@ -392,57 +436,16 @@ ANALYSIS_EOF
             ;;
     esac
 
-    local prompt_file=$(mktemp)
-    cat > "$prompt_file" << EOF
-You are executing the THINK CRITICALLY phase (Phase 2) for $FEATURE_ID.
-This is a critical pre-implementation analysis to prevent architectural mistakes.
+    # Simplified prompt for faster execution
+    local prompt="THINK CRITICALLY for $FEATURE_ID (depth: $depth). Read $SPEC_FILE, create $ANALYSIS_FILE with: 1)Problem 2)Assumptions 5)Failures 11)Decision+Confidence. Update $STATUS_FILE. Emit ANALYSIS_COMPLETE when done, or ANALYSIS_NEEDS_REVIEW if red flags."
 
-Analysis Depth: $depth
-Steps to execute: $steps_to_run
-
-## The 11-Step Protocol
-
-1. Problem Clarification - What exactly are we solving?
-2. Implicit Assumptions - What are we assuming is true? (Mark confidence: High/Medium/Low)
-3. Design Space - What approaches exist?
-4. Trade-off Analysis - What are we trading?
-5. Failure Analysis - What will break and how?
-6. Invariants & Boundaries - What must always be true?
-7. Observability - How will we know it works?
-8. Reversibility - Can we undo this?
-9. Adversarial Review - Attack your own design (RED FLAGS)
-10. AI Delegation - What can Ralph automate?
-11. Decision Summary - Final synthesis + CONFIDENCE LEVEL (High/Medium/Low)
-
-## Instructions
-
-1. Read $SPEC_FILE for requirements
-2. Execute the steps listed above for depth: $depth
-3. Create $ANALYSIS_FILE with your analysis
-4. If any of these conditions are met, PAUSE:
-   - Step 2: Assumption with Low confidence + High impact
-   - Step 9: Critical red flag identified
-   - Step 11: Confidence Level = "Low"
-5. Update $DECISIONS_FILE with key decisions
-6. Update $STATUS_FILE to mark Critical Analysis phase
-
-## Signals
-
-If analysis is complete and safe to proceed:
-  Emit: ANALYSIS_COMPLETE
-
-If human intervention needed (pause conditions met):
-  Emit: ANALYSIS_NEEDS_REVIEW
-  Include: Which pause condition was triggered
-
-If analysis failed:
-  Emit: ANALYSIS_FAILED
-EOF
-
-    # Run Claude with prompt
-    log_info "Running 11-step protocol (depth: $depth)..."
-    local output=$(cat "$prompt_file" | claude -p - --output-format text 2>&1 || true)
-    rm -f "$prompt_file"
+    # Run Claude with simplified prompt
+    log_info "Running analysis protocol (depth: $depth)..."
+    echo "===== CLAUDE OUTPUT START ====="
+    local output=$(claude -p "$prompt" $CLAUDE_FLAGS 2>&1)
+    echo "$output"
+    echo "===== CLAUDE OUTPUT END ====="
+    echo ""
 
     # Check for signals
     if echo "$output" | grep -qi "ANALYSIS_COMPLETE"; then
@@ -496,7 +499,11 @@ When complete, emit: <phase>PLAN_COMPLETE</phase>
 EOF
 )
     
-    local output=$(claude -p "$prompt" --output-format text 2>&1 || true)
+    echo "===== CLAUDE OUTPUT START ====="
+    local output=$(claude -p "$prompt" $CLAUDE_FLAGS 2>&1)
+    echo "$output"
+    echo "===== CLAUDE OUTPUT END ====="
+    echo ""
     
     if echo "$output" | grep -q "<phase>PLAN_COMPLETE</phase>"; then
         log_success "Plan phase complete"
@@ -535,7 +542,10 @@ Emit: <phase>BRANCH_COMPLETE</phase>
 EOF
 )
     
-    claude -p "$prompt" --output-format text 2>&1 || true
+    echo "===== CLAUDE OUTPUT START ====="
+    claude -p "$prompt" $CLAUDE_FLAGS 2>&1 || true
+    echo "===== CLAUDE OUTPUT END ====="
+    echo ""
     return 0
 }
 
@@ -543,8 +553,12 @@ execute_implement() {
     log_info "Executing Implement phase..."
     
     # Count tasks
-    local total=$(grep -cE "^- \[" "$TASKS_FILE" 2>/dev/null || echo "0")
-    local complete=$(grep -cE "^- \[x\]" "$TASKS_FILE" 2>/dev/null || echo "0")
+    local total=$(grep -cE "^- \[" "$TASKS_FILE" 2>/dev/null)
+    local complete=$(grep -cE "^- \[x\]" "$TASKS_FILE" 2>/dev/null)
+    total=${total:-0}
+    complete=${complete:-0}
+    total=$((total))
+    complete=$((complete))
     local remaining=$((total - complete))
     
     log_info "Tasks: $complete/$total complete ($remaining remaining)"
@@ -579,7 +593,11 @@ If some tasks done but more remain, emit: <phase>IMPLEMENT_PROGRESS</phase>
 EOF
 )
     
-    local output=$(claude -p "$prompt" --output-format text 2>&1 || true)
+    echo "===== CLAUDE OUTPUT START ====="
+    local output=$(claude -p "$prompt" $CLAUDE_FLAGS 2>&1)
+    echo "$output"
+    echo "===== CLAUDE OUTPUT END ====="
+    echo ""
     
     if echo "$output" | grep -q "<phase>IMPLEMENT_COMPLETE</phase>"; then
         log_success "Implementation complete"
@@ -635,7 +653,10 @@ Emit: <phase>PR_COMPLETE</phase>
 EOF
 )
     
-    claude -p "$prompt" --output-format text 2>&1 || true
+    echo "===== CLAUDE OUTPUT START ====="
+    claude -p "$prompt" $CLAUDE_FLAGS 2>&1 || true
+    echo "===== CLAUDE OUTPUT END ====="
+    echo ""
     return 0
 }
 
@@ -692,7 +713,11 @@ Then emit: <phase>FEATURE_COMPLETE</phase>
 EOF
 )
     
-    local output=$(claude -p "$prompt" --output-format text 2>&1 || true)
+    echo "===== CLAUDE OUTPUT START ====="
+    local output=$(claude -p "$prompt" $CLAUDE_FLAGS 2>&1)
+    echo "$output"
+    echo "===== CLAUDE OUTPUT END ====="
+    echo ""
     
     if echo "$output" | grep -q "<phase>FEATURE_COMPLETE</phase>"; then
         log_success "Feature complete! [COMPLETE]"

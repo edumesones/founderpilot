@@ -2,6 +2,8 @@
 Authentication routes for Google OAuth and session management.
 """
 
+from __future__ import annotations
+
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -71,8 +73,8 @@ async def google_callback(
     error: Optional[str] = Query(None, description="Error code if authorization failed"),
     error_description: Optional[str] = Query(None, description="Error description"),
     auth_service: AuthService = Depends(get_auth_service),
-    ip_address: str | None = Depends(lambda r: r.headers.get("X-Forwarded-For", r.client.host if r.client else None)),
-    user_agent: str | None = Depends(lambda r: r.headers.get("User-Agent")),
+    ip_address: Optional[str] = Depends(lambda r: r.headers.get("X-Forwarded-For", r.client.host if r.client else None)),
+    user_agent: Optional[str] = Depends(lambda r: r.headers.get("User-Agent")),
 ) -> RedirectResponse:
     """
     Handle Google OAuth2 callback.

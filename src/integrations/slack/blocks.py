@@ -362,3 +362,330 @@ def _get_confidence_emoji(confidence: int) -> str:
         return ":large_yellow_circle:"
     else:
         return ":red_circle:"
+
+
+# MeetingPilot-specific blocks (FEAT-005)
+
+
+def build_meeting_brief_blocks(
+    meeting_id: str,
+    title: str,
+    start_time: datetime,
+    duration_minutes: int,
+    attendees: list[dict],
+    brief_content: str,
+    confidence: float,
+    location: Optional[str] = None,
+    warnings: Optional[list[str]] = None,
+) -> list:
+    """Build Block Kit blocks for MeetingPilot brief notification.
+
+    This is the main notification sent before a meeting with
+    contextual brief and action buttons.
+
+    Args:
+        meeting_id: Meeting UUID as string
+        title: Meeting title
+        start_time: Meeting start time
+        duration_minutes: Meeting duration
+        attendees: List of attendee dicts with email/name
+        brief_content: Generated brief content
+        confidence: Brief confidence (0-1)
+        location: Optional meeting location/link
+        warnings: Optional list of warning messages
+
+    Returns:
+        List of Slack blocks
+    """
+    # Format time
+    time_str = start_time.strftime("%I:%M %p")
+    date_str = start_time.strftime("%a, %b %d")
+
+    # Format confidence
+    confidence_pct = int(confidence * 100)
+    confidence_emoji = _get_confidence_emoji(confidence_pct)
+
+    # Format attendees (exclude self)
+    external_attendees = [
+        a for a in attendees if not a.get("is_self", False)
+    ]
+    attendee_list = "\n".join(
+        f"• {a.get('name') or a.get('email', 'Unknown')}"
+        for a in external_attendees[:6]
+    )
+    if len(external_attendees) > 6:
+        attendee_list += f"\n• +{len(external_attendees) - 6} more"
+
+    blocks = [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": f":calendar: Upcoming: {title[:75]}",
+                "emoji": True,
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"*When:*\n{date_str} at {time_str}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Duration:*\n{duration_minutes} min"
+                },
+            ]
+        },
+    ]
+
+    # Add location if provided
+    if location:
+        blocks.append({
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f":round_pushpin: {location[:100]}"
+                }
+            ]
+        })
+
+    # Add participants
+    blocks.append({
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": f"*Participants:*\n{attendee_list}"
+        }
+    })
+
+    blocks.append({"type": "divider"})
+
+    # Add brief content (truncate if too long)
+    brief_display = brief_content[:2500]
+    if len(brief_content) > 2500:
+        brief_display += "\n_(truncated)_"
+
+    blocks.append({
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": f"*Context Brief:*\n{brief_display}"
+        }
+    })
+
+    # Add warnings if any
+    if warnings:
+        warning_text = "\n".join(f"• {w}" for w in warnings[:3])
+        blocks.append({
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f":warning: {warning_text}"
+                }
+            ]
+        })
+
+    # Add confidence indicator
+    blocks.append({
+        "type": "context",
+        "elements": [
+            {
+                "type": "mrkdwn",
+                "text": f"Confidence: {confidence_emoji} {confidence_pct}%"
+            }
+        ]
+    })
+
+    # Add action buttons
+    blocks.append({
+        "type": "actions",
+        "elements": [
+            {
+                "type": "button",
+                "text": {"type": "plain_text", "text": ":memo: Add Note", "emoji": True},
+                "action_id": "meeting_add_note",
+                "value": meeting_id,
+            },
+            {
+                "type": "button",
+                "text": {"type": "plain_text", "text": ":alarm_clock: Snooze 10m", "emoji": True},
+                "action_id": "meeting_snooze",
+                "value": meeting_id,
+            },
+            {
+                "type": "button",
+                "text": {"type": "plain_text", "text": ":no_bell: Skip", "emoji": True},
+                "action_id": "meeting_skip",
+                "value": meeting_id,
+            },
+        ]
+    })
+
+    return blocks
+
+
+def build_meeting_note_modal(meeting_id: str, meeting_title: str) -> dict:
+    """Build modal for adding a note to a meeting.
+
+    Args:
+        meeting_id: Meeting UUID
+        meeting_title: Meeting title for display
+
+    Returns:
+        Modal view definition
+    """
+    return {
+        "type": "modal",
+        "callback_id": "meeting_note_submit",
+        "private_metadata": meeting_id,
+        "title": {"type": "plain_text", "text": "Add Meeting Note"},
+        "submit": {"type": "plain_text", "text": "Save"},
+        "close": {"type": "plain_text", "text": "Cancel"},
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*Meeting:* {meeting_title[:50]}"
+                }
+            },
+            {
+                "type": "input",
+                "block_id": "note_type_block",
+                "element": {
+                    "type": "static_select",
+                    "action_id": "note_type_select",
+                    "placeholder": {"type": "plain_text", "text": "Select type"},
+                    "options": [
+                        {
+                            "text": {"type": "plain_text", "text": "Pre-meeting prep"},
+                            "value": "pre_meeting"
+                        },
+                        {
+                            "text": {"type": "plain_text", "text": "Post-meeting notes"},
+                            "value": "post_meeting"
+                        },
+                        {
+                            "text": {"type": "plain_text", "text": "Action item"},
+                            "value": "action_item"
+                        },
+                    ],
+                    "initial_option": {
+                        "text": {"type": "plain_text", "text": "Pre-meeting prep"},
+                        "value": "pre_meeting"
+                    },
+                },
+                "label": {"type": "plain_text", "text": "Note Type"}
+            },
+            {
+                "type": "input",
+                "block_id": "note_content_block",
+                "element": {
+                    "type": "plain_text_input",
+                    "action_id": "note_content_input",
+                    "multiline": True,
+                    "placeholder": {"type": "plain_text", "text": "Enter your note..."},
+                    "max_length": 3000,
+                },
+                "label": {"type": "plain_text", "text": "Note"}
+            },
+        ],
+    }
+
+
+def build_meeting_followup_blocks(
+    meeting_id: str,
+    meeting_title: str,
+    suggestions: list[str],
+) -> list:
+    """Build blocks for post-meeting follow-up suggestions.
+
+    Args:
+        meeting_id: Meeting UUID
+        meeting_title: Meeting title
+        suggestions: List of suggested action items
+
+    Returns:
+        List of Slack blocks
+    """
+    blocks = [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": ":white_check_mark: Meeting Complete",
+                "emoji": True,
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{meeting_title}*"
+            }
+        },
+    ]
+
+    if suggestions:
+        suggestion_text = "\n".join(f"• {s}" for s in suggestions[:5])
+        blocks.append({
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*Suggested Follow-ups:*\n{suggestion_text}"
+            }
+        })
+
+    blocks.append({
+        "type": "actions",
+        "elements": [
+            {
+                "type": "button",
+                "text": {"type": "plain_text", "text": ":memo: Add Notes", "emoji": True},
+                "action_id": "meeting_add_note",
+                "value": meeting_id,
+            },
+            {
+                "type": "button",
+                "text": {"type": "plain_text", "text": ":heavy_check_mark: Done", "emoji": True},
+                "style": "primary",
+                "action_id": "meeting_complete",
+                "value": meeting_id,
+            },
+        ]
+    })
+
+    return blocks
+
+
+def build_meeting_brief_sent_confirmation(meeting_title: str) -> list:
+    """Build confirmation blocks after brief is sent/acknowledged.
+
+    Args:
+        meeting_title: Meeting title
+
+    Returns:
+        List of Slack blocks
+    """
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f":white_check_mark: *Brief acknowledged*\n{meeting_title}"
+            }
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"Acknowledged at {datetime.now().strftime('%I:%M %p')}"
+                }
+            ]
+        },
+    ]

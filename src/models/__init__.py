@@ -17,6 +17,20 @@ from src.models.slack_installation import SlackInstallation
 from src.models.inbox_pilot.email_record import EmailRecord
 from src.models.inbox_pilot.agent_config import InboxPilotConfig
 
+# MeetingPilot models (FEAT-005)
+from src.models.meeting_pilot.meeting_record import MeetingRecord
+from src.models.meeting_pilot.meeting_note import MeetingNote
+from src.models.meeting_pilot.agent_config import MeetingPilotConfig
+
+# Agent Audit models (FEAT-007)
+from src.models.agent_audit_log import (
+    AgentAuditLog,
+    AgentType,
+    InboxPilotAction,
+    InvoicePilotAction,
+    MeetingPilotAction,
+)
+
 __all__ = [
     # Base
     "Base",
@@ -38,4 +52,14 @@ __all__ = [
     # InboxPilot (FEAT-003)
     "EmailRecord",
     "InboxPilotConfig",
+    # MeetingPilot (FEAT-005)
+    "MeetingRecord",
+    "MeetingNote",
+    "MeetingPilotConfig",
+    # Agent Audit (FEAT-007)
+    "AgentAuditLog",
+    "AgentType",
+    "InboxPilotAction",
+    "InvoicePilotAction",
+    "MeetingPilotAction",
 ]

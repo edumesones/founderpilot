@@ -64,8 +64,68 @@ services:
         condition: service_healthy
     volumes:
       - ./src:/app/src:ro
+      - pdf_storage:/app/storage/pdfs
     command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Celery Worker
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: founderpilot-celery-worker
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://founderpilot:founderpilot_dev@postgres:5432/founderpilot
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
+      # OAuth credentials (set in .env file)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SLACK_CLIENT_ID=${SLACK_CLIENT_ID}
+      - SLACK_CLIENT_SECRET=${SLACK_CLIENT_SECRET}
+      # JWT keys (set in .env file)
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src:ro
+      - pdf_storage:/app/storage/pdfs
+    command: celery -A src.workers.celery_app worker --loglevel=info --queues=default,meeting_pilot,invoice_pilot
+
+  # Celery Beat Scheduler
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: founderpilot-celery-beat
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://founderpilot:founderpilot_dev@postgres:5432/founderpilot
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
+      # OAuth credentials (set in .env file)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SLACK_CLIENT_ID=${SLACK_CLIENT_ID}
+      - SLACK_CLIENT_SECRET=${SLACK_CLIENT_SECRET}
+      # JWT keys (set in .env file)
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src:ro
+      - pdf_storage:/app/storage/pdfs
+    command: celery -A src.workers.celery_app beat --loglevel=info
 
 volumes:
   postgres_data:
   redis_data:
+  pdf_storage:
