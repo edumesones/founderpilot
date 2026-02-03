@@ -495,13 +495,24 @@ When complete, emit: <phase>PLAN_COMPLETE</phase>
 
     Write-Host ""
 
-    if ($output -match "<phase>PLAN_COMPLETE</phase>") {
+    # More tolerant signal detection - with or without tags
+    if ($output -match "PLAN_COMPLETE|design\.md|tasks\.md.*created|Plan.*complete") {
         Write-Log "Plan phase complete" -Level SUCCESS
         Add-SessionLog "Plan Complete ✅ - Design and tasks created"
         return 0
     }
     else {
-        Write-Log "Plan phase failed" -Level ERROR
+        # Check if design.md and tasks.md were actually created/modified
+        if ((Test-Path $DesignFile) -and (Test-Path $TasksFile)) {
+            $designSize = (Get-Item $DesignFile).Length
+            $tasksSize = (Get-Item $TasksFile).Length
+            if ($designSize -gt 500 -and $tasksSize -gt 500) {
+                Write-Log "Plan files detected, marking complete..."
+                Add-SessionLog "Plan Complete ✅ - Files created"
+                return 0
+            }
+        }
+        Write-Log "Plan phase failed - no completion signal or files" -Level ERROR
         return 1
     }
 }
@@ -616,16 +627,24 @@ If some tasks done but more remain, emit: <phase>IMPLEMENT_PROGRESS</phase>
 
     Write-Host ""
 
-    if ($output -match "<phase>IMPLEMENT_COMPLETE</phase>") {
+    # More tolerant signal detection - with or without tags
+    if ($output -match "IMPLEMENT_COMPLETE|all tasks.*complete|100%.*complete") {
         Write-Log "Implementation complete" -Level SUCCESS
         return 0
     }
-    elseif ($output -match "<phase>IMPLEMENT_PROGRESS</phase>") {
+    elseif ($output -match "IMPLEMENT_PROGRESS|tasks.*done|Progress|committed|Created|Updated") {
         Write-Log "Progress made, continuing..."
         Add-SessionLog "Implementation Progress - Batch complete"
         return 0
     }
     else {
+        # Check if tasks.md was actually modified (real progress)
+        $gitStatus = git status --porcelain 2>&1
+        if ($gitStatus -match "tasks\.md|src/|tests/") {
+            Write-Log "Progress detected via git changes, continuing..."
+            Add-SessionLog "Implementation Progress - Changes detected"
+            return 0
+        }
         Write-Log "No progress signal detected" -Level WARNING
         return 1
     }
@@ -845,17 +864,23 @@ Then emit: <phase>FEATURE_COMPLETE</phase>
 
     Write-Host ""
 
-    if ($output -match "<phase>FEATURE_COMPLETE</phase>") {
+    # More tolerant signal detection - with or without tags
+    if ($output -match "FEATURE_COMPLETE|WRAPUP_COMPLETE|Wrap-up.*complete|wrap_up\.md.*created|Feature.*complete") {
         Write-Log "Feature complete! [COMPLETE]" -Level SUCCESS
         Add-SessionLog "Feature Complete [COMPLETE] - Wrap-up done"
         return 100
     }
-    elseif ($output -match "<phase>WRAPUP_COMPLETE</phase>") {
-        Write-Log "Wrap-up complete" -Level SUCCESS
-        return 100
-    }
     else {
-        Write-Log "Wrap-up failed" -Level ERROR
+        # Check if wrap_up.md was actually created/updated
+        if (Test-Path $WrapUpFile) {
+            $wrapupSize = (Get-Item $WrapUpFile).Length
+            if ($wrapupSize -gt 200) {
+                Write-Log "Wrap-up file detected, marking complete..."
+                Add-SessionLog "Feature Complete [COMPLETE] - Wrap-up file created"
+                return 100
+            }
+        }
+        Write-Log "Wrap-up failed - no completion signal or file" -Level ERROR
         return 1
     }
 }
