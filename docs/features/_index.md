@@ -26,6 +26,12 @@ Suite de 3 agentes autónomos para founders: InboxPilot, InvoicePilot, MeetingPi
 | [FEAT-007](./FEAT-007-audit-dashboard/) | Audit Dashboard | 🟢 Complete | Merged | #6 | P0 | 2026-02-02 |
 | [FEAT-008](./FEAT-008-usage-tracking/) | Usage Tracking | 🟢 Complete | Merged | #8 | P1 | 2026-02-03 |
 
+### Polish & Launch
+
+| ID | Feature | Status | Phase | PR | Priority | Updated |
+|----|---------|--------|-------|-----|----------|---------|
+| [FEAT-009](./FEAT-009-frontend-polish/) | Frontend Polish | 🟡 In Progress | Interview | - | P1 | 2026-02-03 |
+
 ### Agentes
 
 | ID | Agente | Status | Phase | PR | Priority | Updated |
@@ -90,10 +96,13 @@ Suite de 3 agentes autónomos para founders: InboxPilot, InvoicePilot, MeetingPi
 | 8 | FEAT-008 | Usage Tracking - Control de uso |
 
 ### Semana 7-8: Polish & Launch
-- Integration testing
-- Bug fixes
-- Landing page
-- Beta launch
+| Order | Feature | Descripción |
+|-------|---------|-------------|
+| 9 | FEAT-009 | Frontend Polish - Glassmorphism + Animations |
+| - | - | Integration testing |
+| - | - | Bug fixes |
+| - | - | Landing page |
+| - | - | Beta launch |
 
 ---
 
@@ -109,6 +118,7 @@ Suite de 3 agentes autónomos para founders: InboxPilot, InvoicePilot, MeetingPi
 | **FEAT-006** | "Controlo todo desde Slack" |
 | **FEAT-007** | "Sé exactamente qué hizo el agente" |
 | **FEAT-008** | "Control de mi consumo" |
+| **FEAT-009** | "Una experiencia visual premium" |
 
 ---
 
@@ -195,4 +205,4 @@ P1 Features:     1/1 complete
 ---
 
 *Last updated: 2026-02-03*
-*MVP COMPLETE - Ready for Polish & Launch phase*
+*Next: FEAT-009 Frontend Polish (Glassmorphism + Framer Motion)*
