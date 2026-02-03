@@ -1,6 +1,6 @@
 # FEAT-008: Status
 
-## Current Status: 🟡 In Progress
+## Current Status: 🔵 In Review
 
 ```
 ⚪ Pending → 🟡 In Progress → 🔵 In Review → 🟢 Complete
@@ -93,23 +93,25 @@
 
 ## Branch Info
 
-**Branch:** `feature/XXX-name`
+**Branch:** `feat/FEAT-008`
 
-**Base:** `main`
+**Base:** `master`
 
-**Created:** _Not yet_
+**Created:** 2026-02-03
 
-**Last push:** _Never_
+**Last push:** 2026-02-03 14:00 UTC
 
 ---
 
 ## PR Info
 
-**PR Number:** _Not created_
+**PR Number:** #8
 
-**PR URL:** _N/A_
+**PR URL:** https://github.com/edumesones/founderpilot/pull/8
 
-**Review status:** _N/A_
+**Review status:** 🔵 Awaiting review
+
+**Created:** 2026-02-03
 
 ---
 
