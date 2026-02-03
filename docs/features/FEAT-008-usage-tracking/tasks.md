@@ -1,135 +1,410 @@
-# FEAT-XXX: Tasks
+# FEAT-008: Implementation Tasks
 
-## Pre-Implementation Checklist
-- [ ] spec.md complete and approved
-- [ ] design.md complete and approved
-- [ ] Branch created: `feature/XXX-name`
-- [ ] status.md updated to "In Progress"
+> Generated from design.md (Phase 3)
+> **Total:** 25 tasks across 5 sections
 
 ---
 
-## Backend Tasks
+## Progress Overview
 
-| # | Task | Status |
-|---|------|--------|
-| 1 | Create data models | ⬜ |
-| 2 | Create service layer | ⬜ |
-| 3 | Create API endpoints | ⬜ |
-| 4 | Add validation | ⬜ |
-| 5 | Add error handling | ⬜ |
+```
+[░░░░░░░░░░░░░░░░░░░░] 0% (0/25 tasks)
+```
 
-### Detailed Backend Tasks
+### By Section
 
-- [ ] **B1**: Create models in `src/models/`
-  - [ ] B1.1: Define schema
-  - [ ] B1.2: Add relationships
-  - [ ] B1.3: Add indexes
-
-- [ ] **B2**: Create service in `src/services/`
-  - [ ] B2.1: CRUD operations
-  - [ ] B2.2: Business logic
-  - [ ] B2.3: Validation
-
-- [ ] **B3**: Create API in `src/api/`
-  - [ ] B3.1: Router setup
-  - [ ] B3.2: Endpoints
-  - [ ] B3.3: Request/Response models
+| Section | Progress | Status |
+|---------|----------|--------|
+| Backend - Models | 0/3 | ⬜ Not Started |
+| Backend - Services | 0/5 | ⬜ Not Started |
+| Backend - API | 0/3 | ⬜ Not Started |
+| Backend - Workers | 0/4 | ⬜ Not Started |
+| Frontend | 0/2 | ⬜ Not Started |
+| Tests | 0/5 | ⬜ Not Started |
+| DevOps | 0/3 | ⬜ Not Started |
 
 ---
 
-## Frontend Tasks
+## Section 1: Backend - Database Models
 
-| # | Task | Status |
-|---|------|--------|
-| 1 | Create UI components | ⬜ |
-| 2 | Connect to API | ⬜ |
-| 3 | Add error handling | ⬜ |
-| 4 | Add loading states | ⬜ |
+### B1.1: Create usage.py models file ⬜
+**File:** `src/models/usage.py`
+**Description:** Create UsageEvent and UsageCounter SQLAlchemy models
+**Acceptance Criteria:**
+- [ ] UsageEvent model with all fields (id, tenant_id, agent, action_type, resource_id, quantity, idempotency_key, metadata, created_at)
+- [ ] UsageCounter model with all fields (id, tenant_id, agent, period_start, period_end, count, last_event_at, created_at, updated_at)
+- [ ] Proper foreign keys and indexes
+- [ ] CHECK constraint on counter.count >= 0
+- [ ] UNIQUE constraint on (tenant_id, agent, period_start) for UsageCounter
+- [ ] UNIQUE constraint on idempotency_key for UsageEvent
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 30 min
 
-### Detailed Frontend Tasks
+### B1.2: Create Alembic migration ⬜
+**File:** `alembic/versions/XXX_add_usage_tracking_tables.py`
+**Description:** Database migration to create usage_events and usage_counters tables
+**Acceptance Criteria:**
+- [ ] Migration creates both tables with correct schema
+- [ ] Indexes created: idx_usage_events_tenant_agent, idx_usage_events_idempotency, idx_usage_counters_tenant_period
+- [ ] Migration is reversible (downgrade removes tables)
+- [ ] Migration tested locally
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 20 min
 
-- [ ] **F1**: Create components in `src/components/`
-  - [ ] F1.1: Main component
-  - [ ] F1.2: Form component
-  - [ ] F1.3: List component
-
-- [ ] **F2**: API integration
-  - [ ] F2.1: API client
-  - [ ] F2.2: State management
-  - [ ] F2.3: Error handling
-
----
-
-## Tests Tasks
-
-| # | Task | Status |
-|---|------|--------|
-| 1 | Unit tests - models | ⬜ |
-| 2 | Unit tests - services | ⬜ |
-| 3 | Integration tests - API | ⬜ |
-| 4 | E2E tests | ⬜ |
-
-### Detailed Test Tasks
-
-- [ ] **T1**: Unit tests for models
-- [ ] **T2**: Unit tests for services
-- [ ] **T3**: Integration tests for API endpoints
-- [ ] **T4**: E2E test for main flow
+### B1.3: Update models __init__.py ⬜
+**File:** `src/models/__init__.py`
+**Description:** Export new models for imports
+**Acceptance Criteria:**
+- [ ] Import UsageEvent and UsageCounter from usage module
+- [ ] Add to __all__ list
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 5 min
 
 ---
 
-## Documentation Tasks
+## Section 2: Backend - Services
 
-- [ ] **D1**: Update README with feature docs
-- [ ] **D2**: Add docstrings to all public functions
-- [ ] **D3**: Update API documentation
+### B2.1: Create UsageTracker service ⬜
+**File:** `src/services/usage_tracker.py`
+**Description:** Core service for atomic event recording + counter updates
+**Acceptance Criteria:**
+- [ ] UsageTracker class with track_event() method
+- [ ] Atomic transaction: event write + counter increment
+- [ ] Idempotency key generation logic
+- [ ] _get_or_create_counter() helper method
+- [ ] Proper error handling (ValueError, IntegrityError)
+- [ ] Logging for each event tracked
+- [ ] Metrics emission (usage_events_total)
+**Safe for Ralph:** ⚠️ Needs Review (transaction logic critical)
+**Estimated effort:** 60 min
+
+### B2.2: Create UsageService ⬜
+**File:** `src/services/usage_service.py`
+**Description:** Business logic for usage stats, overage calculation, alerts
+**Acceptance Criteria:**
+- [ ] UsageService class with get_usage_stats() method
+- [ ] _calculate_overage_cost() with pricing per agent
+- [ ] _generate_alerts() for 80% and 100% thresholds
+- [ ] _get_agent_limit() to extract limits from plan.limits JSONB
+- [ ] Handle edge cases: no subscription, trial users, no counters yet
+- [ ] Return UsageStatsResponse schema
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 45 min
+
+### B2.3: Create Pydantic schemas ⬜
+**File:** `src/schemas/usage.py`
+**Description:** Request/response schemas for usage API
+**Acceptance Criteria:**
+- [ ] AgentUsage schema (count, limit, percentage, overage, overage_cost_cents)
+- [ ] UsageAlert schema (agent, message, level)
+- [ ] UsageStatsResponse schema (tenant_id, period_start, period_end, plan, usage, total_overage_cost_cents, alerts)
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 20 min
+
+### B2.4: Add agent type enums ⬜
+**File:** `src/core/enums.py` (or create if not exists)
+**Description:** Enum for agent types and action types
+**Acceptance Criteria:**
+- [ ] AgentType enum: INBOX, INVOICE, MEETING
+- [ ] ActionType enum: EMAIL_PROCESSED, INVOICE_DETECTED, MEETING_PREP
+- [ ] Used in models and services for type safety
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 15 min
+
+### B2.5: Update billing_service.py integration points ⬜
+**File:** `src/services/billing_service.py` (if needed for plan limits)
+**Description:** Ensure billing service exposes plan limits correctly
+**Acceptance Criteria:**
+- [ ] Verify Plan model has limits JSONB field
+- [ ] Verify limits structure matches expected keys (emails_per_month, etc.)
+- [ ] Add helper method if needed to get limits for agent
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 15 min
 
 ---
 
-## DevOps Tasks
+## Section 3: Backend - API Endpoints
 
-- [ ] **O1**: Add environment variables to `.env.example`
-- [ ] **O2**: Update CI/CD if needed
-- [ ] **O3**: Add database migrations if needed
+### B3.1: Create usage router ⬜
+**File:** `src/api/v1/usage.py`
+**Description:** FastAPI router with GET /usage endpoint
+**Acceptance Criteria:**
+- [ ] GET /usage endpoint
+- [ ] Authentication required (JWT dependency)
+- [ ] Rate limiting: 10 req/min per tenant
+- [ ] Tenant isolation: only return current_user's tenant data
+- [ ] Error handling: 401, 404, 429, 500
+- [ ] Calls UsageService.get_usage_stats()
+- [ ] Returns UsageStatsResponse
+**Safe for Ralph:** ⚠️ Needs Review (security validation critical)
+**Estimated effort:** 45 min
 
----
+### B3.2: Register usage router in main.py ⬜
+**File:** `src/api/main.py`
+**Description:** Add usage router to FastAPI app
+**Acceptance Criteria:**
+- [ ] Import usage router
+- [ ] app.include_router(usage_router, prefix="/api/v1", tags=["usage"])
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 5 min
 
-## Progress Tracking
-
-### Status Legend
-| Symbol | Meaning |
-|--------|---------|
-| `- [ ]` | ⬜ Pending |
-| `- [🟡]` | 🟡 In Progress |
-| `- [x]` | ✅ Completed |
-| `- [🔴]` | 🔴 Blocked |
-| `- [⏭️]` | ⏭️ Skipped |
-
-### Current Progress
-
-| Section | Done | Total | % |
-|---------|------|-------|---|
-| Backend | 0 | 5 | 0% |
-| Frontend | 0 | 4 | 0% |
-| Tests | 0 | 4 | 0% |
-| Docs | 0 | 3 | 0% |
-| DevOps | 0 | 3 | 0% |
-| **TOTAL** | **0** | **19** | **0%** |
-
----
-
-## Notes
-
-### Blockers
-_None currently_
-
-### Decisions Made During Implementation
-_Document any decisions made while implementing_
-
-### Technical Debt
-_Track any shortcuts taken that need future work_
+### B3.3: Add rate limiting middleware ⬜
+**File:** `src/middleware/rate_limit.py` (or update existing)
+**Description:** Rate limiting for usage endpoint
+**Acceptance Criteria:**
+- [ ] Rate limit: 10 requests/min per tenant_id
+- [ ] Use Redis for rate limit state
+- [ ] Return 429 Too Many Requests when exceeded
+- [ ] Apply to /api/v1/usage endpoint
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 30 min
 
 ---
 
-*Last updated: {date}*
-*Updated by: [you / fork-backend / fork-frontend]*
+## Section 4: Backend - Background Jobs
+
+### B4.1: Create usage_tasks.py ⬜
+**File:** `src/workers/tasks/usage_tasks.py`
+**Description:** Celery tasks for usage tracking
+**Acceptance Criteria:**
+- [ ] reset_usage_counters task
+- [ ] report_overage_to_stripe task with circuit breaker
+- [ ] reconcile_usage_counters task
+- [ ] All tasks have proper error handling, logging, metrics
+- [ ] Tasks use SessionLocal() for DB access
+**Safe for Ralph:** ⚠️ Needs Review (Stripe integration + reconciliation logic)
+**Estimated effort:** 90 min
+
+### B4.2: Update celery_app.py ⬜
+**File:** `src/workers/celery_app.py`
+**Description:** Register usage tasks in Celery app
+**Acceptance Criteria:**
+- [ ] Add "src.workers.tasks.usage_tasks" to include list
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 5 min
+
+### B4.3: Configure Celery Beat schedule ⬜
+**File:** `src/workers/celery_app.py` or separate config
+**Description:** Schedule periodic tasks
+**Acceptance Criteria:**
+- [ ] reset_usage_counters: daily at 00:05 UTC
+- [ ] report_overage_to_stripe: daily at 01:00 UTC
+- [ ] reconcile_usage_counters: daily at 03:00 UTC
+- [ ] Use crontab schedule syntax
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 20 min
+
+### B4.4: Add Stripe metered billing helper ⬜
+**File:** `src/integrations/stripe_client.py` (or update existing)
+**Description:** Helper for Stripe usage record reporting
+**Acceptance Criteria:**
+- [ ] Function to report usage record: report_usage_to_stripe(subscription_item_id, quantity, timestamp)
+- [ ] Error handling for Stripe API errors
+- [ ] Retry logic with exponential backoff
+- [ ] Circuit breaker implementation (5 failures → pause 15 min)
+**Safe for Ralph:** ⚠️ Needs Review (external API integration)
+**Estimated effort:** 45 min
+
+---
+
+## Section 5: Frontend
+
+### F1: Create UsageWidget component ⬜
+**File:** `frontend/src/components/usage/UsageWidget.tsx`
+**Description:** React component to display usage stats
+**Acceptance Criteria:**
+- [ ] Fetch usage data from GET /api/v1/usage
+- [ ] Auto-refetch every 30 seconds (React Query)
+- [ ] Display 3 progress bars (inbox, invoice, meeting)
+- [ ] Color coding: green < 80%, yellow 80-99%, red >= 100%
+- [ ] Display overage cost when > 100%
+- [ ] Alert banner when usage > 80% (dismissable)
+- [ ] Responsive design
+- [ ] Loading state, error state
+**Safe for Ralph:** ⚠️ Needs Review (UX decisions: colors, copy)
+**Estimated effort:** 90 min
+
+### F2: Integrate UsageWidget into dashboard ⬜
+**File:** `frontend/src/pages/Settings/Billing.tsx` (or appropriate page)
+**Description:** Add UsageWidget to billing settings page
+**Acceptance Criteria:**
+- [ ] Import UsageWidget
+- [ ] Render in appropriate section (e.g., below plan info)
+- [ ] Only show for authenticated users with active subscription
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 15 min
+
+---
+
+## Section 6: Tests
+
+### T1: Unit tests for UsageTracker ⬜
+**File:** `tests/services/test_usage_tracker.py`
+**Description:** Test atomic event creation + counter update
+**Acceptance Criteria:**
+- [ ] Test track_event creates event and increments counter
+- [ ] Test idempotency: duplicate event rejected (IntegrityError)
+- [ ] Test counter created for new period
+- [ ] Test transaction rollback on failure
+- [ ] Test edge case: no active subscription → ValueError
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 45 min
+
+### T2: Unit tests for UsageService ⬜
+**File:** `tests/services/test_usage_service.py`
+**Description:** Test business logic for stats, overage, alerts
+**Acceptance Criteria:**
+- [ ] Test get_usage_stats returns correct data
+- [ ] Test overage calculation for each agent type
+- [ ] Test alert generation: 80% warning, 100% error
+- [ ] Test edge case: trial user with no plan
+- [ ] Test edge case: no counters yet (0 usage)
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 45 min
+
+### T3: API tests for usage endpoint ⬜
+**File:** `tests/api/test_usage.py`
+**Description:** Integration tests for GET /usage
+**Acceptance Criteria:**
+- [ ] Test happy path: returns usage stats
+- [ ] Test authentication required: 401 without token
+- [ ] Test tenant isolation: can't see other tenant's data
+- [ ] Test rate limiting: 429 after 10 requests
+- [ ] Test 404 when no subscription
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 45 min
+
+### T4: Tests for background jobs ⬜
+**File:** `tests/workers/test_usage_tasks.py`
+**Description:** Test Celery tasks
+**Acceptance Criteria:**
+- [ ] Test reset_usage_counters creates new counters
+- [ ] Test report_overage_to_stripe (mocked Stripe API)
+- [ ] Test reconcile_usage_counters auto-corrects drift < 5%
+- [ ] Test reconcile_usage_counters alerts on drift > 5%
+- [ ] Test circuit breaker in report_overage task
+**Safe for Ralph:** ⚠️ Needs Review (mocking Stripe API)
+**Estimated effort:** 60 min
+
+### T5: End-to-end integration test ⬜
+**File:** `tests/integration/test_usage_flow.py`
+**Description:** Full flow test
+**Acceptance Criteria:**
+- [ ] Test: track event → counter incremented → API returns updated stats
+- [ ] Test: overage scenario → Stripe report triggered
+- [ ] Test: period rollover → new counters created
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 45 min
+
+---
+
+## Section 7: DevOps & Documentation
+
+### D1: Database migration deployment ⬜
+**Description:** Run migration in all environments
+**Acceptance Criteria:**
+- [ ] Run migration locally: `alembic upgrade head`
+- [ ] Verify tables created with correct schema
+- [ ] Document rollback procedure: `alembic downgrade -1`
+**Safe for Ralph:** 🤚 Human Only (production deployment)
+**Estimated effort:** 15 min
+
+### D2: Configure monitoring & alerts ⬜
+**Description:** Set up Prometheus metrics and alerts
+**Acceptance Criteria:**
+- [ ] Metrics instrumented in code (usage_events_total, usage_api_latency, etc.)
+- [ ] Grafana dashboard created for usage metrics
+- [ ] Alerts configured: Stripe failure rate, counter drift, API latency, reconciliation job
+- [ ] Test alerts fire correctly
+**Safe for Ralph:** 🤚 Human Only (ops configuration)
+**Estimated effort:** 60 min
+
+### D3: Update API documentation ⬜
+**File:** `docs/api/usage.md` or OpenAPI spec
+**Description:** Document GET /usage endpoint
+**Acceptance Criteria:**
+- [ ] OpenAPI/Swagger spec includes GET /usage
+- [ ] Request/response schemas documented
+- [ ] Example responses included
+- [ ] Error codes documented (401, 404, 429, 500)
+**Safe for Ralph:** ✅ Yes
+**Estimated effort:** 20 min
+
+---
+
+## Implementation Order (Recommended)
+
+### Phase 1: Foundation (B1.* → B2.*)
+1. B1.1: Create models
+2. B1.2: Create migration
+3. B1.3: Update __init__
+4. B2.4: Create enums
+5. B2.3: Create schemas
+6. Run migration locally
+
+### Phase 2: Core Services (B2.1-2.2 → T1-T2)
+7. B2.1: UsageTracker service
+8. T1: UsageTracker tests
+9. B2.2: UsageService
+10. T2: UsageService tests
+
+### Phase 3: API Layer (B3.* → T3)
+11. B3.1: Usage router
+12. B3.3: Rate limiting
+13. B3.2: Register router
+14. T3: API tests
+
+### Phase 4: Background Jobs (B4.* → T4)
+15. B4.1: Usage tasks
+16. B4.2: Update celery_app
+17. B4.3: Configure Beat schedule
+18. B4.4: Stripe helper
+19. T4: Background job tests
+
+### Phase 5: Frontend (F1-F2)
+20. F1: UsageWidget component
+21. F2: Integrate widget
+
+### Phase 6: Integration & Polish (T5, D3)
+22. T5: E2E integration test
+23. D3: API documentation
+24. B2.5: Verify billing integration
+
+### Phase 7: Deployment (D1-D2) - Human involvement
+25. D1: Deploy migration
+26. D2: Configure monitoring
+
+---
+
+## Task Status Legend
+
+- ⬜ Not Started
+- ⏳ In Progress
+- ✅ Complete
+- ❌ Blocked
+- ⏸️ Paused
+
+---
+
+## Risk Flags
+
+🔴 **High Risk Tasks** (require extra attention):
+- B2.1: UsageTracker (atomic transactions critical)
+- B3.1: Usage API (tenant isolation security)
+- B4.1: Background jobs (Stripe integration + reconciliation)
+
+⚠️ **Medium Risk Tasks** (need review):
+- B4.4: Stripe metered billing helper
+- T4: Background job tests (mocking complexity)
+
+✅ **Low Risk Tasks** (safe for autonomous execution):
+- All model/schema tasks
+- Most test tasks
+- Frontend component (with UX review)
+
+---
+
+*Generated: 2026-02-03*
+*Total estimated effort: ~14 hours*
+*Safe for autonomous execution: 18/25 tasks (72%)*
+*Requires human review: 7/25 tasks (28%)*
