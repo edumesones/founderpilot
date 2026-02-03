@@ -8,7 +8,7 @@
 ## Progress Overview
 
 ```
-[███████░░░░░░░░░░░░░] 36% (9/25 tasks)
+[████████████░░░░░░░░] 60% (15/25 tasks)
 ```
 
 ### By Section
@@ -18,9 +18,9 @@
 | Backend - Models | 3/3 | ✅ Complete |
 | Backend - Services | 4/5 | ⏳ In Progress |
 | Backend - API | 2/3 | ⏳ In Progress |
-| Backend - Workers | 0/4 | ⬜ Not Started |
+| Backend - Workers | 4/4 | ✅ Complete |
 | Frontend | 0/2 | ⬜ Not Started |
-| Tests | 0/5 | ⬜ Not Started |
+| Tests | 2/5 | ⏳ In Progress |
 | DevOps | 0/3 | ⬜ Not Started |
 
 ---
@@ -238,27 +238,27 @@
 
 ## Section 6: Tests
 
-### T1: Unit tests for UsageTracker ⬜
-**File:** `tests/services/test_usage_tracker.py`
+### T1: Unit tests for UsageTracker ✅
+**File:** `tests/unit/services/test_usage_tracker.py`
 **Description:** Test atomic event creation + counter update
 **Acceptance Criteria:**
-- [ ] Test track_event creates event and increments counter
-- [ ] Test idempotency: duplicate event rejected (IntegrityError)
-- [ ] Test counter created for new period
-- [ ] Test transaction rollback on failure
-- [ ] Test edge case: no active subscription → ValueError
+- [x] Test track_event creates event and increments counter
+- [x] Test idempotency: duplicate event rejected (IntegrityError)
+- [x] Test counter created for new period
+- [x] Test transaction rollback on failure
+- [x] Test edge case: no active subscription → ValueError
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 45 min
 
-### T2: Unit tests for UsageService ⬜
-**File:** `tests/services/test_usage_service.py`
+### T2: Unit tests for UsageService ✅
+**File:** `tests/unit/services/test_usage_service.py`
 **Description:** Test business logic for stats, overage, alerts
 **Acceptance Criteria:**
-- [ ] Test get_usage_stats returns correct data
-- [ ] Test overage calculation for each agent type
-- [ ] Test alert generation: 80% warning, 100% error
-- [ ] Test edge case: trial user with no plan
-- [ ] Test edge case: no counters yet (0 usage)
+- [x] Test get_usage_stats returns correct data
+- [x] Test overage calculation for each agent type
+- [x] Test alert generation: 80% warning, 100% error
+- [x] Test edge case: trial user with no plan
+- [x] Test edge case: no counters yet (0 usage)
 **Safe for Ralph:** ✅ Yes
 **Estimated effort:** 45 min
 

@@ -17,6 +17,38 @@
 
 <!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
 
+### [2026-02-03 11:30] - Implementation Phase 5 Complete (Tests - Unit Tests)
+
+**Fase:** Implement (Phase 5/8) - Unit tests complete
+**Progreso:** 15/25 tasks complete (60%)
+
+**Qué se hizo:**
+- **T1** ✅: Unit tests for UsageTracker (test_usage_tracker.py)
+  - 14 comprehensive test cases covering atomic transactions, idempotency, counter creation
+  - Test coverage: happy path, edge cases (no subscription, invalid agent), transaction rollback
+  - Idempotency key format validation, quantity handling, separate counters per agent
+- **T2** ✅: Unit tests for UsageService (test_usage_service.py)
+  - 21 comprehensive test cases covering business logic, overage calculation, alerts
+  - Overage pricing tests: $0.02/email, $0.10/invoice, $0.15/meeting
+  - Alert generation: warning at 80%, error at 100%+
+  - Edge cases: trial users with no limits, no counters yet, inactive subscriptions
+  - HTTP exception handling: 404 (no subscription), 403 (inactive), 500 (no plan)
+
+**Test Coverage:**
+- UsageTracker: atomic transactions, idempotency, counter management, error handling
+- UsageService: stats retrieval, overage calculation, alert generation, edge cases
+- All acceptance criteria met for T1 and T2
+- Tests use in-memory SQLite via db_session fixture
+- Proper fixtures for tenant_id, plan, subscription setup
+
+**Archivos creados:**
+- tests/unit/services/test_usage_tracker.py (14 tests, ~350 lines)
+- tests/unit/services/test_usage_service.py (21 tests, ~500 lines)
+
+**Git commit:** Next (will include progress updates)
+
+**Próximo paso:** Phase 6 - API Integration Tests (T3: API tests for usage endpoint)
+
 ### [2026-02-03 09:30] - Interview Phase Complete
 
 **Fase:** Interview (Phase 1/8)
