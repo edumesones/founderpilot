@@ -43,7 +43,7 @@ const variants = {
 export function AnimatedCard({
   children,
   variant = "glass",
-  hover = true,
+  hover = false,
   className,
   ...props
 }: AnimatedCardProps) {
