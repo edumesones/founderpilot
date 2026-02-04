@@ -64,7 +64,7 @@ export function ConnectionCard({
 
         {/* Status indicator */}
         <AnimatedBadge
-          variant={integration.connected ? "success" : "default"}
+          variant={integration.connected ? "success" : "info"}
           pulse={integration.connected}
         >
           {integration.connected ? "Connected" : "Disconnected"}

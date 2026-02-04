@@ -11,7 +11,7 @@ import { ConnectionCard } from "@/components/connections/ConnectionCard";
 import { useIntegrations } from "@/lib/hooks/useIntegrations";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { LoadingSkeleton } from "@/components/animated/LoadingSkeleton";
-import { StaggerContainer } from "@/components/animated/StaggerContainer";
+import { StaggerContainer } from "@/components/layout/StaggerContainer";
 
 function ConnectionsContent() {
   const {
