@@ -2,6 +2,29 @@
 
 AI-powered productivity assistant for founders.
 
+
+## Architecture
+
+```mermaid
+flowchart TD
+    GM["Gmail"] --> IP["InboxPilot"]
+    INV["invoices"] --> VP["InvoicePilot"]
+    MT["meetings"] --> MP["MeetingPilot"]
+    subgraph LG ["LangGraph agents"]
+        IP
+        VP
+        MP
+    end
+    IP & VP & MP --> HITL{{"interrupt_before<br/>checkpoint → Postgres"}}
+    HITL -->|approve / reject| SL["Slack"]
+    SL --> ACT["side effect runs"]
+    HITL --> AUD[("agent_audit_logs<br/>confidence + escalation")]
+    AUD --> DASH["audit dashboard<br/>a product screen"]
+    ACT --> USE["usage metering"] --> ST["Stripe"]
+```
+
+Nothing with an external effect runs before a human approves it, and a crash resumes from the checkpoint without repeating the action.
+
 ## Features
 
 - **Google OAuth Authentication** - Secure sign-in with Google accounts
