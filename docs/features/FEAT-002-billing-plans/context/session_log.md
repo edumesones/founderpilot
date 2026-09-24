@@ -1,0 +1,218 @@
+# FEAT-002: Billing & Plans - Session Log
+
+> Registro cronológico de todas las sesiones de trabajo en esta feature.
+> Actualizar: checkpoint en cada fase + cada 30 min durante Implement.
+
+---
+
+## Quick Reference
+
+**Feature:** FEAT-002 - Billing & Plans
+**Creada:** 2026-01-31
+**Status actual:** 🟡 In Progress
+
+---
+
+## Log de Sesiones
+
+<!-- AÑADIR NUEVAS ENTRADAS ARRIBA -->
+
+### [2026-01-31 18:00] - Wrap-Up Complete ✅
+
+**Fase:** Wrap-Up → Complete
+**Status:** 🟢 Complete
+
+**Qué se hizo:**
+- PR #1 merged by edumesones
+- Created wrap_up.md with feature summary
+- Updated status.md to Complete
+- Updated _index.md dashboard
+
+**Resumen de feature:**
+- Backend billing system complete
+- 27 files, ~1900 lines added
+- Stripe Checkout, Portal, Webhooks integrated
+- Frontend deferred to frontend sprint
+
+**Technical debt documentado:**
+- Replace auth stub (FEAT-001)
+- Add integration tests
+- Add frontend billing UI
+
+**Próximo paso:** Feature closed. Start FEAT-001 or FEAT-003.
+
+---
+
+### [2026-01-31 17:35] - PR Created ✅
+
+**Fase:** PR → Created
+**PR:** #1 - https://github.com/edumesones/founderpilot/pull/1
+
+**Qué se hizo:**
+- Pushed branch to origin
+- Created PR against master
+- Status: 🔵 In Review
+
+**Resumen de cambios:**
+- 27 files changed
+- ~1900 lines added
+- 2 commits (planning + implementation)
+
+**Próximo paso:** Await merge approval
+
+---
+
+### [2026-01-31 17:30] - Implementation Complete ✅
+
+**Fase:** Implement → Complete (backend)
+**Progreso:** 20/30 tasks (67%)
+
+**Qué se hizo:**
+- Phase 1: Foundation complete (models, schemas, config, stripe client)
+- Phase 2: Service layer complete (BillingService with all methods)
+- Phase 3: Webhooks complete (5 event handlers + idempotency)
+- Phase 4: API complete (7 endpoints)
+- Phase 5: Integration complete (env config, seed script, FEAT-001 stub)
+- Phase 6: Testing partial (unit tests for service)
+- Phase 7: Frontend skipped (deferred to frontend sprint)
+
+**Archivos creados:**
+- src/core/ (config, database, stripe)
+- src/models/billing.py (4 models)
+- src/schemas/billing.py (10 schemas)
+- src/services/billing_service.py (full implementation)
+- src/api/v1/billing.py (7 endpoints)
+- alembic/versions/002_billing_tables.py
+- tests/unit/test_billing_service.py
+- scripts/seed_plans.py
+- requirements.txt, .env.example
+
+**Decisiones tomadas:**
+- Auth dependency stub: Placeholder raises 401 until FEAT-001 ready
+- Frontend deferred: Focus on backend MVP
+- Tests partial: Unit tests for service, integration tests pending
+
+**Problemas/Blockers:**
+- Ninguno
+
+**Próximo paso:** Commit and create PR
+
+---
+
+### [2026-01-31 17:00] - Implement Phase Started
+
+**Fase:** Implement → In Progress
+**Progreso:** 0/30 tasks
+
+**Qué se hizo:**
+- Plan phase completed
+- Starting implementation with Phase 1: Foundation
+
+**Arquitectura definida:**
+- 4 DB tables: plans, subscriptions, invoices, stripe_events
+- 7 API endpoints under /billing
+- BillingService with webhook handling
+- Integration points with FEAT-001
+
+**Próximo paso:** Create project structure and database migration
+
+---
+
+### [2026-01-31 16:50] - Plan Phase Complete ✅
+
+**Fase:** Plan → Complete
+**Duración:** ~10 minutos (autonomous)
+
+**Qué se hizo:**
+- Creado design.md completo con arquitectura
+- Creado tasks.md con 30 tasks organizadas en 7 fases
+- Definida estructura de archivos
+- Definidos modelos SQLAlchemy
+- Definidos schemas Pydantic
+- Diseñado BillingService completo
+- Documentados todos los endpoints API
+
+**Archivos actualizados:**
+- design.md (arquitectura completa)
+- tasks.md (30 tasks)
+- status.md (Plan ✅)
+
+**Próximo paso:** Implement - Phase 1 Foundation
+
+---
+
+### [2026-01-31 16:45] - Plan Phase Started
+
+**Fase:** Plan → In Progress
+
+**Qué se hizo:**
+- Iniciando diseño técnico basado en spec.md
+- Creando design.md con arquitectura
+
+**Próximo paso:** Completar design.md y tasks.md
+
+---
+
+### [2026-01-31 16:42] - Interview Complete ✅
+
+**Fase:** Interview → Complete
+**Duración:** ~20 minutos (autonomous)
+
+**Decisiones clave tomadas:**
+- **Stripe Checkout**: Usar hosted checkout para minimizar código y PCI compliance
+- **Customer Portal**: Usar Stripe Customer Portal para gestión de pagos
+- **Webhooks**: checkout.session.completed, invoice.paid, invoice.payment_failed, subscription.updated, subscription.deleted
+- **Trial**: 14 días sin tarjeta, acceso completo a todos los agentes
+- **Plans**: 4 planes ($29 Inbox, $19 Invoice, $19 Meeting, $49 Bundle)
+- **Overage**: Metered billing con límite de seguridad 2x
+
+**Preguntas resueltas:**
+- Trial no requiere tarjeta
+- Trial expirado = acceso bloqueado
+- Overage limitado a 2x del límite base
+
+**Archivos actualizados:**
+- spec.md (completo)
+
+**Próximo paso:** Plan phase - design.md
+
+---
+
+### [2026-01-31 16:36] - Feature Started (Ralph Loop)
+
+**Fase:** Pre-Interview
+**Acción:** Ralph Loop activated for FEAT-002
+
+**Estado encontrado:**
+- Feature folder exists with template files
+- Branch feat/FEAT-002 already created
+- spec.md in template state (empty)
+- No source code (greenfield project)
+
+**Próximo paso:** Complete Interview phase
+
+---
+
+## Template de Entradas
+
+```markdown
+### [YYYY-MM-DD HH:MM] - [Título de la acción]
+
+**Fase:** [Interview/Plan/Branch/Implement/PR/Merge/Wrap-up]
+**Progreso:** X/Y tasks (si aplica)
+
+**Qué se hizo:**
+- [Acción 1]
+- [Acción 2]
+
+**Decisiones tomadas:**
+- [Decisión]: [Valor] - [Razón breve]
+
+**Problemas/Blockers:**
+- [Ninguno] o [Descripción + resolución]
+
+**Archivos modificados:**
+- [archivo1.py]
+
+**Próximo paso:** [Siguiente acción]
+```

@@ -1,0 +1,91 @@
+"""Celery application configuration."""
+from celery import Celery
+from celery.schedules import crontab
+from src.core.config import settings
+
+# Create Celery app
+celery_app = Celery(
+    "founderpilot",
+    broker=settings.redis_url,
+    backend=settings.redis_url,
+    include=[
+        "src.workers.tasks.slack_tasks",
+        "src.workers.tasks.meeting_tasks",
+        "src.workers.tasks.invoice_tasks",
+        "src.workers.tasks.usage_tasks",  # FEAT-008: Usage tracking
+    ],
+)
+
+# Configuration
+celery_app.conf.update(
+    # Task settings
+    task_serializer="json",
+    accept_content=["json"],
+    result_serializer="json",
+    timezone="UTC",
+    enable_utc=True,
+
+    # Retry settings
+    task_acks_late=True,
+    task_reject_on_worker_lost=True,
+
+    # Result backend
+    result_expires=3600,  # 1 hour
+
+    # Worker settings
+    worker_prefetch_multiplier=1,
+    worker_concurrency=4,
+
+    # Beat schedule for periodic tasks
+    beat_schedule={
+        # Sync all calendars every 15 minutes
+        "sync-calendars-every-15-min": {
+            "task": "src.workers.tasks.meeting_tasks.sync_all_calendars",
+            "schedule": crontab(minute="*/15"),
+            "options": {"queue": "meeting_pilot"},
+        },
+        # Check for meetings needing briefs every 5 minutes
+        "check-briefs-every-5-min": {
+            "task": "src.workers.tasks.meeting_tasks.check_meetings_needing_briefs",
+            "schedule": crontab(minute="*/5"),
+            "options": {"queue": "meeting_pilot"},
+        },
+        # Scan for new invoices every 5 minutes
+        "scan-invoices-every-5-min": {
+            "task": "src.workers.tasks.invoice_tasks.scan_invoices_for_all_tenants",
+            "schedule": crontab(minute="*/5"),
+            "options": {"queue": "invoice_pilot"},
+        },
+        # Check invoice reminders daily at 9am UTC
+        "check-invoice-reminders-daily": {
+            "task": "src.workers.tasks.invoice_tasks.check_invoice_reminders",
+            "schedule": crontab(hour=9, minute=0),
+            "options": {"queue": "invoice_pilot"},
+        },
+        # Check for problem patterns daily at 10am UTC
+        "check-problem-patterns-daily": {
+            "task": "src.workers.tasks.invoice_tasks.check_problem_patterns",
+            "schedule": crontab(hour=10, minute=0),
+            "options": {"queue": "invoice_pilot"},
+        },
+        # FEAT-008: Usage Tracking tasks
+        # Reset usage counters daily at 00:05 UTC
+        "reset-usage-counters-daily": {
+            "task": "reset_usage_counters",
+            "schedule": crontab(hour=0, minute=5),
+            "options": {"queue": "default"},
+        },
+        # Report overage to Stripe daily at 01:00 UTC
+        "report-overage-daily": {
+            "task": "report_overage_to_stripe",
+            "schedule": crontab(hour=1, minute=0),
+            "options": {"queue": "default"},
+        },
+        # Reconcile usage counters daily at 03:00 UTC
+        "reconcile-usage-daily": {
+            "task": "reconcile_usage_counters",
+            "schedule": crontab(hour=3, minute=0),
+            "options": {"queue": "default"},
+        },
+    },
+)
